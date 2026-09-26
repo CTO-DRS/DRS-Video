@@ -3325,6 +3325,84 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'فشل التنظيف'**
   String get cleanupFailed;
+
+  /// No description provided for @sleepCustomMinutes.
+  ///
+  /// In ar, this message translates to:
+  /// **'دقائق مخصصة'**
+  String get sleepCustomMinutes;
+
+  /// No description provided for @sleepStart.
+  ///
+  /// In ar, this message translates to:
+  /// **'بدء'**
+  String get sleepStart;
+
+  /// No description provided for @sleepFadeNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيخفت الصوت تدريجياً في آخر 10 ثوانٍ قبل التوقف.'**
+  String get sleepFadeNote;
+
+  /// No description provided for @smartPlaylistsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'القوائم الذكية'**
+  String get smartPlaylistsTitle;
+
+  /// No description provided for @smartContinueWatching.
+  ///
+  /// In ar, this message translates to:
+  /// **'متابعة المشاهدة'**
+  String get smartContinueWatching;
+
+  /// No description provided for @smartUnwatched.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تُشاهد بعد'**
+  String get smartUnwatched;
+
+  /// No description provided for @smartMostPlayed.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأكثر تشغيلاً'**
+  String get smartMostPlayed;
+
+  /// No description provided for @smartRecentlyPlayed.
+  ///
+  /// In ar, this message translates to:
+  /// **'شوهدت مؤخراً'**
+  String get smartRecentlyPlayed;
+
+  /// No description provided for @smartFavorites.
+  ///
+  /// In ar, this message translates to:
+  /// **'قائمة المفضلة'**
+  String get smartFavorites;
+
+  /// No description provided for @smartBecauseYouWatched.
+  ///
+  /// In ar, this message translates to:
+  /// **'لأنك شاهدت {title}'**
+  String smartBecauseYouWatched(String title);
+
+  /// No description provided for @smartSaveAsPlaylist.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ كقائمة تشغيل'**
+  String get smartSaveAsPlaylist;
+
+  /// No description provided for @smartPlaylistSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'حُفظت القائمة في قوائمك'**
+  String get smartPlaylistSaved;
+
+  /// No description provided for @smartPlayAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'تشغيل الكل'**
+  String get smartPlayAll;
 }
 
 class _AppLocalizationsDelegate

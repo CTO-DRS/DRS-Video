@@ -12,6 +12,7 @@ import '../data/repositories/library_repository.dart';
 import '../data/repositories/stream_repositories.dart';
 import '../services/network/nas_service.dart';
 import '../services/network/smart_url.dart';
+import '../services/network/social_resolver.dart';
 import '../services/network/stream_source_factory.dart';
 import '../services/network/tiktok_resolver.dart';
 import '../services/network/youtube_resolver.dart';
@@ -110,6 +111,7 @@ class PlatformsController extends ChangeNotifier {
     final url = SmartUrl.extractUrlFromText(raw) ?? raw.trim();
     final isYouTube = YouTubeResolver.isYouTubeUrl(url);
     final isTikTok = TikTokResolver.isTikTokUrl(url);
+    final isSocial = SocialResolver.isSocialUrl(url);
     if (!StreamSourceFactory.isSupportedUrl(url) && !isYouTube) {
       throw AppException(AppErrorType.invalidInput,
           detail: 'unsupported or malformed stream URL');
@@ -119,6 +121,9 @@ class PlatformsController extends ChangeNotifier {
       resolvedTitle = await YouTubeResolver.instance.fetchTitle(url);
     } else if (resolvedTitle == null && isTikTok) {
       resolvedTitle = await TikTokResolver.instance.fetchTitle(url);
+    } else if (resolvedTitle == null && isSocial) {
+      resolvedTitle = await SocialResolver.instance.fetchTitle(url) ??
+          SocialResolver.fallbackTitle(url);
     }
     final item = await _factory.saveLink(url, title: resolvedTitle);
     await load();

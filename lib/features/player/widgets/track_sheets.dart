@@ -1,3 +1,5 @@
+import 'dart:ui' show FontFeature;
+
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart' show SubtitleTrack;
 import 'package:provider/provider.dart';
@@ -37,54 +39,117 @@ Future<void> showSpeedSheet(BuildContext context) async {
   );
 }
 
-/// Sleep timer sheet: off / presets / end-of-video.
+/// Sleep timer sheet: off / presets / custom minutes / end-of-video, with
+/// a live countdown and a note about the gentle volume fade-out (v1.6.0).
 Future<void> showSleepSheet(BuildContext context) async {
   final player = context.read<PlayerService>();
   final l = AppLocalizations.of(context)!;
   final timer = player.sleepTimer;
+  final customCtrl = TextEditingController();
   await showModalBottomSheet<void>(
     context: context,
     builder: (sheet) => SafeArea(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.bedtime),
-            title: Text(l.playerSleepTimer),
-            titleTextStyle: Theme.of(sheet).textTheme.titleMedium,
-            trailing: timer.isActive
-                ? Text('${timer.remaining?.inMinutes ?? 0} min')
-                : null,
-          ),
-          ListTile(
-            leading: const Icon(Icons.close),
-            title: Text(l.playerOff),
-            onTap: () {
-              timer.cancel();
-              Navigator.of(sheet).pop();
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.last_page),
-            title: Text(l.playerEndOfVideo),
-            onTap: () {
-              timer.startEndOfVideo();
-              Navigator.of(sheet).pop();
-            },
-          ),
-          for (final minutes in AppConstants.sleepTimerPresets)
+      child: AnimatedBuilder(
+        animation: timer,
+        builder: (sheet, _) => ListView(
+          shrinkWrap: true,
+          children: [
             ListTile(
-              leading: const Icon(Icons.timer_outlined),
-              title: Text(l.playerMinutes(minutes)),
+              leading: const Icon(Icons.bedtime),
+              title: Text(l.playerSleepTimer),
+              titleTextStyle: Theme.of(sheet).textTheme.titleMedium,
+              trailing: timer.isEndOfVideo
+                  ? Text(l.playerEndOfVideo,
+                      style: Theme.of(sheet).textTheme.bodySmall)
+                  : timer.isActive
+                      ? Text(_formatSleepRemaining(timer.remaining!),
+                          style: Theme.of(sheet).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(sheet).colorScheme.primary,
+                              fontFeatures: const [FontFeature.tabularFigures()]))
+                      : null,
+            ),
+            ListTile(
+              leading: const Icon(Icons.close),
+              title: Text(l.playerOff),
               onTap: () {
-                timer.start(Duration(minutes: minutes));
+                timer.cancel();
                 Navigator.of(sheet).pop();
               },
             ),
-        ],
+            ListTile(
+              leading: const Icon(Icons.last_page),
+              title: Text(l.playerEndOfVideo),
+              selected: timer.isEndOfVideo,
+              onTap: () {
+                timer.startEndOfVideo();
+                Navigator.of(sheet).pop();
+              },
+            ),
+            for (final minutes in AppConstants.sleepTimerPresets)
+              ListTile(
+                leading: const Icon(Icons.timer_outlined),
+                title: Text(l.playerMinutes(minutes)),
+                onTap: () {
+                  timer.start(Duration(minutes: minutes));
+                  Navigator.of(sheet).pop();
+                },
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: customCtrl,
+                      keyboardType: TextInputType.number,
+                      maxLength: 3,
+                      decoration: InputDecoration(
+                        labelText: l.sleepCustomMinutes,
+                        counterText: '',
+                        suffixText: l.minutesUnit,
+                        isDense: true,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  FilledButton(
+                    onPressed: () {
+                      final v = int.tryParse(customCtrl.text.trim());
+                      if (v == null || v <= 0 || v > 480) return;
+                      timer.start(Duration(minutes: v));
+                      Navigator.of(sheet).pop();
+                    },
+                    child: Text(l.sleepStart),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Row(
+                children: [
+                  Icon(Icons.volume_down,
+                      size: 16, color: Theme.of(sheet).colorScheme.primary),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(l.sleepFadeNote,
+                        style: Theme.of(sheet).textTheme.bodySmall),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
+}
+
+String _formatSleepRemaining(Duration d) {
+  final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+  final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+  final h = d.inHours;
+  return h > 0 ? '$h:$m:$s' : '$m:$s';
 }
 
 /// Audio + subtitle track selection with external subtitle loading.

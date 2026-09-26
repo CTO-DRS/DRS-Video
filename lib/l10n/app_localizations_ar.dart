@@ -1720,4 +1720,46 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cleanupFailed => 'فشل التنظيف';
+
+  @override
+  String get sleepCustomMinutes => 'دقائق مخصصة';
+
+  @override
+  String get sleepStart => 'بدء';
+
+  @override
+  String get sleepFadeNote =>
+      'سيخفت الصوت تدريجياً في آخر 10 ثوانٍ قبل التوقف.';
+
+  @override
+  String get smartPlaylistsTitle => 'القوائم الذكية';
+
+  @override
+  String get smartContinueWatching => 'متابعة المشاهدة';
+
+  @override
+  String get smartUnwatched => 'لم تُشاهد بعد';
+
+  @override
+  String get smartMostPlayed => 'الأكثر تشغيلاً';
+
+  @override
+  String get smartRecentlyPlayed => 'شوهدت مؤخراً';
+
+  @override
+  String get smartFavorites => 'قائمة المفضلة';
+
+  @override
+  String smartBecauseYouWatched(String title) {
+    return 'لأنك شاهدت $title';
+  }
+
+  @override
+  String get smartSaveAsPlaylist => 'حفظ كقائمة تشغيل';
+
+  @override
+  String get smartPlaylistSaved => 'حُفظت القائمة في قوائمك';
+
+  @override
+  String get smartPlayAll => 'تشغيل الكل';
 }

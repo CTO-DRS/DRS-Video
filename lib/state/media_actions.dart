@@ -6,6 +6,7 @@ import '../core/utils/validators.dart';
 import '../data/models/media_item.dart';
 import '../data/repositories/library_repository.dart';
 import '../data/sources/source_adapter.dart';
+import '../services/network/social_resolver.dart';
 import '../services/network/tiktok_resolver.dart';
 import '../services/network/youtube_resolver.dart';
 import '../services/player/player_service.dart';
@@ -124,6 +125,20 @@ class MediaActions extends ChangeNotifier {
   /// [MediaItem.playUri]. Returns the external audio URL (YouTube
   /// high-quality), or null.
   Future<String?> _resolveSessionStream(MediaItem item) async {
+    // Social links (Facebook video/reel, Twitter/X status) are HTML pages,
+    // not media — resolve the real stream first (v1.6.0).
+    if (SocialResolver.isSocialUrl(item.uri)) {
+      final r = await SocialResolver.instance.resolve(item.uri);
+      if (r == null) return null; // graceful: player reports the real error
+      item.liveHint = false;
+      item.playUri = r.playUrl;
+      if (r.width != null) item.width = r.width;
+      if (r.height != null) item.height = r.height;
+      if (r.headers.isNotEmpty) {
+        item.headers = {...?item.headers, ...r.headers};
+      }
+      return null;
+    }
     // TikTok share links are HTML pages, not media — extract the real
     // MP4 first, otherwise mpv fails with an unknown playback error.
     if (TikTokResolver.isTikTokUrl(item.uri)) {

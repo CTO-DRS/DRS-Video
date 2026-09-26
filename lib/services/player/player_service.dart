@@ -33,6 +33,7 @@ class PlayerService extends ChangeNotifier {
         _history = history,
         _library = library,
         _connectivity = connectivity {
+    sleepTimer.addListener(_onSleepTimerTick);
     if (createEngineNow) _createEngine();
   }
 
@@ -119,9 +120,38 @@ class PlayerService extends ChangeNotifier {
   Timer? _saveTimer;
 
   final SleepTimer sleepTimer = SleepTimer(() {
-    final p = PlayerService.instance?._player;
+    final svc = PlayerService.instance;
+    final p = svc?._player;
     p?.pause();
+    // Fade done — restore full volume so the NEXT session isn't muted.
+    svc?._restoreSleepVolume();
   });
+
+  double _preFadeVolume = -1;
+
+  /// v1.6.0 sleep fade-out: volume ramps down linearly during the final
+  /// SleepTimer.fadeWindow seconds, then pause fires. Restoring happens on
+  /// cancel and on fire, so manual cancel never leaves a muted player.
+  void _onSleepTimerTick() {
+    final fade = sleepTimer.fadeFactor;
+    if (fade == null) {
+      // Timer inactive or outside the fade window — reset if we were fading.
+      if (_preFadeVolume >= 0 && !sleepTimer.isEndOfVideo) _restoreSleepVolume();
+      return;
+    }
+    if (_preFadeVolume < 0) _preFadeVolume = volume;
+    final target = _preFadeVolume * fade;
+    if ((target - volume).abs() > 0.5) {
+      setVolume(target);
+    }
+  }
+
+  void _restoreSleepVolume() {
+    if (_preFadeVolume < 0) return;
+    final v = _preFadeVolume;
+    _preFadeVolume = -1;
+    if (_player != null) setVolume(v);
+  }
 
   static PlayerService? instance;
 
@@ -595,6 +625,7 @@ class PlayerService extends ChangeNotifier {
   void dispose() {
     _saveTimer?.cancel();
     _posSub?.cancel();
+    sleepTimer.removeListener(_onSleepTimerTick);
     sleepTimer.dispose();
     _player?.dispose();
     super.dispose();

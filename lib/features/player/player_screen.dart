@@ -465,6 +465,38 @@ class _PlayerScreenState extends State<PlayerScreen>
                     icon: const Icon(Icons.picture_in_picture_alt,
                         color: Colors.white),
                   ),
+                AnimatedBuilder(
+                  animation: _player.sleepTimer,
+                  builder: (context, _) {
+                    final t = _player.sleepTimer;
+                    if (!t.isActive) return const SizedBox.shrink();
+                    final d = t.remaining!;
+                    final mm = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+                    final ss = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+                    return Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.bedtime,
+                                size: 14, color: Colors.amber),
+                            const SizedBox(width: 4),
+                            Text('$mm:$ss',
+                                style: const TextStyle(
+                                    color: Colors.amber, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 IconButton(
                   tooltip: l.playerSleepTimer,
                   onPressed: () => showSleepSheet(context),

@@ -729,5 +729,25 @@
       }
     }
   },
-  "cleanupFailed": "فشل التنظيف"
+  "cleanupFailed": "فشل التنظيف",
+  "sleepCustomMinutes": "دقائق مخصصة",
+  "sleepStart": "بدء",
+  "sleepFadeNote": "سيخفت الصوت تدريجياً في آخر 10 ثوانٍ قبل التوقف.",
+  "smartPlaylistsTitle": "القوائم الذكية",
+  "smartContinueWatching": "متابعة المشاهدة",
+  "smartUnwatched": "لم تُشاهد بعد",
+  "smartMostPlayed": "الأكثر تشغيلاً",
+  "smartRecentlyPlayed": "شوهدت مؤخراً",
+  "smartFavorites": "قائمة المفضلة",
+  "smartBecauseYouWatched": "لأنك شاهدت {title}",
+  "@smartBecauseYouWatched": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "smartSaveAsPlaylist": "حفظ كقائمة تشغيل",
+  "smartPlaylistSaved": "حُفظت القائمة في قوائمك",
+  "smartPlayAll": "تشغيل الكل"
 }

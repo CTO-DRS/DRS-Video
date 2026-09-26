@@ -1731,4 +1731,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cleanupFailed => 'Cleanup failed';
+
+  @override
+  String get sleepCustomMinutes => 'Custom minutes';
+
+  @override
+  String get sleepStart => 'Start';
+
+  @override
+  String get sleepFadeNote =>
+      'Volume fades gently during the last 10 seconds before stop.';
+
+  @override
+  String get smartPlaylistsTitle => 'Smart playlists';
+
+  @override
+  String get smartContinueWatching => 'Continue watching';
+
+  @override
+  String get smartUnwatched => 'Unwatched';
+
+  @override
+  String get smartMostPlayed => 'Most played';
+
+  @override
+  String get smartRecentlyPlayed => 'Recently played';
+
+  @override
+  String get smartFavorites => 'Favorites';
+
+  @override
+  String smartBecauseYouWatched(String title) {
+    return 'Because you watched $title';
+  }
+
+  @override
+  String get smartSaveAsPlaylist => 'Save as playlist';
+
+  @override
+  String get smartPlaylistSaved => 'Playlist saved to your playlists';
+
+  @override
+  String get smartPlayAll => 'Play all';
 }

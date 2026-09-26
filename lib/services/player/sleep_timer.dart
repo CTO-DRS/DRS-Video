@@ -1,7 +1,14 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 
-/// Simple countdown that pauses playback when it fires.
+import 'package:flutter/foundation.dart';
+
+/// Sleep timer with two firing modes:
+/// - fixed duration (presets or custom minutes)
+/// - end-of-video (fires when the player reports completion)
+///
+/// v1.6.0 enhancement: exposes [fadeFactor] so the player can ramp volume
+/// down smoothly during the final [fadeWindow] seconds instead of an abrupt
+/// stop. Pure timing logic — no player coupling (the service subscribes).
 class SleepTimer extends ChangeNotifier {
   SleepTimer(this._onFire);
 
@@ -10,13 +17,23 @@ class SleepTimer extends ChangeNotifier {
 
   Duration? _remaining;
   bool _endOfVideo = false;
-  @Deprecated('internal')
-  // ignore: unused_field
   DateTime? _deadline;
+
+  /// Volume ramps down during the last 10 seconds.
+  static const Duration fadeWindow = Duration(seconds: 10);
 
   Duration? get remaining => _remaining;
   bool get isActive => _remaining != null && _remaining! > Duration.zero;
   bool get isEndOfVideo => _endOfVideo;
+
+  /// 1.0 → fade just started, 0.0 → about to fire. Null when the timer is
+  /// inactive or the fade window has not been entered yet.
+  double? get fadeFactor {
+    if (!isActive) return null;
+    final left = _remaining!;
+    if (left >= fadeWindow) return null;
+    return (left.inMilliseconds / fadeWindow.inMilliseconds).clamp(0.0, 1.0);
+  }
 
   void start(Duration duration) {
     _endOfVideo = false;
@@ -30,7 +47,8 @@ class SleepTimer extends ChangeNotifier {
       }
       final left = _deadline!.difference(DateTime.now());
       if (left <= Duration.zero) {
-        cancel();
+        _remaining = Duration.zero;
+        cancel(silent: true);
         _onFire();
       } else {
         _remaining = left;
@@ -44,18 +62,20 @@ class SleepTimer extends ChangeNotifier {
   void startEndOfVideo() {
     cancel();
     _endOfVideo = true;
-    _remaining = null;
     notifyListeners();
   }
 
-  void cancel() {
+  /// [silent] keeps listeners notified via an explicit [notifyListeners]
+  /// afterwards (used internally before _onFire so fade logic can restore
+  /// volume in its own listener first).
+  void cancel({bool silent = false}) {
     if (_disposed) return;
     _timer?.cancel();
     _timer = null;
     _remaining = null;
     _deadline = null;
     _endOfVideo = false;
-    notifyListeners();
+    if (!silent) notifyListeners();
   }
 
   /// Called by the player when a video ends while end-of-video mode is on.

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../data/repositories/history_repository.dart';
+import '../../data/repositories/library_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/sharing/share_service.dart';
+import '../../services/smart/smart_playlists.dart';
 import '../../state/media_actions.dart';
 import '../../state/playlists_controller.dart';
 import '../../widgets/common/empty_state.dart';
 import 'playlist_detail_screen.dart';
+import 'smart_playlists_view.dart';
 
 /// Playlists overview grid with create/import actions.
 class PlaylistsScreen extends StatefulWidget {
@@ -16,12 +20,28 @@ class PlaylistsScreen extends StatefulWidget {
 }
 
 class _PlaylistsScreenState extends State<PlaylistsScreen> {
+  List<SmartPlaylist> _smart = [];
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<PlaylistsController>().load();
+      if (!mounted) return;
+      context.read<PlaylistsController>().load();
+      _loadSmart();
     });
+  }
+
+  Future<void> _loadSmart() async {
+    try {
+      final library = context.read<LibraryRepository>();
+      final history = context.read<HistoryRepository>();
+      final smart = await loadSmartPlaylists(library: library, history: history);
+      if (!mounted) return;
+      setState(() => _smart = smart);
+    } catch (_) {
+      // Smart section is a bonus — the screen must never fail because of it.
+    }
   }
 
   @override
@@ -43,7 +63,7 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
       ),
       body: controller.loading
           ? const Center(child: CircularProgressIndicator())
-          : controller.playlists.isEmpty
+          : (controller.playlists.isEmpty && _smart.isEmpty)
               ? EmptyState(
                   icon: Icons.playlist_add,
                   title: l.emptyPlaylistsTitle,
@@ -51,54 +71,90 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
                   actionLabel: l.actionNewPlaylist,
                   onAction: () => _createPlaylist(context, controller),
                 )
-              : GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 220,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 1.25,
-                  ),
-                  itemCount: controller.playlists.length,
-                  itemBuilder: (context, i) {
-                    final pl = controller.playlists[i];
-                    return Card(
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(18),
-                        onTap: () async {
-                          await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => PlaylistDetailScreen(
-                                playlistId: pl.playlist.id),
-                          ));
-                          if (mounted) controller.load();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(Icons.playlist_play,
-                                  size: 34, color: theme.colorScheme.primary),
-                              const Spacer(),
-                              Text(
-                                pl.playlist.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.titleSmall
-                                    ?.copyWith(fontWeight: FontWeight.w700),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                l.playlistsCount(pl.items.length),
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant),
-                              ),
-                            ],
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    await controller.load();
+                    await _loadSmart();
+                  },
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: SmartPlaylistsSection(
+                          playlists: _smart,
+                          onOpen: (p) => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  SmartPlaylistDetailScreen(playlist: p),
+                            ),
                           ),
                         ),
                       ),
-                    );
-                  },
+                      if (controller.playlists.isNotEmpty)
+                        SliverPadding(
+                          padding: const EdgeInsets.all(16),
+                          sliver: SliverGrid(
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 220,
+                              mainAxisSpacing: 12,
+                              crossAxisSpacing: 12,
+                              childAspectRatio: 1.25,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, i) {
+                                final pl = controller.playlists[i];
+                                return Card(
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(18),
+                                    onTap: () async {
+                                      await Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  PlaylistDetailScreen(
+                                                      playlistId:
+                                                          pl.playlist.id)));
+                                      if (mounted) controller.load();
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(14),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Icon(Icons.playlist_play,
+                                              size: 34,
+                                              color:
+                                                  theme.colorScheme.primary),
+                                          const Spacer(),
+                                          Text(
+                                            pl.playlist.name,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: theme.textTheme.titleSmall
+                                                ?.copyWith(
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            l.playlistsCount(pl.items.length),
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                    color: theme.colorScheme
+                                                        .onSurfaceVariant),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              childCount: controller.playlists.length,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _createPlaylist(context, controller),

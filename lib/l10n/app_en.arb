@@ -677,5 +677,25 @@
       }
     }
   },
-  "cleanupFailed": "Cleanup failed"
+  "cleanupFailed": "Cleanup failed",
+  "sleepCustomMinutes": "Custom minutes",
+  "sleepStart": "Start",
+  "sleepFadeNote": "Volume fades gently during the last 10 seconds before stop.",
+  "smartPlaylistsTitle": "Smart playlists",
+  "smartContinueWatching": "Continue watching",
+  "smartUnwatched": "Unwatched",
+  "smartMostPlayed": "Most played",
+  "smartRecentlyPlayed": "Recently played",
+  "smartFavorites": "Favorites",
+  "smartBecauseYouWatched": "Because you watched {title}",
+  "@smartBecauseYouWatched": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "smartSaveAsPlaylist": "Save as playlist",
+  "smartPlaylistSaved": "Playlist saved to your playlists",
+  "smartPlayAll": "Play all"
 }
