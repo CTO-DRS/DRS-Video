@@ -1,0 +1,127 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import '../core/errors/app_exception.dart';
+import '../core/utils/logger.dart';
+import '../core/utils/validators.dart';
+import '../data/models/media_item.dart';
+import '../data/repositories/library_repository.dart';
+import '../data/sources/source_adapter.dart';
+import '../services/player/player_service.dart';
+
+/// Bridges user intents (open URL, open file, play item) to the player,
+/// creating library entries on first play.
+class MediaActions extends ChangeNotifier {
+  MediaActions({
+    required LibraryRepository library,
+    required PlayerService player,
+    required SourceRegistry registry,
+  })  : _library = library,
+        _player = player,
+        _registry = registry;
+
+  final LibraryRepository _library;
+  final PlayerService _player;
+  final SourceRegistry _registry;
+
+  bool _resolving = false;
+  AppException? _lastError;
+  bool get resolving => _resolving;
+  AppException? get lastError => _lastError;
+
+  /// Resolves a URL through the matching adapter, stores it, plays it.
+  Future<MediaItem?> openUrl(String rawUrl, {String? sourceId, Map<String, String>? headers}) async {
+    _lastError = null;
+    _resolving = true;
+    notifyListeners();
+    try {
+      final adapter = _registry.adapterFor(rawUrl);
+      if (adapter == null) {
+        throw const AppException(AppErrorType.invalidInput);
+      }
+      final resolved = await adapter.resolve(rawUrl, extraHeaders: headers);
+      final existing = await _library.byUri(resolved.streamUrl);
+      final item = existing ??
+          MediaItem(
+            id: 'mn_${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}',
+            title: resolved.title,
+            uri: resolved.streamUrl,
+            type: MediaItemType.network,
+            sourceId: sourceId ?? adapter.id,
+            sizeBytes: resolved.sizeBytes,
+            introEndMs: resolved.introEndMs,
+            outroStartMs: resolved.outroStartMs,
+            headers: resolved.headers,
+          );
+      if (existing == null) {
+        await _library.upsert(item);
+      }
+      await _player.open(item);
+      return item;
+    } catch (e, s) {
+      _lastError = mapException(e, stack: s);
+      AppLogger.instance.error('actions', 'openUrl failed', e, s);
+      return null;
+    } finally {
+      _resolving = false;
+      notifyListeners();
+    }
+  }
+
+  /// Opens a picked local file (registers it as a library item).
+  Future<MediaItem?> openLocalFile(String path) async {
+    _lastError = null;
+    try {
+      if (!File(path).existsSync()) {
+        throw const AppException(AppErrorType.notFound);
+      }
+      if (!Validators.isVideoFile(path)) {
+        throw const AppException(AppErrorType.unsupported);
+      }
+      final existing = await _library.byUri(path);
+      final item = existing ??
+          MediaItem(
+            id: 'ml_${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}',
+            title: Validators.cleanTitle(path.split('/').last
+                .replaceAll(RegExp(r'\.[a-z0-9]+$', caseSensitive: false), '')),
+            uri: path,
+            type: MediaItemType.local,
+            sourceId: 'local',
+            sizeBytes: File(path).statSync().size,
+          );
+      if (existing == null) await _library.upsert(item);
+      await _player.open(item);
+      return item;
+    } catch (e, s) {
+      _lastError = mapException(e, stack: s);
+      AppLogger.instance.error('actions', 'openLocalFile failed', e, s);
+      return null;
+    }
+  }
+
+  /// Plays a library item inside an optional queue (playlist / tab list).
+  Future<void> playItem(MediaItem item, {List<MediaItem>? queue}) async {
+    final list = queue ?? [item];
+    final index = list.indexWhere((m) => m.id == item.id);
+    await _player.open(item, queue: list, startIndex: index < 0 ? 0 : index);
+  }
+
+  /// Registers an imported playlist entry without opening the player.
+  Future<MediaItem?> registerExternal(String title, String uri, bool isLocal) async {
+    try {
+      final existing = await _library.byUri(uri);
+      if (existing != null) return existing;
+      final item = MediaItem(
+        id: 'mx_${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}',
+        title: Validators.cleanTitle(title),
+        uri: uri,
+        type: isLocal ? MediaItemType.local : MediaItemType.network,
+        sourceId: isLocal ? 'local' : 'direct',
+      );
+      await _library.upsert(item);
+      return item;
+    } catch (e, s) {
+      AppLogger.instance.error('actions', 'registerExternal failed', e, s);
+      return null;
+    }
+  }
+}
