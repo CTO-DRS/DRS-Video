@@ -8,8 +8,9 @@ import '../../core/utils/formatters.dart';
 import '../../data/models/media_item.dart';
 import '../../data/models/stream_models.dart';
 import '../../l10n/app_localizations.dart';
-import '../../services/player/player_service.dart';
+import '../../services/network/smart_url.dart';
 import '../../services/network/stream_source_factory.dart';
+import '../../state/media_actions.dart';
 import '../../state/platforms_controller.dart';
 import '../player/player_screen.dart';
 
@@ -82,13 +83,62 @@ class _PlatformsViewState extends State<PlatformsView> {
 // Direct links
 // ---------------------------------------------------------------------------
 
-class _LinksTab extends StatelessWidget {
+class _LinksTab extends StatefulWidget {
   const _LinksTab({required this.controller});
 
   final PlatformsController controller;
 
   @override
+  State<_LinksTab> createState() => _LinksTabState();
+}
+
+class _LinksTabState extends State<_LinksTab> {
+  String? _clipboardUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _detectClipboardUrl();
+  }
+
+  /// Offers a one-tap "paste & play" chip when a supported URL (direct
+  /// stream or YouTube) sits in the clipboard.
+  Future<void> _detectClipboardUrl() async {
+    if (!mounted) return;
+    try {
+      final raw = await Clipboard.getData('text/plain');
+      final text = raw?.text?.trim();
+      if (text == null || text.isEmpty || text.length > 2048) return;
+      final url = SmartUrl.extractUrlFromText(text);
+      if (url == null) return;
+      final ok = StreamSourceFactory.isSupportedUrl(url) ||
+          SmartUrl.isYouTube(url);
+      if (ok && mounted) setState(() => _clipboardUrl = url);
+    } catch (_) {
+      // Clipboard access can fail on some devices — cosmetic only.
+    }
+  }
+
+  Future<void> _playClipboard() async {
+    final url = _clipboardUrl;
+    if (url == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final item = await widget.controller.smartOpenUrl(url);
+      if (!mounted) return;
+      await playStreamItem(context, item);
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(
+        content: Text(e is AppException
+            ? PlatformsController.describeError(e)
+            : e.toString()),
+      ));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final controller = widget.controller;
     final l = AppLocalizations.of(context)!;
     if (controller.links.isEmpty) {
       return _EmptyPane(
@@ -100,15 +150,31 @@ class _LinksTab extends StatelessWidget {
       );
     }
     return ListView.builder(
-      itemCount: controller.links.length,
+      itemCount: controller.links.length + 1,
       itemBuilder: (context, i) {
-        final item = controller.links[i];
+        if (i == 0) {
+          if (_clipboardUrl == null) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+            child: ActionChip(
+              avatar: const Icon(Icons.content_paste_go),
+              label: Text(l.clipboardPaste),
+              onPressed: _playClipboard,
+            ),
+          );
+        }
+        final item = controller.links[i - 1];
         final progress = controller.linkProgress[item.id];
         final resumable = progress != null &&
             !progress.completed &&
             progress.positionMs >= 5000;
         return ListTile(
-          leading: const Icon(Icons.play_circle_outline, size: 32),
+          leading: Icon(
+            SmartUrl.isYouTube(item.uri)
+                ? Icons.ondemand_video
+                : Icons.play_circle_outline,
+            size: 32,
+          ),
           title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -696,11 +762,12 @@ class TextBreadcrumb extends StatelessWidget {
   }
 }
 
-/// Opens a stream item directly through PlayerService (the row already
-/// lives in the library; no source-adapter resolution is wanted here).
+/// Opens a platform item in the full player. Playback goes through
+/// [MediaActions.playItem] so YouTube links resolve their per-session
+/// stream here too (same path as retries and the mini player).
 Future<void> playStreamItem(BuildContext context, MediaItem item) async {
-  final player = context.read<PlayerService>();
-  await player.open(item);
+  final actions = context.read<MediaActions>();
+  await actions.playItem(item);
   if (!context.mounted) return;
   await Navigator.of(context).push(MaterialPageRoute(
     fullscreenDialog: true,
@@ -725,12 +792,18 @@ Future<void> showAddLinkDialog(BuildContext context) async {
   final nameCtrl = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
+  bool validStreamUrl(String v) {
+    if (StreamSourceFactory.isSupportedUrl(v)) return true;
+    if (SmartUrl.isYouTube(v)) return true;
+    return false;
+  }
+
   Future<void> submit({required bool playNow}) async {
     if (!(formKey.currentState?.validate() ?? false)) return;
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final item = await controller.addLink(
+      final item = await controller.smartOpenUrl(
         urlCtrl.text,
         title: nameCtrl.text.isEmpty ? null : nameCtrl.text,
       );
@@ -763,14 +836,20 @@ Future<void> showAddLinkDialog(BuildContext context) async {
               keyboardType: TextInputType.url,
               decoration: InputDecoration(labelText: l.addLinkUrlHint),
               validator: (v) =>
-                  (v == null || !StreamSourceFactory.isSupportedUrl(v))
-                      ? l.addLinkInvalid
-                      : null,
+                  (v == null || !validStreamUrl(v)) ? l.addLinkInvalid : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: nameCtrl,
               decoration: InputDecoration(labelText: l.addLinkNameHint),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                l.platformsSupportedHint,
+                style: Theme.of(dialog).textTheme.bodySmall,
+              ),
             ),
           ],
         ),

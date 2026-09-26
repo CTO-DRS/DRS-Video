@@ -748,6 +748,35 @@ class AppLocalizationsEn extends AppLocalizations {
       'Switch to PiP when leaving the app (Android 12+)';
 
   @override
+  String get setFloatingPlayer => 'In-app floating video window';
+
+  @override
+  String get setFloatingPlayerDesc =>
+      'When you leave the player, the video keeps playing in a small draggable window (like YouTube and TikTok)';
+
+  @override
+  String get playerFloat => 'Minimize to floating window';
+
+  @override
+  String get shareOpenTitle => 'Open this video link?';
+
+  @override
+  String get shareOpenBody => 'The following link was shared with DRS Video:';
+
+  @override
+  String get sharePlayNow => 'Play now';
+
+  @override
+  String get shareSaveOnly => 'Save only';
+
+  @override
+  String get clipboardPaste => 'Play link from clipboard';
+
+  @override
+  String get platformsSupportedHint =>
+      'Supports: direct links (mp4/mkv/...), HLS & DASH, RTSP/RTMP, FTP/SFTP, WebDAV, YouTube — and thousands of sites via share from any app';
+
+  @override
   String get setBackground => 'Background playback';
 
   @override

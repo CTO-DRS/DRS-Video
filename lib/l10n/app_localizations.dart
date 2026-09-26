@@ -1514,6 +1514,60 @@ abstract class AppLocalizations {
   /// **'التحول إلى النافذة العائمة عند مغادرة التطبيق (أندرويد 12+)'**
   String get setAutoPipDesc;
 
+  /// No description provided for @setFloatingPlayer.
+  ///
+  /// In ar, this message translates to:
+  /// **'نافذة فيديو عائمة داخل التطبيق'**
+  String get setFloatingPlayer;
+
+  /// No description provided for @setFloatingPlayerDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'عند الرجوع من المشغّل يستمر الفيديو في نافذة صغيرة قابلة للسحب (مثل يوتيوب وتيك توك)'**
+  String get setFloatingPlayerDesc;
+
+  /// No description provided for @playerFloat.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصغير إلى نافذة عائمة'**
+  String get playerFloat;
+
+  /// No description provided for @shareOpenTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'فتح رابط الفيديو؟'**
+  String get shareOpenTitle;
+
+  /// No description provided for @shareOpenBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم مشاركة الرابط التالي مع DRS Video:'**
+  String get shareOpenBody;
+
+  /// No description provided for @sharePlayNow.
+  ///
+  /// In ar, this message translates to:
+  /// **'تشغيل الآن'**
+  String get sharePlayNow;
+
+  /// No description provided for @shareSaveOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ فقط'**
+  String get shareSaveOnly;
+
+  /// No description provided for @clipboardPaste.
+  ///
+  /// In ar, this message translates to:
+  /// **'تشغيل الرابط من الحافظة'**
+  String get clipboardPaste;
+
+  /// No description provided for @platformsSupportedHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'يدعم: روابط مباشرة (mp4/mkv/...)، HLS و DASH، RTSP/RTMP، FTP/SFTP، WebDAV، يوتيوب — وآلاف المواقع عبر المشاركة من أي تطبيق'**
+  String get platformsSupportedHint;
+
   /// No description provided for @setBackground.
   ///
   /// In ar, this message translates to:

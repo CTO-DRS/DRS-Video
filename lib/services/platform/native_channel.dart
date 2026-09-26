@@ -79,6 +79,29 @@ class NativeChannel {
   /// Clears native + marks the session healthy (called after a
   /// successful boot; the Dart-side store is cleared separately).
   Future<void> clearNativeCrashLog() => _invoke<void>('crash/clearAll');
+
+  // ---- incoming share/view intents (v1.3.0) ----
+
+  void Function(String url)? _onIntentUrl;
+
+  /// Registers the callback fired when MainActivity receives a new
+  /// share/view intent while the app is running (onNewIntent).
+  void handleIntentUrls(void Function(String url) onUrl) {
+    _onIntentUrl = onUrl;
+    _ch.setMethodCallHandler((call) async {
+      if (call.method == 'intent/url') {
+        final url = call.arguments as String?;
+        if (url != null && url.isNotEmpty) {
+          _onIntentUrl?.call(url);
+        }
+        return null;
+      }
+      return null;
+    });
+  }
+
+  /// URL from the intent that launched the app (cold start), or null.
+  Future<String?> initialIntentUrl() => _invoke<String>('intent/initial');
 }
 
 /// Wraps local file system helpers shared by services.

@@ -6,6 +6,7 @@ import '../core/utils/validators.dart';
 import '../data/models/media_item.dart';
 import '../data/repositories/library_repository.dart';
 import '../data/sources/source_adapter.dart';
+import '../services/network/youtube_resolver.dart';
 import '../services/player/player_service.dart';
 
 /// Bridges user intents (open URL, open file, play item) to the player,
@@ -55,7 +56,8 @@ class MediaActions extends ChangeNotifier {
       if (existing == null) {
         await _library.upsert(item);
       }
-      await _player.open(item);
+      final audioUrl = await _resolveSessionStream(item);
+      await _player.open(item, audioFileUrl: audioUrl);
       return item;
     } catch (e, s) {
       _lastError = mapException(e, stack: s);
@@ -99,10 +101,37 @@ class MediaActions extends ChangeNotifier {
   }
 
   /// Plays a library item inside an optional queue (playlist / tab list).
+  ///
+  /// YouTube items are resolved HERE (single choke point), so every
+  /// entry path — links tab, share intents, retry inside the player,
+  /// mini player — gets a fresh per-session stream URL.
   Future<void> playItem(MediaItem item, {List<MediaItem>? queue}) async {
+    final audioUrl = await _resolveSessionStream(item);
     final list = queue ?? [item];
     final index = list.indexWhere((m) => m.id == item.id);
-    await _player.open(item, queue: list, startIndex: index < 0 ? 0 : index);
+    await _player.open(
+      item,
+      queue: list,
+      startIndex: index < 0 ? 0 : index,
+      audioFileUrl: audioUrl,
+    );
+  }
+
+  /// Resolves a per-session play URL for platform items that need it
+  /// (YouTube watch URLs). Keeps the stable [MediaItem.uri] as the
+  /// identity and stores the time-limited stream in [MediaItem.playUri].
+  /// Returns the external audio URL (YouTube high-quality), or null.
+  Future<String?> _resolveSessionStream(MediaItem item) async {
+    if (!YouTubeResolver.isYouTubeUrl(item.uri)) return null;
+    final r = await YouTubeResolver.instance.resolve(item.uri);
+    if (r == null) return null; // graceful: player reports the real error
+    item.liveHint = r.isLive;
+    item.playUri = r.playUrl ?? item.uri;
+    if (r.width != null && r.height != null) {
+      item.width = r.width;
+      item.height = r.height;
+    }
+    return r.audioUrl;
   }
 
   /// Registers an imported playlist entry without opening the player.

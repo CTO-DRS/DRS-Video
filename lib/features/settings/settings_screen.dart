@@ -140,6 +140,12 @@ class SettingsScreen extends StatelessWidget {
             onChanged: s.setAutoPip,
           ),
           SwitchListTile(
+            title: Text(l.setFloatingPlayer),
+            subtitle: Text(l.setFloatingPlayerDesc),
+            value: s.enableFloatingPlayer,
+            onChanged: s.setEnableFloatingPlayer,
+          ),
+          SwitchListTile(
             title: Text(l.setBackground),
             subtitle: Text(l.setBackgroundDesc),
             value: s.backgroundPlayback,

@@ -222,10 +222,16 @@ class PlayerService extends ChangeNotifier {
   void _notify() => notifyListeners();
 
   /// Opens [item]; optionally within a [queue] at [startIndex].
+  ///
+  /// [audioFileUrl] loads an external audio track together with the
+  /// video stream (mpv `audio-file`) — used by YouTube resolution where
+  /// high-quality video-only and audio-only URLs come separately. Pass
+  /// null to clear any previous external track.
   Future<void> open(
     MediaItem item, {
     List<MediaItem>? queue,
     int startIndex = 0,
+    String? audioFileUrl,
   }) async {
     _lastError = null;
     _current = item;
@@ -256,6 +262,7 @@ class PlayerService extends ChangeNotifier {
     }
 
     try {
+      await _applyExternalAudio(audioFileUrl);
       await _engine.open(
         Media(
           // Streams use the per-session playback URL (SFTP proxy / ftp://
@@ -290,6 +297,20 @@ class PlayerService extends ChangeNotifier {
 
   bool _currentIsNotInQueue(MediaItem item) =>
       _queue.isEmpty || _queueIndex < 0 || _queue[_queueIndex].id != item.id;
+
+  /// Sets (or clears) mpv's external audio file BEFORE the next load —
+  /// the option is applied file-locally at load time, so it must always
+  /// be explicit: null/empty clears any track set by a previous open.
+  /// Never throws: a failure here must not block normal playback.
+  Future<void> _applyExternalAudio(String? audioFileUrl) async {
+    final platform = _player?.platform;
+    if (platform is! NativePlayer) return;
+    try {
+      await platform.setProperty('audio-file', audioFileUrl ?? '');
+    } catch (e) {
+      AppLogger.instance.warning('player', 'audio-file set failed: $e');
+    }
+  }
 
   Future<Duration?> _initialStart(MediaItem item) async {
     // Live IPTV channels always start at the live edge.

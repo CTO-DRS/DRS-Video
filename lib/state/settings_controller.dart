@@ -29,6 +29,7 @@ class SettingsController extends ChangeNotifier {
   bool get alwaysResume => _prefs.alwaysResume;
   bool get enablePip => _prefs.enablePip;
   bool get autoPip => _prefs.autoPip;
+  bool get enableFloatingPlayer => _prefs.enableFloatingPlayer;
   bool get backgroundPlayback => _prefs.backgroundPlayback;
   bool get preferFullscreen => _prefs.preferFullscreen;
 
@@ -54,6 +55,8 @@ class SettingsController extends ChangeNotifier {
   void setAlwaysResume(bool v) => _set(() => _prefs.alwaysResume = v);
   void setEnablePip(bool v) => _set(() => _prefs.enablePip = v);
   void setAutoPip(bool v) => _set(() => _prefs.autoPip = v);
+  void setEnableFloatingPlayer(bool v) =>
+      _set(() => _prefs.enableFloatingPlayer = v);
   void setBackgroundPlayback(bool v) => _set(() => _prefs.backgroundPlayback = v);
   void setPreferFullscreen(bool v) => _set(() => _prefs.preferFullscreen = v);
   void setMaxConcurrent(int v) => _set(() => _prefs.maxConcurrentDownloads = v);

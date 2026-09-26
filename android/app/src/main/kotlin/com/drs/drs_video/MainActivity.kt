@@ -32,6 +32,12 @@ class MainActivity : AudioServiceActivity() {
     private var autoPip = false
     private var pendingDeleteResult: MethodChannel.Result? = null
 
+    // Incoming share/view intents (v1.3.0). The URL from the launching
+    // intent is held here until Flutter pulls it (intent/initial); once
+    // the Dart listener is registered, later intents are pushed directly.
+    private var pendingIntentUrl: String? = null
+    private var flutterChannel: MethodChannel? = null
+
     companion object {
         const val REQ_DELETE = 4242
     }
@@ -41,18 +47,58 @@ class MainActivity : AudioServiceActivity() {
         // re-installed here defensively for process-restored activities.
         CrashGuard.install(applicationContext)
         super.onCreate(savedInstanceState)
+        pendingIntentUrl = extractSharedUrl(intent)
+    }
+
+    private fun extractSharedUrl(intent: Intent?): String? {
+        if (intent == null) return null
+        val raw = when (intent.action) {
+            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
+            Intent.ACTION_VIEW -> intent.dataString
+            else -> null
+        }?.trim().takeUnless { it.isNullOrEmpty() } ?: return null
+        // Accept only schemes the player really supports — never hijack
+        // arbitrary content URIs.
+        val lower = raw.lowercase()
+        val ok = lower.startsWith("http://") || lower.startsWith("https://") ||
+            lower.startsWith("rtsp://") || lower.startsWith("rtmp://") ||
+            lower.startsWith("rtmps://") || lower.startsWith("mms://") ||
+            lower.startsWith("ftp://") || lower.startsWith("ftps://") ||
+            lower.startsWith("sftp://")
+        return if (ok) raw else null
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val url = extractSharedUrl(intent) ?: return
+        val ch = flutterChannel
+        if (ch != null) {
+            try {
+                ch.invokeMethod("intent/url", url)
+            } catch (_: IllegalStateException) {
+                // Engine tearing down — nothing to deliver to.
+            }
+        } else {
+            pendingIntentUrl = url
+        }
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channelName)
-            .setMethodCallHandler { call, result ->
-                try {
-                    handleCall(call, result)
-                } catch (e: Exception) {
-                    result.error("NATIVE_ERROR", e.message, null)
-                }
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channelName)
+        flutterChannel = channel
+        channel.setMethodCallHandler { call, result ->
+            try {
+                handleCall(call, result)
+            } catch (e: Exception) {
+                result.error("NATIVE_ERROR", e.message, null)
             }
+        }
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        flutterChannel = null
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 
     private fun handleCall(call: MethodCall, result: MethodChannel.Result) {
@@ -93,6 +139,10 @@ class MainActivity : AudioServiceActivity() {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                     packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
             )
+            "intent/initial" -> {
+                result.success(pendingIntentUrl)
+                pendingIntentUrl = null
+            }
             "window/brightness" -> {
                 val value = call.argument<Double>("value")
                 val lp = window.attributes

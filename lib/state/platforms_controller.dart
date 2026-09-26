@@ -11,7 +11,9 @@ import '../data/repositories/history_repository.dart';
 import '../data/repositories/library_repository.dart';
 import '../data/repositories/stream_repositories.dart';
 import '../services/network/nas_service.dart';
+import '../services/network/smart_url.dart';
 import '../services/network/stream_source_factory.dart';
+import '../services/network/youtube_resolver.dart';
 
 /// Drives the المنصات (Platforms) tab: direct stream links, IPTV playlists
 /// and NAS servers.
@@ -92,6 +94,29 @@ class PlatformsController extends ChangeNotifier {
           detail: 'unsupported or malformed stream URL');
     }
     final item = await _factory.saveLink(url, title: title);
+    await load();
+    return item;
+  }
+
+  /// Smart open for URLs arriving from share intents, the clipboard or
+  /// the add-link dialog (v1.3.0).
+  ///
+  /// Extracts the URL from arbitrary text, accepts YouTube links in
+  /// addition to every supported protocol, and fetches the real video
+  /// title for YouTube when the network allows (short timeout, best
+  /// effort — a failed lookup never blocks saving/playing).
+  Future<MediaItem> smartOpenUrl(String raw, {String? title}) async {
+    final url = SmartUrl.extractUrlFromText(raw) ?? raw.trim();
+    final isYouTube = YouTubeResolver.isYouTubeUrl(url);
+    if (!StreamSourceFactory.isSupportedUrl(url) && !isYouTube) {
+      throw AppException(AppErrorType.invalidInput,
+          detail: 'unsupported or malformed stream URL');
+    }
+    var resolvedTitle = title;
+    if (resolvedTitle == null && isYouTube) {
+      resolvedTitle = await YouTubeResolver.instance.fetchTitle(url);
+    }
+    final item = await _factory.saveLink(url, title: resolvedTitle);
     await load();
     return item;
   }

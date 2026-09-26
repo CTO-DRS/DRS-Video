@@ -744,6 +744,35 @@ class AppLocalizationsAr extends AppLocalizations {
       'التحول إلى النافذة العائمة عند مغادرة التطبيق (أندرويد 12+)';
 
   @override
+  String get setFloatingPlayer => 'نافذة فيديو عائمة داخل التطبيق';
+
+  @override
+  String get setFloatingPlayerDesc =>
+      'عند الرجوع من المشغّل يستمر الفيديو في نافذة صغيرة قابلة للسحب (مثل يوتيوب وتيك توك)';
+
+  @override
+  String get playerFloat => 'تصغير إلى نافذة عائمة';
+
+  @override
+  String get shareOpenTitle => 'فتح رابط الفيديو؟';
+
+  @override
+  String get shareOpenBody => 'تم مشاركة الرابط التالي مع DRS Video:';
+
+  @override
+  String get sharePlayNow => 'تشغيل الآن';
+
+  @override
+  String get shareSaveOnly => 'حفظ فقط';
+
+  @override
+  String get clipboardPaste => 'تشغيل الرابط من الحافظة';
+
+  @override
+  String get platformsSupportedHint =>
+      'يدعم: روابط مباشرة (mp4/mkv/...)، HLS و DASH، RTSP/RTMP، FTP/SFTP، WebDAV، يوتيوب — وآلاف المواقع عبر المشاركة من أي تطبيق';
+
+  @override
   String get setBackground => 'تشغيل في الخلفية';
 
   @override

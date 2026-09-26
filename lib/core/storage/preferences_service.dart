@@ -29,6 +29,14 @@ class PreferencesService {
   set enablePip(bool v) => _prefs.setBool(PrefKeys.enablePip, v);
   bool get autoPip => _prefs.getBool(PrefKeys.autoPip) ?? false;
   set autoPip(bool v) => _prefs.setBool(PrefKeys.autoPip, v);
+
+  /// In-app draggable floating video window (v1.3.0): when the player
+  /// screen is closed while playing, the video shrinks into a small
+  /// draggable window that keeps playing (YouTube/TikTok style).
+  bool get enableFloatingPlayer => _prefs.getBool(PrefKeys.enableFloatingPlayer) ?? true;
+  set enableFloatingPlayer(bool v) =>
+      _prefs.setBool(PrefKeys.enableFloatingPlayer, v);
+
   bool get backgroundPlayback => _prefs.getBool(PrefKeys.backgroundPlayback) ?? true;
   set backgroundPlayback(bool v) => _prefs.setBool(PrefKeys.backgroundPlayback, v);
   bool get preferFullscreen => _prefs.getBool(PrefKeys.preferFullscreen) ?? false;

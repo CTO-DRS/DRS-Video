@@ -20,6 +20,8 @@ import 'features/splash/boot_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'data/repositories/history_repository.dart';
 import 'data/repositories/library_repository.dart';
+import 'core/errors/app_exception.dart';
+import 'features/player/player_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'services/downloader/download_service.dart';
 import 'services/files/file_manager_service.dart';
@@ -29,7 +31,9 @@ import 'services/sharing/share_service.dart';
 import 'services/storage/storage_analyzer.dart';
 import 'state/app_providers.dart';
 import 'state/downloads_controller.dart';
+import 'state/floating_player_controller.dart';
 import 'state/home_controller.dart';
+import 'state/incoming_share.dart';
 import 'state/library_controller.dart';
 import 'state/local_media_controller.dart';
 import 'state/media_actions.dart';
@@ -39,6 +43,7 @@ import 'state/search_controller.dart' as search_ctrl;
 import 'state/settings_controller.dart';
 import 'state/sources_controller.dart';
 import 'widgets/common/mini_player.dart';
+import 'widgets/common/floating_video_window.dart';
 import 'widgets/common/offline_banner.dart';
 
 /// Root widget: boot gate -> providers + themed MaterialApp + shell.
@@ -195,6 +200,16 @@ class _DrsAppState extends State<DrsApp> {
           player: services.player,
           registry: services.registry,
         )),
+        // Floating video window (v1.3.0): hides itself automatically when
+        // playback ends or a new item replaces the current one.
+        ChangeNotifierProvider(create: (_) {
+          final floating = FloatingPlayerController();
+          floating.attach(services.player, () => services.player.hasMedia);
+          return floating;
+        }),
+        // Incoming share/view intents (v1.3.0): "share to DRS Video" and
+        // open-with on video links from any app.
+        ChangeNotifierProvider(create: (_) => IncomingShareController()),
         ChangeNotifierProvider(
           create: (_) => HomeController(
             library: services.library,
@@ -326,6 +341,7 @@ class RootShell extends StatefulWidget {
 
 class _RootShellState extends State<RootShell> {
   int _index = 0;
+  bool _shareDialogScheduled = false;
 
   @override
   void initState() {
@@ -334,7 +350,90 @@ class _RootShellState extends State<RootShell> {
       if (!mounted) return;
       context.read<HomeController>().load();
       context.read<search_ctrl.LibrarySearchController>().init();
+      // Share/view intents (v1.3.0): register listener + pull cold-start.
+      context.read<IncomingShareController>().init();
     });
+  }
+
+  /// Shows the incoming-link dialog once per URL, after the current
+  /// frame completes (never during build). The scheduled flag prevents
+  /// duplicate dialogs while the first one is open.
+  void _maybeScheduleShareDialog(String? pending) {
+    if (pending == null || _shareDialogScheduled) return;
+    _shareDialogScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        if (mounted) await _showIncomingShareDialog();
+      } finally {
+        _shareDialogScheduled = false;
+      }
+    });
+  }
+
+  Future<void> _showIncomingShareDialog() async {
+    final share = context.read<IncomingShareController>();
+    final platforms = context.read<PlatformsController>();
+    final actions = context.read<MediaActions>();
+    final url = share.pending;
+    if (url == null) return;
+    final l = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final decision = await showDialog<String>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        icon: const Icon(Icons.ondemand_video),
+        title: Text(l.shareOpenTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l.shareOpenBody),
+            const SizedBox(height: 8),
+            Text(
+              url,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialog).pop('cancel'),
+            child: Text(l.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialog).pop('save'),
+            child: Text(l.shareSaveOnly),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialog).pop('play'),
+            child: Text(l.sharePlayNow),
+          ),
+        ],
+      ),
+    );
+    share.consume();
+    if (decision == 'cancel' || decision == null) return;
+    try {
+      final item = await platforms.smartOpenUrl(url);
+      if (decision == 'play') {
+        await actions.playItem(item);
+        navigator.push(MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (_) => PlayerScreen(item: item),
+        ));
+      } else {
+        messenger.showSnackBar(SnackBar(content: Text(l.linkSaved)));
+      }
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(
+        content: Text(PlatformsController.describeError(
+            e is AppException ? e : AppException(AppErrorType.unknown, detail: e.toString()))),
+      ));
+    }
   }
 
   @override
@@ -342,6 +441,10 @@ class _RootShellState extends State<RootShell> {
     final l = AppLocalizations.of(context)!;
     final online = context.watch<ConnectivityService>().isOnline;
     final player = context.watch<PlayerService>();
+    final floating = context.watch<FloatingPlayerController>();
+    // Watching makes build re-run whenever a share/view intent arrives.
+    final sharePending = context.watch<IncomingShareController>().pending;
+    _maybeScheduleShareDialog(sharePending);
 
     final pages = [
       const HomeScreen(),
@@ -356,9 +459,16 @@ class _RootShellState extends State<RootShell> {
         children: [
           OfflineBanner(visible: !online),
           Expanded(
-            child: IndexedStack(
-              index: _index,
-              children: pages,
+            child: Stack(
+              children: [
+                IndexedStack(
+                  index: _index,
+                  children: pages,
+                ),
+                // Floating video window (v1.3.0) floats above tab content,
+                // below pushed routes (dialogs / the full player).
+                const FloatingVideoWindow(),
+              ],
             ),
           ),
         ],
@@ -366,7 +476,9 @@ class _RootShellState extends State<RootShell> {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (player.hasMedia) const MiniPlayer(),
+          // The compact audio bar is redundant while the video window is
+          // floating on screen.
+          if (player.hasMedia && !floating.visible) const MiniPlayer(),
           NavigationBar(
             selectedIndex: _index,
             onDestinationSelected: (i) {

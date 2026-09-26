@@ -5,7 +5,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.2.1';
+  static const String appVersion = '1.3.0';
 
   static const String dbName = 'drs_video.db';
   static const int dbVersion = 3;
@@ -84,6 +84,22 @@ class AppConstants {
   static const List<String> streamUrlSchemes = [
     'http', 'https', 'rtsp', 'rtmp', 'rtmps', 'ftp', 'ftps',
   ];
+
+  /// URI schemes accepted from incoming share/view intents (v1.3.0).
+  static const List<String> intentUrlSchemes = [
+    'http', 'https', 'rtsp', 'rtmp', 'rtmps', 'mms', 'ftp', 'ftps', 'sftp',
+  ];
+
+  // ---- Floating window (v1.3.0) ----
+
+  /// Floating video window: width = screen width fraction, clamped.
+  static const double floatingWindowWidthFraction = 0.45;
+  static const double floatingWindowMinWidth = 170.0;
+  static const double floatingWindowMaxWidth = 300.0;
+  static const double floatingWindowEdgeMargin = 8.0;
+
+  /// Timeout used when resolving a YouTube title during smart-link save.
+  static const Duration youtubeTitleTimeout = Duration(seconds: 6);
 }
 
 /// NAS transport protocols.
@@ -105,6 +121,7 @@ class PrefKeys {
   static const alwaysResume = 'always_resume';
   static const enablePip = 'enable_pip';
   static const autoPip = 'auto_pip';
+  static const enableFloatingPlayer = 'enable_floating_player';
   static const backgroundPlayback = 'background_playback';
   static const preferFullscreen = 'prefer_fullscreen';
 

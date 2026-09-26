@@ -11,6 +11,7 @@ import '../../data/models/media_item.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/platform/native_channel.dart';
 import '../../services/player/player_service.dart';
+import '../../state/floating_player_controller.dart';
 import '../../state/media_actions.dart';
 import '../../widgets/common/error_view.dart';
 import 'widgets/track_sheets.dart';
@@ -104,13 +105,31 @@ class _PlayerScreenState extends State<PlayerScreen>
     return Scaffold(
       backgroundColor: Colors.black,
       body: PopScope(
-        canPop: true,
+        // Back NEVER kills playback: when the floating window feature is
+        // on and something is playing, back minimizes to the floating
+        // window (YouTube/TikTok behavior). Otherwise it pops normally.
+        canPop: false,
         onPopInvokedWithResult: (didPop, _) {
-          if (didPop) _player.saveProgress();
+          if (didPop) {
+            _player.saveProgress();
+            return;
+          }
+          _handleBack();
         },
         child: _buildBody(context),
       ),
     );
+  }
+
+  Future<void> _handleBack() async {
+    final prefs = context.read<PreferencesService>();
+    final floating = context.read<FloatingPlayerController>();
+    final navigator = Navigator.of(context);
+    await _player.saveProgress();
+    if (prefs.enableFloatingPlayer && _player.hasMedia && mounted) {
+      floating.show();
+    }
+    if (mounted) navigator.pop();
   }
 
   Widget _buildBody(BuildContext context) {
@@ -394,7 +413,14 @@ class _PlayerScreenState extends State<PlayerScreen>
                   IconButton(
                     tooltip: l.playerPiP,
                     onPressed: () => _enterPip(player),
-                    icon: const Icon(Icons.picture_in_picture_alt, color: Colors.white),
+                    icon: const Icon(Icons.picture_in_picture, color: Colors.white),
+                  ),
+                if (context.read<PreferencesService>().enableFloatingPlayer)
+                  IconButton(
+                    tooltip: l.playerFloat,
+                    onPressed: () => _minimizeToFloating(player),
+                    icon: const Icon(Icons.picture_in_picture_alt,
+                        color: Colors.white),
                   ),
                 IconButton(
                   tooltip: l.playerSleepTimer,
@@ -421,6 +447,16 @@ class _PlayerScreenState extends State<PlayerScreen>
     final w = widget.item.width ?? 16;
     final h = widget.item.height ?? 9;
     await NativeChannel.instance.enterPip(width: w, height: h == 0 ? 9 : h);
+  }
+
+  /// Closes the full player and keeps the video running in the in-app
+  /// floating window (same engine instance, no re-buffering).
+  Future<void> _minimizeToFloating(PlayerService player) async {
+    final floating = context.read<FloatingPlayerController>();
+    final navigator = Navigator.of(context);
+    await _player.saveProgress();
+    floating.show();
+    navigator.pop();
   }
 
   Widget _buildBottomBar(BuildContext context, PlayerService player, AppLocalizations l) {
