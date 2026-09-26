@@ -231,8 +231,10 @@ class _DrsAppState extends State<DrsApp> {
           builder: (lightDynamic, darkDynamic) => MaterialApp(
             title: 'DRS Video',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.light(theme.dynamicColor ? lightDynamic : null),
-            darkTheme: AppTheme.dark(theme.dynamicColor ? darkDynamic : null),
+            theme: AppTheme.light(
+                _resolveScheme(theme, lightDynamic, Brightness.light)),
+            darkTheme: AppTheme.dark(
+                _resolveScheme(theme, darkDynamic, Brightness.dark)),
             themeMode: theme.materialMode,
             locale: theme.localeOverride,
             localizationsDelegates: _l10nDelegates,
@@ -254,6 +256,17 @@ const _l10nDelegates = [
 ];
 
 const _supportedLocales = [Locale('ar'), Locale('en')];
+
+/// v1.1.0 palette resolution: fixed seed -> seeded scheme; otherwise the
+/// system dynamic scheme (when available and enabled), else defaults.
+ColorScheme? _resolveScheme(
+    ThemeController t, ColorScheme? dynamicScheme, Brightness brightness) {
+  final seed = t.fixedSeed;
+  if (seed != null) {
+    return ColorScheme.fromSeed(seedColor: seed, brightness: brightness);
+  }
+  return t.dynamicColor ? dynamicScheme : null;
+}
 
 Locale _resolveLocale(Locale? locale, Iterable<Locale> supported) {
   final system = locale?.languageCode ?? 'ar';

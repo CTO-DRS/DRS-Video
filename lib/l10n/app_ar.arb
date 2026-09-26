@@ -419,5 +419,76 @@
   "diagLocalNote": "كل شيء يبقى على جهازك ولا يُرسل أي بيان إلا إذا شاركت التقرير بنفسك.",
   "dlDegradedTitle": "محرك التحميلات غير متاح حاليًا",
   "dlDegradedRetry": "إعادة تهيئة محرك التحميلات",
-  "bootSafeModePreparing": "جارٍ التشغيل بالوضع الآمن…"
+  "bootSafeModePreparing": "جارٍ التشغيل بالوضع الآمن…",
+  "playerZoomReset": "إعادة العرض الطبيعي",
+  "playerScreenshot": "لقطة شاشة",
+  "screenshotSaved": "حُفظت اللقطة في المعرض",
+  "screenshotFailed": "تعذّر إكمال العملية",
+  "playerAudioOnly": "الاستماع فقط",
+  "playerAudioOnlyOn": "وضع الصوت مفعّل",
+  "playerBookmarks": "الإشارات المرجعية",
+  "playerBookmarkAdd": "إشارة مرجعية هنا",
+  "bookmarkAdded": "أُضيفت إشارة مرجعية",
+  "bookmarkEmpty": "لا توجد إشارات مرجعية بعد — أضف واحدة من زر الإشارة في شريط التحكم.",
+  "playerAbLoop": "تكرار المقطع: تحديد النقطة A",
+  "playerLoopMarkB": "تكرار المقطع: تحديد النقطة B",
+  "playerLoopActive": "تكرار A-B مفعّل — اضغط لإيقافه",
+  "libraryFolders": "المجلدات",
+  "foldersEmptyTitle": "لا توجد مجلدات",
+  "foldersEmptyBody": "لم يُعثر على فيديوهات على الجهاز بعد.",
+  "folderVideosCount": "{count} فيديو",
+  "@folderVideosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsTitle": "إحصائيات المشاهدة",
+  "statsTotalWatch": "وقت المشاهدة",
+  "statsDaily14": "آخر 14 يومًا",
+  "statsTopWatched": "الأكثر مشاهدة",
+  "statsStreak": "أيام متتالية",
+  "statsNoData": "لا توجد بيانات مشاهدة بعد — ستظهر الإحصائيات بعد أول تشغيل.",
+  "statsClear": "مسح الإحصائيات",
+  "statsClearConfirm": "سيتم حذف كل إحصائيات المشاهدة نهائيًا. تقدم التشغيل لن يتأثر.",
+  "statsPlays": "{count} مرة",
+  "@statsPlays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "themeColor": "لون التطبيق",
+  "paletteDynamic": "ديناميكي (حسب النظام)",
+  "paletteNightBlue": "أزرق ليلي",
+  "paletteEmerald": "أخضر زمردي",
+  "palettePurple": "بنفسجي",
+  "paletteSunset": "برتقالي الغروب",
+  "paletteCalmGray": "رمادي هادئ",
+  "backupSection": "النسخ الاحتياطي والاستعادة",
+  "backupHint": "كل بياناتك (التقدم، المفضلة، القوائم، الإشارات، الإحصائيات، الإعدادات) في ملف JSON واحد — بدون أي صلاحيات تخزين إضافية.",
+  "backupExport": "تصدير نسخة احتياطية",
+  "backupExportDesc": "اختر مكانًا لحفظ الملف عبر نافذة النظام",
+  "backupImport": "استعادة من نسخة احتياطية",
+  "backupImportDesc": "اختر ملف نسخة احتياطية سابقًا",
+  "backupImportConfirm": "سيتم دمج بيانات الملف مع بياناتك الحالية (القيم الأحدث تبقى). هل تريد المتابعة؟",
+  "backupExportDone": "تم تصدير {count} سجلًا بنجاح",
+  "@backupExportDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportDone": "تمت استعادة {count} سجلًا بنجاح",
+  "@backupImportDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupFailed": "فشلت العملية — جرّب مرة أخرى"
 }

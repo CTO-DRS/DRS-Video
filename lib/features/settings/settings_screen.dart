@@ -9,6 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/permissions/permission_service.dart';
 import '../../services/platform/native_channel.dart';
 import '../../services/sharing/share_service.dart';
+import '../../state/app_providers.dart';
 import '../../state/downloads_controller.dart';
 import '../../state/settings_controller.dart';
 import 'diagnostics_screen.dart';
@@ -38,6 +39,9 @@ class SettingsScreen extends StatelessWidget {
           }),
           _Section(l.settingsAppearance, Icons.palette_outlined, context, () {
             _showAppearanceSettings(context, themeController, l);
+          }),
+          _Section(l.backupSection, Icons.cloud_sync_outlined, context, () {
+            _showBackupSheet(context, l);
           }),
           _Section(l.settingsStorage, Icons.storage_outlined, context, () {
             Navigator.of(context).push(
@@ -257,6 +261,26 @@ class SettingsScreen extends StatelessWidget {
             value: t.dynamicColor,
             onChanged: t.setDynamicColor,
           ),
+          ListTile(title: Text(l.themeColor, style: Theme.of(sheet).textTheme.titleSmall)),
+          for (final palette in AppPalette.values)
+            RadioListTile<AppPalette>(
+              value: palette,
+              groupValue: t.palette,
+              secondary: palette.seed == null
+                  ? const Icon(Icons.auto_awesome)
+                  : CircleAvatar(backgroundColor: palette.seed, radius: 14),
+              title: Text(switch (palette) {
+                AppPalette.dynamic => l.paletteDynamic,
+                AppPalette.nightBlue => l.paletteNightBlue,
+                AppPalette.emerald => l.paletteEmerald,
+                AppPalette.purple => l.palettePurple,
+                AppPalette.sunset => l.paletteSunset,
+                AppPalette.calmGray => l.paletteCalmGray,
+              }),
+              onChanged: (v) {
+                if (v != null) t.setPalette(v);
+              },
+            ),
           SwitchListTile(
             title: Text(l.setAnimations),
             value: t.animations,
@@ -460,5 +484,76 @@ class SettingsScreen extends StatelessWidget {
         applicationLegalese: l.aboutPrivacyBody,
       );
     });
+  }
+
+  // ---- Backup / restore (v1.1.0) ----
+
+  Future<void> _showBackupSheet(BuildContext context, AppLocalizations l) async {
+    final services = context.read<AppServices>();
+    final messenger = ScaffoldMessenger.of(context);
+    final backup = services.backup;
+
+    final result = await showModalBottomSheet<int>(
+      context: context,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(l.backupSection),
+              titleTextStyle: Theme.of(sheet).textTheme.titleMedium,
+              subtitle: Text(l.backupHint),
+            ),
+            ListTile(
+              leading: const Icon(Icons.file_upload_outlined),
+              title: Text(l.backupExport),
+              subtitle: Text(l.backupExportDesc),
+              onTap: () async {
+                Navigator.of(sheet).pop();
+                final count = await backup.exportAll();
+                if (!messenger.mounted) return;
+                messenger.showSnackBar(SnackBar(
+                  content: Text(count >= 0
+                      ? l.backupExportDone(count)
+                      : l.backupFailed),
+                ));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.file_download_outlined),
+              title: Text(l.backupImport),
+              subtitle: Text(l.backupImportDesc),
+              onTap: () async {
+                Navigator.of(sheet).pop();
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (dialog) => AlertDialog(
+                    title: Text(l.backupImport),
+                    content: Text(l.backupImportConfirm),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.of(dialog).pop(false),
+                          child: Text(l.cancel)),
+                      FilledButton(
+                          onPressed: () => Navigator.of(dialog).pop(true),
+                          child: Text(l.backupImport)),
+                    ],
+                  ),
+                );
+                if (confirmed != true) return;
+                final count = await backup.importAll();
+                if (!messenger.mounted) return;
+                messenger.showSnackBar(SnackBar(
+                  content: Text(count >= 0
+                      ? l.backupImportDone(count)
+                      : l.backupFailed),
+                ));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+    AppLogger.instance.info('backup', 'sheet result: $result');
   }
 }

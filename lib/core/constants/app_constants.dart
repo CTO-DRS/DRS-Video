@@ -5,10 +5,25 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '1.1.0';
 
   static const String dbName = 'drs_video.db';
-  static const int dbVersion = 1;
+  static const int dbVersion = 2;
+
+  /// mpv video-zoom upper bound (1.0 == 2x linear magnification).
+  static const double maxVideoZoom = 2.5;
+
+  /// mpv video-pan absolute bound (video-size normalized units).
+  static const double maxVideoPan = 1.0;
+
+  /// Gallery sub-directory for player screenshots.
+  static const String screenshotDirName = 'DRS Video';
+
+  /// Backup/restore payload schema version (v1.1.0).
+  static const int backupSchemaVersion = 1;
+
+  /// Tag embedded in every backup payload for validation.
+  static const String backupAppTag = 'DRS Video Backup';
 
   /// Android MethodChannel used by MainActivity (Kotlin).
   static const String nativeChannel = 'drs.video/native';
@@ -61,6 +76,7 @@ class PrefKeys {
 
   static const themeMode = 'theme_mode';
   static const dynamicColor = 'dynamic_color';
+  static const palette = 'palette';
   static const animationsEnabled = 'animations_enabled';
   static const layoutMode = 'layout_mode';
   static const languageCode = 'language_code';
@@ -83,6 +99,7 @@ class PrefKeys {
 
   static const historyEnabled = 'history_enabled';
   static const firstRunDone = 'first_run_done';
+  static const backupIncludePrefs = 'backup_include_prefs';
 
   static const maxThumbnailCacheMb = 'max_thumbnail_cache_mb';
 }

@@ -5,7 +5,7 @@ import '../data/repositories/history_repository.dart';
 import '../data/repositories/library_repository.dart';
 import '../data/repositories/playlist_repository.dart';
 
-enum LibraryTab { all, favorites, downloads, recent, continueWatching, local, history }
+enum LibraryTab { all, favorites, downloads, recent, continueWatching, local, folders, history }
 
 /// Drives the library screen: tab data, filters, sort, multi-selection and
 /// bulk operations.
@@ -57,6 +57,10 @@ class LibraryController extends ChangeNotifier {
           items = await _library.query(_query()).then((l) => l.take(100).toList());
         case LibraryTab.continueWatching:
           items = await _history.continueWatching(limit: 200);
+        case LibraryTab.folders:
+          // Data comes from LocalMediaController (MediaStore) — keep the
+          // shared list empty so the tab body renders FoldersView instead.
+          items = const [];
         case LibraryTab.history:
           items = await _history.history();
       }

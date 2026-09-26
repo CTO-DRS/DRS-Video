@@ -98,7 +98,7 @@ class _LocalFilesScreenState extends State<LocalFilesScreen> {
                         itemBuilder: (context, i) {
                           final videos = _sorted(controller.videos);
                           final item = videos[i];
-                          return _VideoGridTile(item: item);
+                          return VideoGridTile(item: item);
                         },
                       ),
                     ),
@@ -121,8 +121,8 @@ class _LocalFilesScreenState extends State<LocalFilesScreen> {
   }
 }
 
-class _VideoGridTile extends StatelessWidget {
-  const _VideoGridTile({required this.item});
+class VideoGridTile extends StatelessWidget {
+  const VideoGridTile({required this.item});
 
   final MediaItem item;
 

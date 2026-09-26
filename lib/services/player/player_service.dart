@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' show Offset;
 import 'package:flutter/foundation.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -9,9 +10,12 @@ import '../../core/network/connectivity_service.dart';
 import '../../core/storage/preferences_service.dart';
 import '../../core/utils/logger.dart';
 import '../../data/models/media_item.dart';
+import '../../data/repositories/bookmark_repository.dart';
 import '../../data/repositories/history_repository.dart';
 import '../../data/repositories/library_repository.dart';
 import '../recommendations/playback_optimizer.dart';
+import '../platform/native_channel.dart';
+import 'ab_loop.dart';
 import 'audio_handler.dart';
 import 'sleep_timer.dart';
 
@@ -28,11 +32,13 @@ class PlayerService extends ChangeNotifier {
     required HistoryRepository history,
     required LibraryRepository library,
     required ConnectivityService connectivity,
+    BookmarkRepository? bookmarks,
     bool createEngineNow = true,
   })  : _prefs = prefs,
         _history = history,
         _library = library,
-        _connectivity = connectivity {
+        _connectivity = connectivity,
+        _bookmarks = bookmarks {
     if (createEngineNow) _createEngine();
   }
 
@@ -87,6 +93,7 @@ class PlayerService extends ChangeNotifier {
   final HistoryRepository _history;
   final LibraryRepository _library;
   final ConnectivityService _connectivity;
+  final BookmarkRepository? _bookmarks;
 
   /// Exposed for playback-policy refreshes from the UI layer.
   ConnectivityService get connectivity => _connectivity;
@@ -117,6 +124,13 @@ class PlayerService extends ChangeNotifier {
   bool _shuffle = false;
   AppException? _lastError;
   Timer? _saveTimer;
+
+  // v1.1.0: view zoom/pan, A-B loop, audio-only mode.
+  double _zoom = 0;
+  Offset _pan = Offset.zero;
+  final AbLoop _loop = AbLoop();
+  bool _audioOnly = false;
+  bool _seekingForLoop = false;
 
   final SleepTimer sleepTimer = SleepTimer(() {
     final p = PlayerService.instance?._player;
@@ -150,6 +164,165 @@ class PlayerService extends ChangeNotifier {
       _player?.state.track.subtitle ?? SubtitleTrack.auto();
   VideoTrack get videoTrack => _player?.state.track.video ?? VideoTrack.auto();
 
+  // ---- v1.1.0: zoom / pan / A-B loop / audio-only / bookmarks ----
+
+  /// Current mpv video-zoom value (0 = fit, +1 = 2x).
+  double get zoom => _zoom;
+
+  /// Current mpv video-pan offset in video-normalized units.
+  Offset get pan => _pan;
+
+  bool get isZoomed => _zoom > 0.01 || _pan != Offset.zero;
+
+  /// Applies zoom/pan through real mpv properties. Failures degrade
+  /// silently to the previous view (logged, never thrown).
+  Future<void> setView({required double zoom, required Offset pan}) async {
+    _zoom = zoom.clamp(0.0, AppConstants.maxVideoZoom);
+    _pan = Offset(
+      pan.dx.clamp(-AppConstants.maxVideoPan, AppConstants.maxVideoPan),
+      pan.dy.clamp(-AppConstants.maxVideoPan, AppConstants.maxVideoPan),
+    );
+    await _setProperty('video-zoom', _zoom);
+    await _setProperty('video-pan-x', _pan.dx);
+    await _setProperty('video-pan-y', _pan.dy);
+    notifyListeners();
+  }
+
+  Future<void> resetView() => setView(zoom: 0, pan: Offset.zero);
+
+  AbLoop get loop => _loop;
+
+  /// Marks A / B / off (see [AbLoop.mark]).
+  void markLoopPoint() {
+    _loop.mark(position);
+    AppLogger.instance.info('player', 'ab-loop -> ${_loop.state.name}');
+    notifyListeners();
+  }
+
+  void clearLoop() {
+    _loop.clear();
+    notifyListeners();
+  }
+
+  bool get audioOnly => _audioOnly;
+
+  /// Audio-only mode disables the video track via mpv's real `vid`
+  /// property (saves battery, keeps audio playing with screen off).
+  /// The choice is sticky for the session and re-applied on every open.
+  Future<void> setAudioOnly(bool on) async {
+    if (_audioOnly == on) return;
+    _audioOnly = on;
+    await _applyAudioOnly();
+    notifyListeners();
+  }
+
+  Future<void> _applyAudioOnly() async {
+    if (_player == null) return;
+    final ok = await _setProperty('vid', _audioOnly ? 'no' : 'auto');
+    if (!ok) {
+      // Property unsupported (shouldn't happen on libmpv) — fall back to
+      // muting the video track selection instead.
+      try {
+        await _engine.setVideoTrack(VideoTrack.no());
+      } catch (e) {
+        AppLogger.instance.warning('player', 'audio-only fallback: $e');
+      }
+    }
+  }
+
+  Future<bool> _setProperty(String name, Object? value) async {
+    if (_player == null) return false;
+    try {
+      final platform = _player!.platform;
+      if (platform is NativePlayer) {
+        await platform.setProperty(name, '$value');
+        return true;
+      }
+      return false;
+    } catch (e) {
+      AppLogger.instance.warning('player', 'setProperty($name) failed: $e');
+      return false;
+    }
+  }
+
+  /// Adds a bookmark at the current position. Returns null when there is
+  /// no media/bookmark store; otherwise the created bookmark's id.
+  Future<int?> addBookmarkHere({String? label}) async {
+    final item = _current;
+    final repo = _bookmarks;
+    if (item == null || repo == null) return null;
+    try {
+      final id = await repo.add(VideoBookmark(
+        itemId: item.id,
+        positionMs: position.inMilliseconds,
+        label: label,
+      ));
+      notifyListeners();
+      return id;
+    } catch (e) {
+      AppLogger.instance.warning('player', 'bookmark add failed: $e');
+      return null;
+    }
+  }
+
+  Future<List<VideoBookmark>> bookmarksForCurrent() async {
+    final item = _current;
+    final repo = _bookmarks;
+    if (item == null || repo == null) return const [];
+    try {
+      return await repo.forItem(item.id);
+    } catch (e) {
+      AppLogger.instance.warning('player', 'bookmark list failed: $e');
+      return const [];
+    }
+  }
+
+  /// Removes one bookmark (bookmark sheet). Never throws.
+  Future<void> deleteBookmark(int id) async {
+    final repo = _bookmarks;
+    if (repo == null) return;
+    try {
+      await repo.delete(id);
+      notifyListeners();
+    } catch (e) {
+      AppLogger.instance.warning('player', 'bookmark delete failed: $e');
+    }
+  }
+
+  /// Grabs the current video frame into a real file via mpv and registers
+  /// it with the system gallery. Returns the final location, or null on
+  /// failure (UI shows an honest error).
+  Future<String?> captureScreenshot() async {
+    if (_player == null || _current == null) return null;
+    final platform = _player!.platform;
+    if (platform is! NativePlayer) {
+      AppLogger.instance.warning('player', 'screenshot: no native player');
+      return null;
+    }
+    Directory? tempDir;
+    try {
+      tempDir = await Directory.systemTemp.createTemp('drs_shot');
+      final path = '${tempDir.path}${Platform.pathSeparator}'
+          'drs_video_${DateTime.now().millisecondsSinceEpoch}.png';
+      await platform.command(['screenshot-to-file', path, 'video']);
+      if (!File(path).existsSync()) {
+        AppLogger.instance.warning('player', 'screenshot file missing');
+        return null;
+      }
+      final saved = await NativeChannel.instance.saveImageToGallery(path);
+      return saved;
+    } catch (e, s) {
+      AppLogger.instance.error('player', 'screenshot failed', e, s);
+      return null;
+    } finally {
+      try {
+        tempDir?.delete(recursive: true);
+      } catch (e) {
+        AppLogger.instance.warning('player', 'shot temp cleanup: $e');
+      }
+    }
+  }
+
   Future<void> ensureAudioHandler() async {
     if (!_prefs.backgroundPlayback) return;
     _audioHandler ??= await initAudioService(this);
@@ -169,7 +342,15 @@ class PlayerService extends ChangeNotifier {
     });
     p.stream.track.listen((_) => _notify());
     p.stream.rate.listen((_) => _notify());
-    _posSub = p.stream.position.listen((_) {
+    _posSub = p.stream.position.listen((pos) {
+      // A-B loop: wrap from B back to A (skipping our own seek events).
+      if (!_seekingForLoop && _loop.isActive) {
+        final jump = _loop.jumpFrom(pos);
+        if (jump != null) {
+          _seekingForLoop = true;
+          seekTo(jump).whenComplete(() => _seekingForLoop = false);
+        }
+      }
       // Rebuild only lightweight widgets that depend on position.
       notifyListeners();
     });
@@ -273,6 +454,17 @@ class PlayerService extends ChangeNotifier {
       _notify();
       return;
     }
+    // Fresh media: reset per-media state, re-apply sticky audio-only.
+    _zoom = 0;
+    _pan = Offset.zero;
+    _loop.clear();
+    if (_audioOnly) unawaited(_applyAudioOnly());
+    if (_prefs.historyEnabled) {
+      unawaited(_history.recordSession().catchError((Object e) {
+        AppLogger.instance.warning('player', 'session record failed: $e');
+        return null;
+      }));
+    }
     _startSaveTimer();
     unawaited(_library.markPlayed(item.id).catchError((Object e) {
       AppLogger.instance.warning('player', 'markPlayed failed: $e');
@@ -314,7 +506,17 @@ class PlayerService extends ChangeNotifier {
   void _startSaveTimer() {
     _saveTimer?.cancel();
     _saveTimer = Timer.periodic(AppConstants.progressSaveInterval, (_) {
-      if (isPlaying) unawaited(saveProgress());
+      if (!isPlaying) return;
+      unawaited(saveProgress());
+      // Watch statistics share the privacy switch of history.
+      if (_prefs.historyEnabled) {
+        unawaited(_history
+            .recordWatchedMs(AppConstants.progressSaveInterval.inMilliseconds)
+            .catchError((Object e) {
+          AppLogger.instance.warning('player', 'watch stat failed: $e');
+          return null;
+        }));
+      }
     });
   }
 
@@ -385,6 +587,7 @@ class PlayerService extends ChangeNotifier {
     await _engine.stop();
     _saveTimer?.cancel();
     _current = null;
+    _loop.clear();
     _notify();
   }
 

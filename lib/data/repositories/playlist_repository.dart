@@ -1,3 +1,4 @@
+import 'package:sqflite/sqflite.dart';
 import '../../core/storage/database_service.dart';
 import '../models/media_item.dart';
 import '../models/playlist.dart';
@@ -105,4 +106,39 @@ class PlaylistRepository {
 
   String _newId() =>
       'pl_${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}';
+
+  // ---- backup / restore (v1.1.0) ----
+
+  /// Raw membership rows for backup: [{playlist_id, item_id, position}].
+  Future<List<Map<String, Object?>>> exportMemberships() async {
+    final database = await _db.database;
+    final rows = await database.query('playlist_items',
+        columns: ['playlist_id', 'item_id', 'position'],
+        orderBy: 'playlist_id ASC, position ASC');
+    return rows;
+  }
+
+  /// Bulk upsert of playlists (restore).
+  Future<void> upsertAll(List<Playlist> playlists) async {
+    if (playlists.isEmpty) return;
+    final database = await _db.database;
+    final batch = database.batch();
+    for (final pl in playlists) {
+      batch.insert('playlists', pl.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// Restores membership rows (restore). Positions are kept as-is.
+  Future<void> importMemberships(List<Map<String, Object?>> rows) async {
+    if (rows.isEmpty) return;
+    final database = await _db.database;
+    final batch = database.batch();
+    for (final row in rows) {
+      batch.insert('playlist_items', row,
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+    await batch.commit(noResult: true);
+  }
 }

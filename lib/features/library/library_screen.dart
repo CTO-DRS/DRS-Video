@@ -9,6 +9,8 @@ import '../../state/playlists_controller.dart';
 import '../../widgets/common/error_view.dart';
 import '../player/play_helpers.dart';
 import '../search/search_screen.dart';
+import '../stats/stats_screen.dart';
+import 'folders_view.dart';
 import 'media_item_menu.dart';
 
 /// Library with tabs, filters, sorting and multi-select bulk operations.
@@ -34,7 +36,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final l = AppLocalizations.of(context)!;
 
     return DefaultTabController(
-      length: 7,
+      length: 8,
       initialIndex: LibraryTab.values.indexOf(controller.tab),
       child: Scaffold(
         appBar: controller.selecting ? _selectionBar(context, controller, l) : _mainBar(context, controller, l),
@@ -51,47 +53,52 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 Tab(text: l.libraryRecent),
                 Tab(text: l.libraryContinue),
                 Tab(text: l.libraryLocal),
+                Tab(text: l.libraryFolders),
                 Tab(text: l.libraryHistory),
               ],
             ),
             Expanded(
-              child: controller.loading
+              child: controller.loading && controller.tab != LibraryTab.folders
                   ? const Center(child: CircularProgressIndicator())
-                  : controller.error != null
-                      ? ErrorView(
-                          error: controller.error,
-                          onRetry: controller.load,
-                        )
-                      : controller.items.isEmpty
-                          ? libraryEmptyView(context, controller.tab)
-                          : RefreshIndicator(
-                              onRefresh: controller.load,
-                              child: ListView.builder(
-                                itemCount: controller.items.length,
-                                itemBuilder: (context, i) {
-                                  final item = controller.items[i];
-                                  final progress =
-                                      controller.progressById[item.id];
-                                  return _LibraryTile(
-                                    item: item,
-                                    progress:
-                                        progress == null || progress.completed
-                                            ? null
-                                            : progress.ratio(),
-                                    selected:
-                                        controller.selected.contains(item.id),
-                                  );
-                                },
-                              ),
-                            ),
+                  : controller.tab == LibraryTab.folders
+                      ? const FoldersView()
+                      : controller.error != null
+                          ? ErrorView(
+                              error: controller.error,
+                              onRetry: controller.load,
+                            )
+                          : controller.items.isEmpty
+                              ? libraryEmptyView(context, controller.tab)
+                              : RefreshIndicator(
+                                  onRefresh: controller.load,
+                                  child: ListView.builder(
+                                    itemCount: controller.items.length,
+                                    itemBuilder: (context, i) {
+                                      final item = controller.items[i];
+                                      final progress =
+                                          controller.progressById[item.id];
+                                      return _LibraryTile(
+                                        item: item,
+                                        progress:
+                                            progress == null || progress.completed
+                                                ? null
+                                                : progress.ratio(),
+                                        selected:
+                                            controller.selected.contains(item.id),
+                                      );
+                                    },
+                                  ),
+                                ),
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          tooltip: l.filter,
-          onPressed: () => _showFilterSheet(context, controller),
-          child: const Icon(Icons.tune),
-        ),
+        floatingActionButton: controller.tab == LibraryTab.folders
+            ? null
+            : FloatingActionButton(
+                tooltip: l.filter,
+                onPressed: () => _showFilterSheet(context, controller),
+                child: const Icon(Icons.tune),
+              ),
       ),
     );
   }
@@ -101,6 +108,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return AppBar(
       title: Text(l.navLibrary),
       actions: [
+        IconButton(
+          tooltip: l.statsTitle,
+          icon: const Icon(Icons.query_stats),
+          onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const StatsScreen())),
+        ),
         IconButton(
           tooltip: l.search,
           icon: const Icon(Icons.search),

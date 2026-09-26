@@ -79,6 +79,34 @@ class NativeChannel {
   /// Clears native + marks the session healthy (called after a
   /// successful boot; the Dart-side store is cleared separately).
   Future<void> clearNativeCrashLog() => _invoke<void>('crash/clearAll');
+
+  // ---- v1.1.0: gallery screenshots + SAF JSON pick/create (backup) ----
+
+  /// Copies a local image file into the system gallery
+  /// (Pictures/DRS Video). Returns the final location (content URI or
+  /// file path), or null on failure.
+  Future<String?> saveImageToGallery(String filePath) =>
+      _invoke<String>('gallery/saveImage', {'path': filePath});
+
+  /// Opens the system file picker for a JSON backup file.
+  /// Returns a content:// uri string, or null when cancelled.
+  Future<String?> pickJsonForRestore() => _invoke<String>('files/pickJson');
+
+  /// Opens the system "create document" dialog for a new backup file.
+  /// Returns a content:// uri string, or null when cancelled.
+  Future<String?> createJsonForSave(String suggestedName) =>
+      _invoke<String>('files/createJson', {'name': suggestedName});
+
+  /// Reads UTF-8 text from a previously picked (or created) document uri.
+  Future<String?> readPickedTextFile(String uri) =>
+      _invoke<String>('files/read', {'uri': uri});
+
+  /// Writes UTF-8 text into a previously created document uri.
+  Future<bool> writeCreatedTextFile(String uri, String content) async {
+    final ok = await _invoke<bool>(
+        'files/write', {'uri': uri, 'content': content});
+    return ok ?? false;
+  }
 }
 
 /// Wraps local file system helpers shared by services.

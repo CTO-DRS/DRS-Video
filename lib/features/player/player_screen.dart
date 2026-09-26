@@ -10,9 +10,11 @@ import '../../core/utils/formatters.dart';
 import '../../data/models/media_item.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/platform/native_channel.dart';
+import '../../services/player/ab_loop.dart';
 import '../../services/player/player_service.dart';
 import '../../state/media_actions.dart';
 import '../../widgets/common/error_view.dart';
+import 'widgets/player_extras.dart';
 import 'widgets/track_sheets.dart';
 
 /// Full-screen professional player with gestures, lock, PiP, tracks,
@@ -38,6 +40,12 @@ class _PlayerScreenState extends State<PlayerScreen>
   double? _indicatorValue; // 0..1 for brightness/volume overlay
   String? _indicatorLabel;
   bool _brightnessMode = false;
+
+  // v1.1.0: two-finger pinch zoom/pan (raw pointer tracking, immune to
+  // gesture-arena conflicts with the seek/brightness drags).
+  final Map<int, Offset> _pointers = {};
+  ViewGestureTracker? _pinchTracker;
+  bool _pinching = false;
 
   @override
   void initState() {
@@ -82,6 +90,52 @@ class _PlayerScreenState extends State<PlayerScreen>
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _player.saveProgress();
     super.dispose();
+  }
+
+  // ---- pinch zoom / pan (v1.1.0) ----
+
+  void _onPointerDown(PointerDownEvent e) {
+    _pointers[e.pointer] = e.position;
+    if (_pointers.length == 2) _beginPinch();
+  }
+
+  void _beginPinch() {
+    final pts = _pointers.values.toList();
+    if (pts.length < 2) return;
+    final distance = (pts[0] - pts[1]).distance;
+    final mid = Offset((pts[0].dx + pts[1].dx) / 2, (pts[0].dy + pts[1].dy) / 2);
+    _pinchTracker = ViewGestureTracker(
+      initialZoom: _player.zoom,
+      initialPan: _player.pan,
+    )..begin(distance: distance, midpoint: mid);
+    _pinching = true;
+  }
+
+  void _onPointerMove(PointerMoveEvent e) {
+    if (!_pinching) return;
+    _pointers[e.pointer] = e.position;
+    if (_pointers.length < 2 || _pinchTracker == null) return;
+    final pts = _pointers.values.toList();
+    final distance = (pts[0] - pts[1]).distance;
+    final mid = Offset((pts[0].dx + pts[1].dx) / 2, (pts[0].dy + pts[1].dy) / 2);
+    final size = MediaQuery.of(context).size;
+    final shortSide = size.shortestSide;
+    final result = _pinchTracker!.update(
+      distance: distance,
+      midpoint: mid,
+      viewportShortSide: shortSide,
+      maxZoom: AppConstants.maxVideoZoom,
+      maxPan: AppConstants.maxVideoPan,
+    );
+    _player.setView(zoom: result.zoom, pan: result.pan);
+  }
+
+  void _onPointerUp(PointerEvent e) {
+    _pointers.remove(e.pointer);
+    if (_pointers.length < 2) {
+      _pinching = false;
+      _pinchTracker = null;
+    }
   }
 
   void _scheduleHide() {
@@ -159,7 +213,48 @@ class _PlayerScreenState extends State<PlayerScreen>
           _buildTopBar(context, player, l),
           _buildBottomBar(context, player, l),
         ],
+        if (player.isZoomed && !_locked) _buildZoomResetChip(context, player, l),
+        if (player.audioOnly && !_locked) _buildAudioOnlyChip(context, l),
       ],
+    );
+  }
+
+  Widget _buildZoomResetChip(BuildContext context, PlayerService player, AppLocalizations l) {
+    return PositionedDirectional(
+      top: 72,
+      end: 12,
+      child: AnimatedOpacity(
+        opacity: _controlsVisible ? 1 : 0,
+        duration: const Duration(milliseconds: 200),
+        child: ActionChip(
+          backgroundColor: Colors.black54,
+          avatar: const Icon(Icons.zoom_out_map, color: Colors.white, size: 18),
+          label: Text(
+            l.playerZoomReset,
+            style: const TextStyle(color: Colors.white),
+          ),
+          onPressed: player.resetView,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAudioOnlyChip(BuildContext context, AppLocalizations l) {
+    return PositionedDirectional(
+      top: 72,
+      start: 12,
+      child: Chip(
+        backgroundColor: Colors.black54,
+        avatar: Icon(
+          Icons.headphones,
+          color: Theme.of(context).colorScheme.primary,
+          size: 18,
+        ),
+        label: Text(
+          l.playerAudioOnlyOn,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
     );
   }
 
@@ -171,21 +266,31 @@ class _PlayerScreenState extends State<PlayerScreen>
   // ---- gesture layer ----
 
   Widget _buildGestureLayer(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: _toggleControls,
-      onDoubleTapDown: (d) => _onDoubleTap(context, d.localPosition),
-      onHorizontalDragStart: _onSeekDragStart,
-      onHorizontalDragUpdate: _onSeekDragUpdate,
-      onHorizontalDragEnd: _onSeekDragEnd,
-      onVerticalDragStart: _onVerticalDragStart,
-      onVerticalDragUpdate: _onVerticalDragUpdate,
-      onVerticalDragEnd: (_) => _clearIndicator(),
-      child: Stack(
-        children: [
-          if (_previewSeekMs != null) _buildSeekPreview(context),
-          if (_indicatorValue != null) _buildIndicator(context),
-        ],
+    // Raw pointer tracking sits OUTSIDE the GestureDetector so two-finger
+    // pinch never fights the single-finger seek/brightness recognizers:
+    // the Listener sees every event, zoom kicks in only with 2 pointers,
+    // and all 1-finger gestures keep their existing arena winners.
+    return Listener(
+      onPointerDown: _onPointerDown,
+      onPointerMove: _onPointerMove,
+      onPointerUp: _onPointerUp,
+      onPointerCancel: _onPointerUp,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _toggleControls,
+        onDoubleTapDown: (d) => _onDoubleTap(context, d.localPosition),
+        onHorizontalDragStart: _onSeekDragStart,
+        onHorizontalDragUpdate: _onSeekDragUpdate,
+        onHorizontalDragEnd: _onSeekDragEnd,
+        onVerticalDragStart: _onVerticalDragStart,
+        onVerticalDragUpdate: _onVerticalDragUpdate,
+        onVerticalDragEnd: (_) => _clearIndicator(),
+        child: Stack(
+          children: [
+            if (_previewSeekMs != null) _buildSeekPreview(context),
+            if (_indicatorValue != null) _buildIndicator(context),
+          ],
+        ),
       ),
     );
   }
@@ -382,6 +487,26 @@ class _PlayerScreenState extends State<PlayerScreen>
                     icon: const Icon(Icons.picture_in_picture_alt, color: Colors.white),
                   ),
                 IconButton(
+                  tooltip: l.playerScreenshot,
+                  onPressed: () => _takeScreenshot(context),
+                  icon: const Icon(Icons.camera_alt_outlined, color: Colors.white),
+                ),
+                IconButton(
+                  tooltip: l.playerAudioOnly,
+                  onPressed: () => _player.setAudioOnly(!_player.audioOnly),
+                  icon: Icon(
+                    Icons.headphones,
+                    color: _player.audioOnly
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.white,
+                  ),
+                ),
+                IconButton(
+                  tooltip: l.playerBookmarks,
+                  onPressed: () => showBookmarksSheet(context),
+                  icon: const Icon(Icons.bookmarks_outlined, color: Colors.white),
+                ),
+                IconButton(
                   tooltip: l.playerSleepTimer,
                   onPressed: () => showSleepSheet(context),
                   icon: Icon(
@@ -406,6 +531,16 @@ class _PlayerScreenState extends State<PlayerScreen>
     final w = widget.item.width ?? 16;
     final h = widget.item.height ?? 9;
     await NativeChannel.instance.enterPip(width: w, height: h == 0 ? 9 : h);
+  }
+
+  Future<void> _takeScreenshot(BuildContext context) async {
+    final l = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final saved = await _player.captureScreenshot();
+    if (!messenger.mounted) return;
+    messenger.showSnackBar(SnackBar(
+      content: Text(saved != null ? l.screenshotSaved : l.screenshotFailed),
+    ));
   }
 
   Widget _buildBottomBar(BuildContext context, PlayerService player, AppLocalizations l) {
@@ -548,10 +683,32 @@ class _PlayerScreenState extends State<PlayerScreen>
                       ),
                       const Spacer(),
                       IconButton(
-                        tooltip: l.playerFrameStepHint,
+                        tooltip: switch (player.loop.state) {
+                          AbLoopState.off => l.playerAbLoop,
+                          AbLoopState.aMarked => l.playerLoopMarkB,
+                          AbLoopState.active => l.playerLoopActive,
+                        },
+                        color: player.loop.state == AbLoopState.off
+                            ? Colors.white
+                            : Colors.amber,
+                        onPressed: player.markLoopPoint,
+                        icon: Icon(player.loop.state == AbLoopState.active
+                            ? Icons.repeat_rounded
+                            : Icons.repeat_one_outlined),
+                      ),
+                      IconButton(
+                        tooltip: l.playerBookmarkAdd,
                         color: Colors.white,
-                        onPressed: () => _player.frameStep(1),
-                        icon: const Icon(Icons.skip_next, size: 18),
+                        onPressed: () async {
+                          final added = await _player.addBookmarkHere();
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(added != null
+                                ? l.bookmarkAdded
+                                : l.screenshotFailed),
+                          ));
+                        },
+                        icon: const Icon(Icons.bookmark_add_outlined),
                       ),
                       IconButton(
                         tooltip: l.playerFullscreen,

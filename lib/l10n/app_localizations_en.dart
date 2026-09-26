@@ -1162,4 +1162,146 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bootSafeModePreparing => 'Starting in safe mode…';
+
+  @override
+  String get playerZoomReset => 'Reset view';
+
+  @override
+  String get playerScreenshot => 'Screenshot';
+
+  @override
+  String get screenshotSaved => 'Screenshot saved to gallery';
+
+  @override
+  String get screenshotFailed => 'Operation failed';
+
+  @override
+  String get playerAudioOnly => 'Audio only';
+
+  @override
+  String get playerAudioOnlyOn => 'Audio-only mode on';
+
+  @override
+  String get playerBookmarks => 'Bookmarks';
+
+  @override
+  String get playerBookmarkAdd => 'Bookmark here';
+
+  @override
+  String get bookmarkAdded => 'Bookmark added';
+
+  @override
+  String get bookmarkEmpty =>
+      'No bookmarks yet — add one with the bookmark button in the control bar.';
+
+  @override
+  String get playerAbLoop => 'A-B loop: mark point A';
+
+  @override
+  String get playerLoopMarkB => 'A-B loop: mark point B';
+
+  @override
+  String get playerLoopActive => 'A-B loop active — tap to stop';
+
+  @override
+  String get libraryFolders => 'Folders';
+
+  @override
+  String get foldersEmptyTitle => 'No folders';
+
+  @override
+  String get foldersEmptyBody => 'No on-device videos found yet.';
+
+  @override
+  String folderVideosCount(int count) {
+    return '$count videos';
+  }
+
+  @override
+  String get statsTitle => 'Watch statistics';
+
+  @override
+  String get statsTotalWatch => 'Watch time';
+
+  @override
+  String get statsDaily14 => 'Last 14 days';
+
+  @override
+  String get statsTopWatched => 'Most watched';
+
+  @override
+  String get statsStreak => 'Day streak';
+
+  @override
+  String get statsNoData =>
+      'No watch data yet — statistics appear after your first playback.';
+
+  @override
+  String get statsClear => 'Clear statistics';
+
+  @override
+  String get statsClearConfirm =>
+      'All watch statistics will be permanently deleted. Playback progress is not affected.';
+
+  @override
+  String statsPlays(int count) {
+    return '$count plays';
+  }
+
+  @override
+  String get themeColor => 'App color';
+
+  @override
+  String get paletteDynamic => 'Dynamic (system)';
+
+  @override
+  String get paletteNightBlue => 'Night Blue';
+
+  @override
+  String get paletteEmerald => 'Emerald';
+
+  @override
+  String get palettePurple => 'Purple';
+
+  @override
+  String get paletteSunset => 'Sunset Orange';
+
+  @override
+  String get paletteCalmGray => 'Calm Gray';
+
+  @override
+  String get backupSection => 'Backup & restore';
+
+  @override
+  String get backupHint =>
+      'All your data (progress, favorites, playlists, bookmarks, statistics, settings) in one JSON file — no extra storage permissions.';
+
+  @override
+  String get backupExport => 'Export backup';
+
+  @override
+  String get backupExportDesc => 'Pick a save location via the system dialog';
+
+  @override
+  String get backupImport => 'Restore from backup';
+
+  @override
+  String get backupImportDesc => 'Pick a previously exported backup file';
+
+  @override
+  String get backupImportConfirm =>
+      'File data will be merged with your current data (newer values win). Continue?';
+
+  @override
+  String backupExportDone(int count) {
+    return 'Exported $count records';
+  }
+
+  @override
+  String backupImportDone(int count) {
+    return 'Restored $count records';
+  }
+
+  @override
+  String get backupFailed => 'Operation failed — try again';
 }

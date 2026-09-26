@@ -155,6 +155,35 @@ class LibraryRepository {
     return (rows.first['c'] as int?) ?? 0;
   }
 
+  /// Every known media item (backup/restore).
+  Future<List<MediaItem>> listAll() async {
+    final database = await _db.database;
+    final rows = await database.query('media_items');
+    return rows.map(MediaItem.fromMap).toList();
+  }
+
+  /// Bulk upsert (restore).
+  Future<void> upsertAll(List<MediaItem> items) async {
+    if (items.isEmpty) return;
+    final database = await _db.database;
+    final batch = database.batch();
+    for (final item in items) {
+      batch.insert('media_items', item.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// Most replayed items (watch statistics).
+  Future<List<MediaItem>> topPlayed({int limit = 5}) async {
+    final database = await _db.database;
+    final rows = await database.query('media_items',
+        where: 'play_count > 0',
+        orderBy: 'play_count DESC, last_played_at DESC',
+        limit: limit);
+    return rows.map(MediaItem.fromMap).toList();
+  }
+
   Future<void> _update(String id, Map<String, Object?> values) async {
     final database = await _db.database;
     await database.update('media_items', values, where: 'id = ?', whereArgs: [id]);

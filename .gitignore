@@ -53,3 +53,6 @@ app.*.map.json
 key.properties
 **/key.properties
 android/app/drs-release-key.jks
+
+# Build artifacts leak into android/build (problems-report)
+android/build/

@@ -106,11 +106,47 @@ class DatabaseService {
         enabled INTEGER NOT NULL DEFAULT 1,
         created_at INTEGER NOT NULL
       )''');
+    batch.execute('''
+      CREATE TABLE video_bookmarks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        item_id TEXT NOT NULL,
+        position_ms INTEGER NOT NULL,
+        label TEXT,
+        created_at INTEGER NOT NULL
+      )''');
+    batch.execute(
+        'CREATE INDEX idx_bookmarks_item ON video_bookmarks(item_id)');
+    batch.execute('''
+      CREATE TABLE watch_daily (
+        day TEXT PRIMARY KEY,
+        watched_ms INTEGER NOT NULL DEFAULT 0,
+        sessions INTEGER NOT NULL DEFAULT 0
+      )''');
     await batch.commit(noResult: true);
   }
 
   Future<void> _upgrade(Database db, int oldVersion, int newVersion) async {
-    // Reserved for future schema migrations.
+    // v2 (v1.1.0): bookmarks + watch statistics.
+    if (oldVersion < 2) {
+      final batch = db.batch();
+      batch.execute('''
+        CREATE TABLE IF NOT EXISTS video_bookmarks (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          item_id TEXT NOT NULL,
+          position_ms INTEGER NOT NULL,
+          label TEXT,
+          created_at INTEGER NOT NULL
+        )''');
+      batch.execute(
+          'CREATE INDEX IF NOT EXISTS idx_bookmarks_item ON video_bookmarks(item_id)');
+      batch.execute('''
+        CREATE TABLE IF NOT EXISTS watch_daily (
+          day TEXT PRIMARY KEY,
+          watched_ms INTEGER NOT NULL DEFAULT 0,
+          sessions INTEGER NOT NULL DEFAULT 0
+        )''');
+      await batch.commit(noResult: true);
+    }
   }
 
   Future<void> close() async {
@@ -124,6 +160,7 @@ class DatabaseService {
     for (final table in [
       'watch_progress', 'playlist_items', 'playlists',
       'downloads', 'search_history', 'media_items', 'sources',
+      'video_bookmarks', 'watch_daily',
     ]) {
       batch.delete(table);
     }

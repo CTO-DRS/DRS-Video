@@ -367,5 +367,76 @@
   "diagLocalNote": "Everything stays on your device; nothing is sent unless you share the report yourself.",
   "dlDegradedTitle": "The download engine is currently unavailable",
   "dlDegradedRetry": "Retry download engine setup",
-  "bootSafeModePreparing": "Starting in safe mode…"
+  "bootSafeModePreparing": "Starting in safe mode…",
+  "playerZoomReset": "Reset view",
+  "playerScreenshot": "Screenshot",
+  "screenshotSaved": "Screenshot saved to gallery",
+  "screenshotFailed": "Operation failed",
+  "playerAudioOnly": "Audio only",
+  "playerAudioOnlyOn": "Audio-only mode on",
+  "playerBookmarks": "Bookmarks",
+  "playerBookmarkAdd": "Bookmark here",
+  "bookmarkAdded": "Bookmark added",
+  "bookmarkEmpty": "No bookmarks yet — add one with the bookmark button in the control bar.",
+  "playerAbLoop": "A-B loop: mark point A",
+  "playerLoopMarkB": "A-B loop: mark point B",
+  "playerLoopActive": "A-B loop active — tap to stop",
+  "libraryFolders": "Folders",
+  "foldersEmptyTitle": "No folders",
+  "foldersEmptyBody": "No on-device videos found yet.",
+  "folderVideosCount": "{count} videos",
+  "@folderVideosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsTitle": "Watch statistics",
+  "statsTotalWatch": "Watch time",
+  "statsDaily14": "Last 14 days",
+  "statsTopWatched": "Most watched",
+  "statsStreak": "Day streak",
+  "statsNoData": "No watch data yet — statistics appear after your first playback.",
+  "statsClear": "Clear statistics",
+  "statsClearConfirm": "All watch statistics will be permanently deleted. Playback progress is not affected.",
+  "statsPlays": "{count} plays",
+  "@statsPlays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "themeColor": "App color",
+  "paletteDynamic": "Dynamic (system)",
+  "paletteNightBlue": "Night Blue",
+  "paletteEmerald": "Emerald",
+  "palettePurple": "Purple",
+  "paletteSunset": "Sunset Orange",
+  "paletteCalmGray": "Calm Gray",
+  "backupSection": "Backup & restore",
+  "backupHint": "All your data (progress, favorites, playlists, bookmarks, statistics, settings) in one JSON file — no extra storage permissions.",
+  "backupExport": "Export backup",
+  "backupExportDesc": "Pick a save location via the system dialog",
+  "backupImport": "Restore from backup",
+  "backupImportDesc": "Pick a previously exported backup file",
+  "backupImportConfirm": "File data will be merged with your current data (newer values win). Continue?",
+  "backupExportDone": "Exported {count} records",
+  "@backupExportDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportDone": "Restored {count} records",
+  "@backupImportDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupFailed": "Operation failed — try again"
 }

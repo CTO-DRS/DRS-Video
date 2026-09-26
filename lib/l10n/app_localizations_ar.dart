@@ -1155,4 +1155,146 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get bootSafeModePreparing => 'جارٍ التشغيل بالوضع الآمن…';
+
+  @override
+  String get playerZoomReset => 'إعادة العرض الطبيعي';
+
+  @override
+  String get playerScreenshot => 'لقطة شاشة';
+
+  @override
+  String get screenshotSaved => 'حُفظت اللقطة في المعرض';
+
+  @override
+  String get screenshotFailed => 'تعذّر إكمال العملية';
+
+  @override
+  String get playerAudioOnly => 'الاستماع فقط';
+
+  @override
+  String get playerAudioOnlyOn => 'وضع الصوت مفعّل';
+
+  @override
+  String get playerBookmarks => 'الإشارات المرجعية';
+
+  @override
+  String get playerBookmarkAdd => 'إشارة مرجعية هنا';
+
+  @override
+  String get bookmarkAdded => 'أُضيفت إشارة مرجعية';
+
+  @override
+  String get bookmarkEmpty =>
+      'لا توجد إشارات مرجعية بعد — أضف واحدة من زر الإشارة في شريط التحكم.';
+
+  @override
+  String get playerAbLoop => 'تكرار المقطع: تحديد النقطة A';
+
+  @override
+  String get playerLoopMarkB => 'تكرار المقطع: تحديد النقطة B';
+
+  @override
+  String get playerLoopActive => 'تكرار A-B مفعّل — اضغط لإيقافه';
+
+  @override
+  String get libraryFolders => 'المجلدات';
+
+  @override
+  String get foldersEmptyTitle => 'لا توجد مجلدات';
+
+  @override
+  String get foldersEmptyBody => 'لم يُعثر على فيديوهات على الجهاز بعد.';
+
+  @override
+  String folderVideosCount(int count) {
+    return '$count فيديو';
+  }
+
+  @override
+  String get statsTitle => 'إحصائيات المشاهدة';
+
+  @override
+  String get statsTotalWatch => 'وقت المشاهدة';
+
+  @override
+  String get statsDaily14 => 'آخر 14 يومًا';
+
+  @override
+  String get statsTopWatched => 'الأكثر مشاهدة';
+
+  @override
+  String get statsStreak => 'أيام متتالية';
+
+  @override
+  String get statsNoData =>
+      'لا توجد بيانات مشاهدة بعد — ستظهر الإحصائيات بعد أول تشغيل.';
+
+  @override
+  String get statsClear => 'مسح الإحصائيات';
+
+  @override
+  String get statsClearConfirm =>
+      'سيتم حذف كل إحصائيات المشاهدة نهائيًا. تقدم التشغيل لن يتأثر.';
+
+  @override
+  String statsPlays(int count) {
+    return '$count مرة';
+  }
+
+  @override
+  String get themeColor => 'لون التطبيق';
+
+  @override
+  String get paletteDynamic => 'ديناميكي (حسب النظام)';
+
+  @override
+  String get paletteNightBlue => 'أزرق ليلي';
+
+  @override
+  String get paletteEmerald => 'أخضر زمردي';
+
+  @override
+  String get palettePurple => 'بنفسجي';
+
+  @override
+  String get paletteSunset => 'برتقالي الغروب';
+
+  @override
+  String get paletteCalmGray => 'رمادي هادئ';
+
+  @override
+  String get backupSection => 'النسخ الاحتياطي والاستعادة';
+
+  @override
+  String get backupHint =>
+      'كل بياناتك (التقدم، المفضلة، القوائم، الإشارات، الإحصائيات، الإعدادات) في ملف JSON واحد — بدون أي صلاحيات تخزين إضافية.';
+
+  @override
+  String get backupExport => 'تصدير نسخة احتياطية';
+
+  @override
+  String get backupExportDesc => 'اختر مكانًا لحفظ الملف عبر نافذة النظام';
+
+  @override
+  String get backupImport => 'استعادة من نسخة احتياطية';
+
+  @override
+  String get backupImportDesc => 'اختر ملف نسخة احتياطية سابقًا';
+
+  @override
+  String get backupImportConfirm =>
+      'سيتم دمج بيانات الملف مع بياناتك الحالية (القيم الأحدث تبقى). هل تريد المتابعة؟';
+
+  @override
+  String backupExportDone(int count) {
+    return 'تم تصدير $count سجلًا بنجاح';
+  }
+
+  @override
+  String backupImportDone(int count) {
+    return 'تمت استعادة $count سجلًا بنجاح';
+  }
+
+  @override
+  String get backupFailed => 'فشلت العملية — جرّب مرة أخرى';
 }

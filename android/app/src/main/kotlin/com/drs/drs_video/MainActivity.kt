@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.os.StatFs
 import android.provider.MediaStore
 import android.util.Rational
@@ -31,9 +32,13 @@ class MainActivity : AudioServiceActivity() {
     private val channelName = "drs.video/native"
     private var autoPip = false
     private var pendingDeleteResult: MethodChannel.Result? = null
+    private var pendingPickResult: MethodChannel.Result? = null
+    private var pendingCreateResult: MethodChannel.Result? = null
 
     companion object {
         const val REQ_DELETE = 4242
+        const val REQ_PICK_JSON = 4301
+        const val REQ_CREATE_JSON = 4302
     }
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
@@ -114,6 +119,63 @@ class MainActivity : AudioServiceActivity() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
                 result.success(null)
+            }
+            "gallery/saveImage" -> saveImageToGallery(call, result)
+            "files/pickJson" -> {
+                pendingPickResult = result
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "application/json"
+                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json", "text/plain", "application/octet-stream"))
+                }
+                try {
+                    startActivityForResult(intent, REQ_PICK_JSON)
+                } catch (_: Exception) {
+                    pendingPickResult = null
+                    result.success(null)
+                }
+            }
+            "files/createJson" -> {
+                pendingCreateResult = result
+                val name = call.argument<String>("name") ?: "drs-video-backup.json"
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "application/json"
+                    putExtra(Intent.EXTRA_TITLE, name)
+                }
+                try {
+                    startActivityForResult(intent, REQ_CREATE_JSON)
+                } catch (_: Exception) {
+                    pendingCreateResult = null
+                    result.success(null)
+                }
+            }
+            "files/read" -> {
+                val uri = Uri.parse(call.argument<String>("uri") ?: "")
+                var text: String? = null
+                try {
+                    contentResolver.openInputStream(uri)?.use { input ->
+                        text = input.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                    }
+                } catch (e: Exception) {
+                    text = null
+                }
+                result.success(text)
+            }
+            "files/write" -> {
+                val uri = Uri.parse(call.argument<String>("uri") ?: "")
+                val content = call.argument<String>("content") ?: ""
+                var ok = false
+                try {
+                    contentResolver.openOutputStream(uri, "wt")?.use { output ->
+                        output.write(content.toByteArray(Charsets.UTF_8))
+                        output.flush()
+                        ok = true
+                    }
+                } catch (e: Exception) {
+                    ok = false
+                }
+                result.success(ok)
             }
             else -> result.notImplemented()
         }
@@ -323,12 +385,103 @@ class MainActivity : AudioServiceActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQ_DELETE) {
-            val ok = resultCode == RESULT_OK
-            pendingDeleteResult?.success(ok)
-            pendingDeleteResult = null
+    /// v1.1.0: copies a local image into the gallery (Pictures/DRS Video).
+    /// Android 10+: MediaStore insert with RELATIVE_PATH (no permission
+    /// needed). Android 7-9: public dir + MediaScanner, with a fallback to
+    /// the app-specific pictures dir when legacy write access is missing.
+    /// NEVER throws to the caller — failures return null.
+    private fun saveImageToGallery(call: MethodCall, result: MethodChannel.Result) {
+        val srcPath = call.argument<String>("path")
+        if (srcPath == null) {
+            result.success(null)
             return
+        }
+        val src = File(srcPath)
+        if (!src.exists()) {
+            result.success(null)
+            return
+        }
+        val name = "DRS-Video-${System.currentTimeMillis()}.png"
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val values = android.content.ContentValues().apply {
+                    put(MediaStore.Images.Media.DISPLAY_NAME, name)
+                    put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                    put(
+                        MediaStore.Images.Media.RELATIVE_PATH,
+                        Environment.DIRECTORY_PICTURES + "/DRS Video"
+                    )
+                    put(MediaStore.Images.Media.IS_PENDING, 1)
+                }
+                val collection = MediaStore.Images.Media
+                    .getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                val uri = contentResolver.insert(collection, values)
+                if (uri == null) {
+                    result.success(null)
+                    return
+                }
+                contentResolver.openOutputStream(uri)?.use { out ->
+                    src.inputStream().use { it.copyTo(out) }
+                }
+                values.clear()
+                values.put(MediaStore.Images.Media.IS_PENDING, 0)
+                contentResolver.update(uri, values, null, null)
+                result.success(uri.toString())
+            } else {
+                val dir = File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                    "DRS Video"
+                )
+                val target = try {
+                    if (!dir.exists()) dir.mkdirs()
+                    File(dir, name)
+                } catch (e: Exception) {
+                    null
+                }
+                val publicTarget = target != null && try {
+                    src.copyTo(target, overwrite = true).exists()
+                } catch (e: Exception) {
+                    false
+                }
+                val finalPath = if (publicTarget) {
+                    MediaScannerConnection.scanFile(this, arrayOf(target!!.path), arrayOf("image/png"), null)
+                    target.path
+                } else {
+                    // Legacy write denied or failed: fall back to the
+                    // app-specific pictures directory (still scanneable).
+                    val appDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                    val fb = File(appDir, name)
+                    src.copyTo(fb, overwrite = true)
+                    MediaScannerConnection.scanFile(this, arrayOf(fb.path), arrayOf("image/png"), null)
+                    fb.path
+                }
+                result.success(finalPath)
+            }
+        } catch (e: Exception) {
+            result.success(null)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            REQ_DELETE -> {
+                val ok = resultCode == RESULT_OK
+                pendingDeleteResult?.success(ok)
+                pendingDeleteResult = null
+                return
+            }
+            REQ_PICK_JSON -> {
+                val uri = if (resultCode == RESULT_OK) data?.data?.toString() else null
+                pendingPickResult?.success(uri)
+                pendingPickResult = null
+                return
+            }
+            REQ_CREATE_JSON -> {
+                val uri = if (resultCode == RESULT_OK) data?.data?.toString() else null
+                pendingCreateResult?.success(uri)
+                pendingCreateResult = null
+                return
+            }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

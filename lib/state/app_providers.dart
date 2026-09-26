@@ -4,6 +4,7 @@ import '../core/network/dio_client.dart';
 import '../core/storage/database_service.dart';
 import '../core/storage/preferences_service.dart';
 import '../core/utils/logger.dart';
+import '../data/repositories/bookmark_repository.dart';
 import '../data/repositories/download_repository.dart';
 import '../data/repositories/history_repository.dart';
 import '../data/repositories/library_repository.dart';
@@ -12,6 +13,7 @@ import '../data/repositories/source_repository.dart';
 import '../data/sources/direct_url_adapter.dart';
 import '../data/sources/local_file_adapter.dart';
 import '../data/sources/source_adapter.dart';
+import '../services/backup/backup_service.dart';
 import '../services/downloader/download_service.dart';
 import '../services/files/file_manager_service.dart';
 import '../services/notifications/notification_service.dart';
@@ -44,6 +46,7 @@ class AppServices {
     required this.library,
     required this.history,
     required this.playlists,
+    required this.bookmarks,
     required this.downloadsRepo,
     required this.sources,
     required this.player,
@@ -54,6 +57,7 @@ class AppServices {
     required this.share,
     required this.fileManager,
     required this.analyzer,
+    required this.backup,
     required this.health,
   });
 
@@ -63,6 +67,7 @@ class AppServices {
   final LibraryRepository library;
   final HistoryRepository history;
   final PlaylistRepository playlists;
+  final BookmarkRepository bookmarks;
   final DownloadRepository downloadsRepo;
   final SourceRepository sources;
   final PlayerService player;
@@ -73,6 +78,7 @@ class AppServices {
   final ShareService share;
   final FileManagerService fileManager;
   final StorageAnalyzer analyzer;
+  final BackupService backup;
   final ServiceHealth health;
 }
 
@@ -130,6 +136,7 @@ Future<AppServices> bootstrap({
   final library = LibraryRepository(db);
   final history = HistoryRepository(db);
   final playlists = PlaylistRepository(db);
+  final bookmarks = BookmarkRepository(db);
   final downloadsRepo = DownloadRepository(db);
   final sources = SourceRepository(db);
 
@@ -148,6 +155,7 @@ Future<AppServices> bootstrap({
     history: history,
     library: library,
     connectivity: connectivity,
+    bookmarks: bookmarks,
     createEngineNow: false,
   );
 
@@ -182,6 +190,7 @@ Future<AppServices> bootstrap({
     library: library,
     history: history,
     playlists: playlists,
+    bookmarks: bookmarks,
     downloadsRepo: downloadsRepo,
     sources: sources,
     player: player,
@@ -192,6 +201,13 @@ Future<AppServices> bootstrap({
     share: const ShareService(),
     fileManager: const FileManagerService(),
     analyzer: const StorageAnalyzer(),
+    backup: BackupService(
+      library: library,
+      history: history,
+      playlists: playlists,
+      bookmarks: bookmarks,
+      prefs: prefs,
+    ),
     health: health,
   );
 }

@@ -2305,6 +2305,264 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'جارٍ التشغيل بالوضع الآمن…'**
   String get bootSafeModePreparing;
+
+  /// No description provided for @playerZoomReset.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة العرض الطبيعي'**
+  String get playerZoomReset;
+
+  /// No description provided for @playerScreenshot.
+  ///
+  /// In ar, this message translates to:
+  /// **'لقطة شاشة'**
+  String get playerScreenshot;
+
+  /// No description provided for @screenshotSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'حُفظت اللقطة في المعرض'**
+  String get screenshotSaved;
+
+  /// No description provided for @screenshotFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إكمال العملية'**
+  String get screenshotFailed;
+
+  /// No description provided for @playerAudioOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاستماع فقط'**
+  String get playerAudioOnly;
+
+  /// No description provided for @playerAudioOnlyOn.
+  ///
+  /// In ar, this message translates to:
+  /// **'وضع الصوت مفعّل'**
+  String get playerAudioOnlyOn;
+
+  /// No description provided for @playerBookmarks.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإشارات المرجعية'**
+  String get playerBookmarks;
+
+  /// No description provided for @playerBookmarkAdd.
+  ///
+  /// In ar, this message translates to:
+  /// **'إشارة مرجعية هنا'**
+  String get playerBookmarkAdd;
+
+  /// No description provided for @bookmarkAdded.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُضيفت إشارة مرجعية'**
+  String get bookmarkAdded;
+
+  /// No description provided for @bookmarkEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد إشارات مرجعية بعد — أضف واحدة من زر الإشارة في شريط التحكم.'**
+  String get bookmarkEmpty;
+
+  /// No description provided for @playerAbLoop.
+  ///
+  /// In ar, this message translates to:
+  /// **'تكرار المقطع: تحديد النقطة A'**
+  String get playerAbLoop;
+
+  /// No description provided for @playerLoopMarkB.
+  ///
+  /// In ar, this message translates to:
+  /// **'تكرار المقطع: تحديد النقطة B'**
+  String get playerLoopMarkB;
+
+  /// No description provided for @playerLoopActive.
+  ///
+  /// In ar, this message translates to:
+  /// **'تكرار A-B مفعّل — اضغط لإيقافه'**
+  String get playerLoopActive;
+
+  /// No description provided for @libraryFolders.
+  ///
+  /// In ar, this message translates to:
+  /// **'المجلدات'**
+  String get libraryFolders;
+
+  /// No description provided for @foldersEmptyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مجلدات'**
+  String get foldersEmptyTitle;
+
+  /// No description provided for @foldersEmptyBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُعثر على فيديوهات على الجهاز بعد.'**
+  String get foldersEmptyBody;
+
+  /// No description provided for @folderVideosCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} فيديو'**
+  String folderVideosCount(int count);
+
+  /// No description provided for @statsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إحصائيات المشاهدة'**
+  String get statsTitle;
+
+  /// No description provided for @statsTotalWatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'وقت المشاهدة'**
+  String get statsTotalWatch;
+
+  /// No description provided for @statsDaily14.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر 14 يومًا'**
+  String get statsDaily14;
+
+  /// No description provided for @statsTopWatched.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأكثر مشاهدة'**
+  String get statsTopWatched;
+
+  /// No description provided for @statsStreak.
+  ///
+  /// In ar, this message translates to:
+  /// **'أيام متتالية'**
+  String get statsStreak;
+
+  /// No description provided for @statsNoData.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد بيانات مشاهدة بعد — ستظهر الإحصائيات بعد أول تشغيل.'**
+  String get statsNoData;
+
+  /// No description provided for @statsClear.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسح الإحصائيات'**
+  String get statsClear;
+
+  /// No description provided for @statsClearConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيتم حذف كل إحصائيات المشاهدة نهائيًا. تقدم التشغيل لن يتأثر.'**
+  String get statsClearConfirm;
+
+  /// No description provided for @statsPlays.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} مرة'**
+  String statsPlays(int count);
+
+  /// No description provided for @themeColor.
+  ///
+  /// In ar, this message translates to:
+  /// **'لون التطبيق'**
+  String get themeColor;
+
+  /// No description provided for @paletteDynamic.
+  ///
+  /// In ar, this message translates to:
+  /// **'ديناميكي (حسب النظام)'**
+  String get paletteDynamic;
+
+  /// No description provided for @paletteNightBlue.
+  ///
+  /// In ar, this message translates to:
+  /// **'أزرق ليلي'**
+  String get paletteNightBlue;
+
+  /// No description provided for @paletteEmerald.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخضر زمردي'**
+  String get paletteEmerald;
+
+  /// No description provided for @palettePurple.
+  ///
+  /// In ar, this message translates to:
+  /// **'بنفسجي'**
+  String get palettePurple;
+
+  /// No description provided for @paletteSunset.
+  ///
+  /// In ar, this message translates to:
+  /// **'برتقالي الغروب'**
+  String get paletteSunset;
+
+  /// No description provided for @paletteCalmGray.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمادي هادئ'**
+  String get paletteCalmGray;
+
+  /// No description provided for @backupSection.
+  ///
+  /// In ar, this message translates to:
+  /// **'النسخ الاحتياطي والاستعادة'**
+  String get backupSection;
+
+  /// No description provided for @backupHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل بياناتك (التقدم، المفضلة، القوائم، الإشارات، الإحصائيات، الإعدادات) في ملف JSON واحد — بدون أي صلاحيات تخزين إضافية.'**
+  String get backupHint;
+
+  /// No description provided for @backupExport.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصدير نسخة احتياطية'**
+  String get backupExport;
+
+  /// No description provided for @backupExportDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر مكانًا لحفظ الملف عبر نافذة النظام'**
+  String get backupExportDesc;
+
+  /// No description provided for @backupImport.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة من نسخة احتياطية'**
+  String get backupImport;
+
+  /// No description provided for @backupImportDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر ملف نسخة احتياطية سابقًا'**
+  String get backupImportDesc;
+
+  /// No description provided for @backupImportConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيتم دمج بيانات الملف مع بياناتك الحالية (القيم الأحدث تبقى). هل تريد المتابعة؟'**
+  String get backupImportConfirm;
+
+  /// No description provided for @backupExportDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تصدير {count} سجلًا بنجاح'**
+  String backupExportDone(int count);
+
+  /// No description provided for @backupImportDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت استعادة {count} سجلًا بنجاح'**
+  String backupImportDone(int count);
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشلت العملية — جرّب مرة أخرى'**
+  String get backupFailed;
 }
 
 class _AppLocalizationsDelegate
