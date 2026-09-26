@@ -11,6 +11,30 @@ class PreferencesService {
   /// Direct access for framework glue (theme controller).
   SharedPreferences get raw => _prefs;
 
+  // ---- downloads v2 / cloud backup (v1.8.0) ------------------------------
+
+  bool get autoResumeOnWifi => _prefs.getBool(PrefKeys.autoResumeOnWifi) ?? true;
+  set autoResumeOnWifi(bool v) => _prefs.setBool(PrefKeys.autoResumeOnWifi, v);
+
+  String? get cloudBackupConfigRaw => _prefs.getString(PrefKeys.cloudBackupConfig);
+  set cloudBackupConfigRaw(String? v) => v == null
+      ? _prefs.remove(PrefKeys.cloudBackupConfig)
+      : _prefs.setString(PrefKeys.cloudBackupConfig, v);
+
+  bool get cloudBackupEnabled =>
+      _prefs.getBool(PrefKeys.cloudBackupEnabled) ?? false;
+  set cloudBackupEnabled(bool v) =>
+      _prefs.setBool(PrefKeys.cloudBackupEnabled, v);
+
+  DateTime? get cloudBackupLastAt {
+    final ms = _prefs.getInt(PrefKeys.cloudBackupLastAt);
+    return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
+  }
+
+  set cloudBackupLastAt(DateTime? v) => v == null
+      ? _prefs.remove(PrefKeys.cloudBackupLastAt)
+      : _prefs.setInt(PrefKeys.cloudBackupLastAt, v.millisecondsSinceEpoch);
+
   // ---- appearance ----
   bool get dynamicColor => _prefs.getBool(PrefKeys.dynamicColor) ?? true;
   bool get animations => _prefs.getBool(PrefKeys.animationsEnabled) ?? true;

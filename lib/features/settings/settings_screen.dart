@@ -223,6 +223,14 @@ class SettingsScreen extends StatelessWidget {
               value: s.wifiOnly,
               onChanged: s.setWifiOnly,
             ),
+            // v1.8.0: silently resume system-paused downloads when WiFi
+            // returns (user-paused tasks stay paused).
+            SwitchListTile(
+              title: Text(l.setAutoResumeWifi),
+              subtitle: Text(l.setAutoResumeWifiDesc),
+              value: s.autoResumeOnWifi,
+              onChanged: s.setAutoResumeOnWifi,
+            ),
             SwitchListTile(
               title: Text(l.setNotifyDone),
               value: s.notifyDone,

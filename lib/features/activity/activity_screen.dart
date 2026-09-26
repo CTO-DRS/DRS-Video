@@ -1,9 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../../core/utils/formatters.dart';
 import '../../data/models/media_item.dart';
 import '../../data/repositories/history_repository.dart';
 import '../../data/repositories/library_repository.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/smart/analytics_export.dart';
 import '../../services/smart/watch_stats_engine.dart';
 
 /// "نشاطي الذكي" — fully local viewing-statistics dashboard:
@@ -56,6 +63,85 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
   }
 
+  // ---- v1.8.0: analytics export ---------------------------------------
+
+  /// Bottom sheet with the two export flavours: full CSV inventory or a
+  /// shareable text summary of the dashboard.
+  Future<void> _exportSheet() async {
+    final l = AppLocalizations.of(context)!;
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.table_chart_outlined),
+              title: Text(l.analyticsExportCsv),
+              subtitle: Text(l.analyticsExportCsvDesc),
+              onTap: () {
+                Navigator.of(sheet).pop();
+                _exportCsv();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.text_snippet_outlined),
+              title: Text(l.analyticsExportSummary),
+              subtitle: Text(l.analyticsExportSummaryDesc),
+              onTap: () {
+                Navigator.of(sheet).pop();
+                _shareSummary();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportCsv() async {
+    try {
+      final library = context.read<LibraryRepository>();
+      final history = context.read<HistoryRepository>();
+      final pool = await library.query(const LibraryQuery(limit: 100000));
+      final progress = await history.progressMap();
+      final csv = AnalyticsExport.buildHistoryCsv(pool, progress);
+      final base = await getTemporaryDirectory();
+      final stamp = DateTime.now();
+      String two(int n) => n.toString().padLeft(2, '0');
+      final file = File(
+          '${base.path}/drs-video-analytics-${stamp.year}${two(stamp.month)}${two(stamp.day)}-${two(stamp.hour)}${two(stamp.minute)}.csv');
+      await file.writeAsString(csv, flush: true);
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: 'text/csv')],
+        subject: 'DRS Video analytics',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.backupFailed(e.toString()))));
+    }
+  }
+
+  Future<void> _shareSummary() async {
+    final l = AppLocalizations.of(context)!;
+    final s = _stats;
+    if (s == null) return;
+
+    final text = [
+      '${l.activityTitle} — DRS Video',
+      '━━━━━━━━━━━━━━━━',
+      '${l.statWatchTime}: ${Formatters.duration(s.totalWatchMs)}',
+      '${l.statWatched}: ${s.watchedCount}',
+      '${l.statCompleted}: ${s.completedCount}',
+      '${l.statStreak}: ${s.currentStreakDays} ${l.daysUnit} (${l.bestStreak(s.bestStreakDays)})',
+      if (s.peakHour != null) l.peakHourLabel(s.peakHour!),
+      if (s.topInterests.isNotEmpty)
+        '${l.topInterestsTitle}: ${s.topInterests.join(' · ')}',
+    ].join('\n');
+    await Share.share(text, subject: 'DRS Video — ${l.activityTitle}');
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -65,6 +151,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
       appBar: AppBar(
         title: Text(l.activityTitle),
         actions: [
+          // v1.8.0: export full inventory CSV + share text summary.
+          IconButton(
+            icon: const Icon(Icons.ios_share),
+            tooltip: l.analyticsExport,
+            onPressed: _loading ? null : _exportSheet,
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,

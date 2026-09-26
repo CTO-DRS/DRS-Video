@@ -754,18 +754,48 @@
   "backupTitle": "النسخ الاحتياطي والاستعادة",
   "backupIncludesTitle": "ما يشمله ملف النسخة",
   "backupItemsCount": "{count} عنصر في المكتبة",
-  "@backupItemsCount": { "placeholders": { "count": { "type": "int" } } },
+  "@backupItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "backupPlaylistsCount": "{count} قائمة تشغيل",
-  "@backupPlaylistsCount": { "placeholders": { "count": { "type": "int" } } },
+  "@backupPlaylistsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "backupProgressCount": "{count} موضع مشاهدة محفوظ",
-  "@backupProgressCount": { "placeholders": { "count": { "type": "int" } } },
+  "@backupProgressCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "backupSearchesCount": "{count} عملية بحث محفوظة",
-  "@backupSearchesCount": { "placeholders": { "count": { "type": "int" } } },
+  "@backupSearchesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "backupSettingsRow": "جميع الإعدادات والتفضيلات",
   "backupNeverDeletes": "الاستعادة تضيف فقط ولا تحذف شيئًا من بياناتك الحالية.",
   "backupExport": "تصدير نسخة احتياطية",
   "backupExportedTo": "تم إنشاء الملف: {path}",
-  "@backupExportedTo": { "placeholders": { "path": { "type": "String" } } },
+  "@backupExportedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
   "backupExportDone": "تم إنشاء النسخة الاحتياطية — شاركها واحفظها في مكان آمن",
   "backupImport": "استعادة من ملف نسخة",
   "backupMergeNote": "الاستعادة تدمج البيانات مع مكتبتك: العناصر الموجودة مسبقًا تُتجاهل ولا يُحذف شيء.",
@@ -773,8 +803,12 @@
   "backupConfirmBody": "نسخة من إصدار {version} بتاريخ {date}. سيتم دمج بياناتها مع مكتبتك الحالية.",
   "@backupConfirmBody": {
     "placeholders": {
-      "version": { "type": "String" },
-      "date": { "type": "String" }
+      "version": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
     }
   },
   "backupConfirmRestore": "استعادة",
@@ -782,21 +816,98 @@
   "backupImportDone": "أُضيف {added} عنصرًا وتجاهُل {skipped} موجود مسبقًا • قوائم جديدة {playlists} ومدمجة {merged} • مواضع مشاهدة {progress} • عمليات بحث {searches}",
   "@backupImportDone": {
     "placeholders": {
-      "added": { "type": "int" },
-      "skipped": { "type": "int" },
-      "playlists": { "type": "int" },
-      "merged": { "type": "int" },
-      "progress": { "type": "int" },
-      "searches": { "type": "int" }
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "playlists": {
+        "type": "int"
+      },
+      "merged": {
+        "type": "int"
+      },
+      "progress": {
+        "type": "int"
+      },
+      "searches": {
+        "type": "int"
+      }
     }
   },
   "backupFailed": "فشل النسخ الاحتياطي: {error}",
-  "@backupFailed": { "placeholders": { "error": { "type": "String" } } },
+  "@backupFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "sortPlayCount": "الأكثر تشغيلاً",
   "sortResolution": "دقة الفيديو",
   "sortDirectionAscending": "ترتيب تصاعدي",
   "sortDirectionDescending": "ترتيب تنازلي",
   "streamKindHls": "بث مباشر HLS — سيُشغّل فورًا",
   "streamKindDash": "بث DASH — سيُشغّل فورًا",
-  "streamKindFile": "ملف فيديو مباشر"
+  "streamKindFile": "ملف فيديو مباشر",
+  "analyticsExport": "تصدير التحليلات",
+  "analyticsExportCsv": "تصدير CSV كامل",
+  "analyticsExportCsvDesc": "جميع عناصر مكتبتك مع مشاهداتها ومواضعها — يفتح في Excel",
+  "analyticsExportSummary": "مشاركة ملخص النشاط",
+  "analyticsExportSummaryDesc": "نص جاهز للمشاركة: وقت المشاهدة، السلاسل، ساعة الذروة",
+  "downloadsRetryAll": "إعادة محاولة الفاشلة كلها",
+  "setAutoResumeWifi": "استئناف تلقائي عند عودة Wi-Fi",
+  "setAutoResumeWifiDesc": "يُكمل التنزيلات المتوقفة بسبب انقطاع الشبكة — ما أوقفته بنفسك يبقى متوقفًا",
+  "cloudBackupTitle": "النسخ السحابي (WebDAV/SFTP)",
+  "cloudRefresh": "تحديث القائمة",
+  "cloudKindWebdav": "WebDAV",
+  "cloudKindSftp": "SFTP",
+  "cloudHost": "العنوان (host)",
+  "cloudPort": "المنفذ",
+  "cloudTls": "HTTPS",
+  "cloudUser": "اسم المستخدم",
+  "cloudPassword": "كلمة المرور",
+  "cloudBasePath": "المسار الأساسي (اختياري)",
+  "cloudPathNote": "ستُحفظ النسخ في مجلد {path} على الخادم",
+  "@cloudPathNote": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudTest": "اختبار الاتصال",
+  "cloudTestOk": "الاتصال ناجح — المجلد جاهز",
+  "cloudUploadNow": "رفع نسخة الآن",
+  "cloudUploaded": "رُفعت إلى: {path}",
+  "@cloudUploaded": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudFailed": "فشلت العملية: {error}",
+  "@cloudFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudAutoTitle": "نسخ احتياطي تلقائي يومي",
+  "cloudAutoDesc": "يُرفع ملف نسخة احتياطية تلقائيًا كل 24 ساعة عند فتح شاشة النسخ",
+  "cloudAutoNeedsConfig": "أضف خادمًا أولًا لتفعيل النسخ التلقائي",
+  "cloudLastBackup": "آخر نسخة سحابية: {stamp}",
+  "@cloudLastBackup": {
+    "placeholders": {
+      "stamp": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudRemoteList": "النسخ الموجودة على الخادم",
+  "cloudListHint": "اضغط لجلب قائمة النسخ السحابية",
+  "cloudListEmpty": "لا توجد نسخ على الخادم بعد"
 }

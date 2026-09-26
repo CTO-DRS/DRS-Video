@@ -1874,4 +1874,109 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get streamKindFile => 'Direct video file';
+
+  @override
+  String get analyticsExport => 'Export analytics';
+
+  @override
+  String get analyticsExportCsv => 'Export full CSV';
+
+  @override
+  String get analyticsExportCsvDesc =>
+      'Your whole library with play counts and progress — opens in Excel';
+
+  @override
+  String get analyticsExportSummary => 'Share activity summary';
+
+  @override
+  String get analyticsExportSummaryDesc =>
+      'Ready-to-share text: watch time, streaks, peak hour';
+
+  @override
+  String get downloadsRetryAll => 'Retry all failed';
+
+  @override
+  String get setAutoResumeWifi => 'Auto-resume when Wi-Fi returns';
+
+  @override
+  String get setAutoResumeWifiDesc =>
+      'Continues downloads that paused due to network loss — ones you paused stay paused';
+
+  @override
+  String get cloudBackupTitle => 'Cloud backup (WebDAV/SFTP)';
+
+  @override
+  String get cloudRefresh => 'Refresh list';
+
+  @override
+  String get cloudKindWebdav => 'WebDAV';
+
+  @override
+  String get cloudKindSftp => 'SFTP';
+
+  @override
+  String get cloudHost => 'Host';
+
+  @override
+  String get cloudPort => 'Port';
+
+  @override
+  String get cloudTls => 'HTTPS';
+
+  @override
+  String get cloudUser => 'Username';
+
+  @override
+  String get cloudPassword => 'Password';
+
+  @override
+  String get cloudBasePath => 'Base path (optional)';
+
+  @override
+  String cloudPathNote(String path) {
+    return 'Backups will be stored in the $path folder on your server';
+  }
+
+  @override
+  String get cloudTest => 'Test connection';
+
+  @override
+  String get cloudTestOk => 'Connection OK — folder ready';
+
+  @override
+  String get cloudUploadNow => 'Back up now';
+
+  @override
+  String cloudUploaded(String path) {
+    return 'Uploaded to: $path';
+  }
+
+  @override
+  String cloudFailed(String error) {
+    return 'Operation failed: $error';
+  }
+
+  @override
+  String get cloudAutoTitle => 'Daily auto backup';
+
+  @override
+  String get cloudAutoDesc =>
+      'Uploads a backup automatically every 24h when you open this screen';
+
+  @override
+  String get cloudAutoNeedsConfig => 'Add a server first to enable auto backup';
+
+  @override
+  String cloudLastBackup(String stamp) {
+    return 'Last cloud backup: $stamp';
+  }
+
+  @override
+  String get cloudRemoteList => 'Backups on the server';
+
+  @override
+  String get cloudListHint => 'Tap to fetch the cloud backup list';
+
+  @override
+  String get cloudListEmpty => 'No backups on the server yet';
 }

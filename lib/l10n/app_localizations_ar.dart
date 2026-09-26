@@ -1863,4 +1863,109 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get streamKindFile => 'ملف فيديو مباشر';
+
+  @override
+  String get analyticsExport => 'تصدير التحليلات';
+
+  @override
+  String get analyticsExportCsv => 'تصدير CSV كامل';
+
+  @override
+  String get analyticsExportCsvDesc =>
+      'جميع عناصر مكتبتك مع مشاهداتها ومواضعها — يفتح في Excel';
+
+  @override
+  String get analyticsExportSummary => 'مشاركة ملخص النشاط';
+
+  @override
+  String get analyticsExportSummaryDesc =>
+      'نص جاهز للمشاركة: وقت المشاهدة، السلاسل، ساعة الذروة';
+
+  @override
+  String get downloadsRetryAll => 'إعادة محاولة الفاشلة كلها';
+
+  @override
+  String get setAutoResumeWifi => 'استئناف تلقائي عند عودة Wi-Fi';
+
+  @override
+  String get setAutoResumeWifiDesc =>
+      'يُكمل التنزيلات المتوقفة بسبب انقطاع الشبكة — ما أوقفته بنفسك يبقى متوقفًا';
+
+  @override
+  String get cloudBackupTitle => 'النسخ السحابي (WebDAV/SFTP)';
+
+  @override
+  String get cloudRefresh => 'تحديث القائمة';
+
+  @override
+  String get cloudKindWebdav => 'WebDAV';
+
+  @override
+  String get cloudKindSftp => 'SFTP';
+
+  @override
+  String get cloudHost => 'العنوان (host)';
+
+  @override
+  String get cloudPort => 'المنفذ';
+
+  @override
+  String get cloudTls => 'HTTPS';
+
+  @override
+  String get cloudUser => 'اسم المستخدم';
+
+  @override
+  String get cloudPassword => 'كلمة المرور';
+
+  @override
+  String get cloudBasePath => 'المسار الأساسي (اختياري)';
+
+  @override
+  String cloudPathNote(String path) {
+    return 'ستُحفظ النسخ في مجلد $path على الخادم';
+  }
+
+  @override
+  String get cloudTest => 'اختبار الاتصال';
+
+  @override
+  String get cloudTestOk => 'الاتصال ناجح — المجلد جاهز';
+
+  @override
+  String get cloudUploadNow => 'رفع نسخة الآن';
+
+  @override
+  String cloudUploaded(String path) {
+    return 'رُفعت إلى: $path';
+  }
+
+  @override
+  String cloudFailed(String error) {
+    return 'فشلت العملية: $error';
+  }
+
+  @override
+  String get cloudAutoTitle => 'نسخ احتياطي تلقائي يومي';
+
+  @override
+  String get cloudAutoDesc =>
+      'يُرفع ملف نسخة احتياطية تلقائيًا كل 24 ساعة عند فتح شاشة النسخ';
+
+  @override
+  String get cloudAutoNeedsConfig => 'أضف خادمًا أولًا لتفعيل النسخ التلقائي';
+
+  @override
+  String cloudLastBackup(String stamp) {
+    return 'آخر نسخة سحابية: $stamp';
+  }
+
+  @override
+  String get cloudRemoteList => 'النسخ الموجودة على الخادم';
+
+  @override
+  String get cloudListHint => 'اضغط لجلب قائمة النسخ السحابية';
+
+  @override
+  String get cloudListEmpty => 'لا توجد نسخ على الخادم بعد';
 }

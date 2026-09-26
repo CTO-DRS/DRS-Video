@@ -37,6 +37,9 @@ class SettingsController extends ChangeNotifier {
   String? get downloadDir => _prefs.downloadDir;
   int get maxConcurrent => _prefs.maxConcurrentDownloads;
   bool get wifiOnly => _prefs.wifiOnlyDownloads;
+  bool get autoResumeOnWifi => _prefs.autoResumeOnWifi;
+
+  void setAutoResumeOnWifi(bool v) => _set(() => _prefs.autoResumeOnWifi = v);
   bool get notifyDone => _prefs.notifyDownloadDone;
   bool get notifyError => _prefs.notifyDownloadError;
   bool get notifyStorage => _prefs.notifyStorageWarning;

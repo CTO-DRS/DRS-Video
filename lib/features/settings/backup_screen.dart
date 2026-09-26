@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state/app_providers.dart';
 import '../../services/backup/backup_service.dart';
 import '../../widgets/common/error_view.dart';
+import 'cloud_backup_screen.dart';
 
 /// Backup & restore: one-tap export of the whole user dataset (library,
 /// playlists, watch progress, searches and settings) into a shareable JSON
@@ -114,6 +115,16 @@ class _BackupScreenState extends State<BackupScreen> {
             onPressed: _working ? null : _import,
             icon: const Icon(Icons.restore),
             label: Text(l.backupImport),
+          ),
+          const SizedBox(height: 16),
+          // ---- cloud backup (v1.8.0) ----------------------------------
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const CloudBackupScreen()));
+            },
+            icon: const Icon(Icons.cloud_sync_outlined),
+            label: Text(l.cloudBackupTitle),
           ),
           const SizedBox(height: 12),
           Text(l.backupMergeNote,

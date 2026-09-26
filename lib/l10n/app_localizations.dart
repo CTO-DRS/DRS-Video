@@ -3566,6 +3566,192 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'ملف فيديو مباشر'**
   String get streamKindFile;
+
+  /// No description provided for @analyticsExport.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصدير التحليلات'**
+  String get analyticsExport;
+
+  /// No description provided for @analyticsExportCsv.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصدير CSV كامل'**
+  String get analyticsExportCsv;
+
+  /// No description provided for @analyticsExportCsvDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'جميع عناصر مكتبتك مع مشاهداتها ومواضعها — يفتح في Excel'**
+  String get analyticsExportCsvDesc;
+
+  /// No description provided for @analyticsExportSummary.
+  ///
+  /// In ar, this message translates to:
+  /// **'مشاركة ملخص النشاط'**
+  String get analyticsExportSummary;
+
+  /// No description provided for @analyticsExportSummaryDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'نص جاهز للمشاركة: وقت المشاهدة، السلاسل، ساعة الذروة'**
+  String get analyticsExportSummaryDesc;
+
+  /// No description provided for @downloadsRetryAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة محاولة الفاشلة كلها'**
+  String get downloadsRetryAll;
+
+  /// No description provided for @setAutoResumeWifi.
+  ///
+  /// In ar, this message translates to:
+  /// **'استئناف تلقائي عند عودة Wi-Fi'**
+  String get setAutoResumeWifi;
+
+  /// No description provided for @setAutoResumeWifiDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'يُكمل التنزيلات المتوقفة بسبب انقطاع الشبكة — ما أوقفته بنفسك يبقى متوقفًا'**
+  String get setAutoResumeWifiDesc;
+
+  /// No description provided for @cloudBackupTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'النسخ السحابي (WebDAV/SFTP)'**
+  String get cloudBackupTitle;
+
+  /// No description provided for @cloudRefresh.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث القائمة'**
+  String get cloudRefresh;
+
+  /// No description provided for @cloudKindWebdav.
+  ///
+  /// In ar, this message translates to:
+  /// **'WebDAV'**
+  String get cloudKindWebdav;
+
+  /// No description provided for @cloudKindSftp.
+  ///
+  /// In ar, this message translates to:
+  /// **'SFTP'**
+  String get cloudKindSftp;
+
+  /// No description provided for @cloudHost.
+  ///
+  /// In ar, this message translates to:
+  /// **'العنوان (host)'**
+  String get cloudHost;
+
+  /// No description provided for @cloudPort.
+  ///
+  /// In ar, this message translates to:
+  /// **'المنفذ'**
+  String get cloudPort;
+
+  /// No description provided for @cloudTls.
+  ///
+  /// In ar, this message translates to:
+  /// **'HTTPS'**
+  String get cloudTls;
+
+  /// No description provided for @cloudUser.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم المستخدم'**
+  String get cloudUser;
+
+  /// No description provided for @cloudPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور'**
+  String get cloudPassword;
+
+  /// No description provided for @cloudBasePath.
+  ///
+  /// In ar, this message translates to:
+  /// **'المسار الأساسي (اختياري)'**
+  String get cloudBasePath;
+
+  /// No description provided for @cloudPathNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'ستُحفظ النسخ في مجلد {path} على الخادم'**
+  String cloudPathNote(String path);
+
+  /// No description provided for @cloudTest.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختبار الاتصال'**
+  String get cloudTest;
+
+  /// No description provided for @cloudTestOk.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاتصال ناجح — المجلد جاهز'**
+  String get cloudTestOk;
+
+  /// No description provided for @cloudUploadNow.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفع نسخة الآن'**
+  String get cloudUploadNow;
+
+  /// No description provided for @cloudUploaded.
+  ///
+  /// In ar, this message translates to:
+  /// **'رُفعت إلى: {path}'**
+  String cloudUploaded(String path);
+
+  /// No description provided for @cloudFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشلت العملية: {error}'**
+  String cloudFailed(String error);
+
+  /// No description provided for @cloudAutoTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسخ احتياطي تلقائي يومي'**
+  String get cloudAutoTitle;
+
+  /// No description provided for @cloudAutoDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'يُرفع ملف نسخة احتياطية تلقائيًا كل 24 ساعة عند فتح شاشة النسخ'**
+  String get cloudAutoDesc;
+
+  /// No description provided for @cloudAutoNeedsConfig.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف خادمًا أولًا لتفعيل النسخ التلقائي'**
+  String get cloudAutoNeedsConfig;
+
+  /// No description provided for @cloudLastBackup.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر نسخة سحابية: {stamp}'**
+  String cloudLastBackup(String stamp);
+
+  /// No description provided for @cloudRemoteList.
+  ///
+  /// In ar, this message translates to:
+  /// **'النسخ الموجودة على الخادم'**
+  String get cloudRemoteList;
+
+  /// No description provided for @cloudListHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اضغط لجلب قائمة النسخ السحابية'**
+  String get cloudListHint;
+
+  /// No description provided for @cloudListEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد نسخ على الخادم بعد'**
+  String get cloudListEmpty;
 }
 
 class _AppLocalizationsDelegate

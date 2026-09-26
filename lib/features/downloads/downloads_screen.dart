@@ -109,6 +109,12 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
             icon: const Icon(Icons.play_circle_outline),
             onPressed: controller.resumeAll,
           ),
+          // v1.8.0: one-tap recovery for every failed download.
+          IconButton(
+            tooltip: l.downloadsRetryAll,
+            icon: const Icon(Icons.refresh),
+            onPressed: failed.isEmpty ? null : controller.retryAll,
+          ),
         ],
       ),
       body: ListView(

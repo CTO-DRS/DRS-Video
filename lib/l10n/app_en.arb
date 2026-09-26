@@ -798,5 +798,64 @@
   "sortDirectionDescending": "Descending order",
   "streamKindHls": "HLS live stream — plays instantly",
   "streamKindDash": "DASH stream — plays instantly",
-  "streamKindFile": "Direct video file"
+  "streamKindFile": "Direct video file",
+  "analyticsExport": "Export analytics",
+  "analyticsExportCsv": "Export full CSV",
+  "analyticsExportCsvDesc": "Your whole library with play counts and progress — opens in Excel",
+  "analyticsExportSummary": "Share activity summary",
+  "analyticsExportSummaryDesc": "Ready-to-share text: watch time, streaks, peak hour",
+  "downloadsRetryAll": "Retry all failed",
+  "setAutoResumeWifi": "Auto-resume when Wi-Fi returns",
+  "setAutoResumeWifiDesc": "Continues downloads that paused due to network loss — ones you paused stay paused",
+  "cloudBackupTitle": "Cloud backup (WebDAV/SFTP)",
+  "cloudRefresh": "Refresh list",
+  "cloudKindWebdav": "WebDAV",
+  "cloudKindSftp": "SFTP",
+  "cloudHost": "Host",
+  "cloudPort": "Port",
+  "cloudTls": "HTTPS",
+  "cloudUser": "Username",
+  "cloudPassword": "Password",
+  "cloudBasePath": "Base path (optional)",
+  "cloudPathNote": "Backups will be stored in the {path} folder on your server",
+  "@cloudPathNote": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudTest": "Test connection",
+  "cloudTestOk": "Connection OK — folder ready",
+  "cloudUploadNow": "Back up now",
+  "cloudUploaded": "Uploaded to: {path}",
+  "@cloudUploaded": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudFailed": "Operation failed: {error}",
+  "@cloudFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudAutoTitle": "Daily auto backup",
+  "cloudAutoDesc": "Uploads a backup automatically every 24h when you open this screen",
+  "cloudAutoNeedsConfig": "Add a server first to enable auto backup",
+  "cloudLastBackup": "Last cloud backup: {stamp}",
+  "@cloudLastBackup": {
+    "placeholders": {
+      "stamp": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudRemoteList": "Backups on the server",
+  "cloudListHint": "Tap to fetch the cloud backup list",
+  "cloudListEmpty": "No backups on the server yet"
 }

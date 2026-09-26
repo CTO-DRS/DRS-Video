@@ -5,7 +5,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.7.0';
+  static const String appVersion = '1.8.0';
 
   static const String dbName = 'drs_video.db';
   static const int dbVersion = 4;
@@ -192,6 +192,15 @@ class PrefKeys {
   /// Library sort key + direction persistence (v1.7.0).
   static const librarySort = 'library_sort';
   static const librarySortDirection = 'library_sort_direction';
+
+  /// Downloads v2 (v1.8.0): resume paused downloads automatically when
+  /// WiFi returns (user-paused ones stay paused for the session).
+  static const autoResumeOnWifi = 'auto_resume_on_wifi';
+
+  /// Cloud backup (v1.8.0): config JSON, enable toggle, last upload time.
+  static const cloudBackupConfig = 'cloud_backup_config';
+  static const cloudBackupEnabled = 'cloud_backup_enabled';
+  static const cloudBackupLastAt = 'cloud_backup_last_at';
 }
 
 /// Download priority values.

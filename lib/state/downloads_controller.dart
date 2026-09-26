@@ -65,6 +65,9 @@ class DownloadsController extends ChangeNotifier {
   Future<void> resume(String id) => _guarded(() => _service.resume(id));
   Future<void> cancel(String id) => _guarded(() => _service.cancel(id));
   Future<void> retry(String id) => _guarded(() => _service.retry(id));
+
+  /// v1.8.0: re-enqueue every failed task from the toolbar button.
+  Future<void> retryAll() => _guarded(_service.retryAll);
   Future<void> remove(String id, {bool deleteFile = false}) =>
       _guarded(() => _service.remove(id, deleteFile: deleteFile));
   Future<void> setPriority(String id, DownloadPriority p) =>

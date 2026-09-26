@@ -51,6 +51,10 @@ class DownloadService extends ChangeNotifier {
   final Map<String, double> _speeds = {}; // taskId -> bytes/s
   final Map<String, int> _retryCount = {}; // our id -> auto retries
 
+  /// Tasks the user paused by hand this session (v1.8.0): auto-resume on
+  /// WiFi must never override an explicit user decision.
+  final Set<String> _userPaused = {};
+
   bool _initialized = false;
   bool _degraded = false;
   String? _initError;
@@ -243,6 +247,29 @@ class DownloadService extends ChangeNotifier {
       return;
     }
 
+    // v1.8.0: WiFi returned — silently resume tasks that were paused
+    // because of a missing connection. Tasks the user paused by hand stay
+    // paused (session-scoped _userPaused set) so we never fight the user.
+    if (wifi && _prefs.autoResumeOnWifi) {
+      final waiting = _tasks
+          .where((t) =>
+              t.status == DownloadStatus.paused && !_userPaused.contains(t.id))
+          .toList();
+      for (final t in waiting) {
+        if (t.taskId != null) {
+          await FlutterDownloader.resume(taskId: t.taskId!);
+          t.status = DownloadStatus.running;
+          await _repo.update(t);
+        } else {
+          t.status = DownloadStatus.queued;
+          await _repo.update(t);
+        }
+      }
+      if (waiting.isNotEmpty) {
+        AppLogger.instance.info('dl', 'auto-resumed ${waiting.length} on wifi');
+      }
+    }
+
     final running = _tasks.where((t) => t.status == DownloadStatus.running).length;
     var slots = _prefs.maxConcurrentDownloads - running;
     if (slots <= 0) return;
@@ -421,6 +448,7 @@ class DownloadService extends ChangeNotifier {
     await init();
     final t = _byId(id);
     if (t?.taskId == null) return;
+    _userPaused.add(id);
     await FlutterDownloader.pause(taskId: t!.taskId!);
     t.status = DownloadStatus.paused;
     await _repo.update(t);
@@ -432,6 +460,7 @@ class DownloadService extends ChangeNotifier {
     await init();
     final t = _byId(id);
     if (t == null) return;
+    _userPaused.remove(id);
     if (t.taskId == null) {
       t.status = DownloadStatus.queued;
       await _repo.update(t);
@@ -512,6 +541,21 @@ class DownloadService extends ChangeNotifier {
         .where((t) => t.status == DownloadStatus.paused || t.status == DownloadStatus.queued)
         .toList()) {
       await resume(t.id);
+    }
+  }
+
+  /// Re-enqueues every failed task that hasn't exhausted its auto-retries
+  /// (v1.8.0 downloads v2: one-tap recovery from the toolbar).
+  Future<void> retryAll() async {
+    await init();
+    final failed = _tasks.where((t) => t.status == DownloadStatus.failed).toList();
+    for (final t in failed) {
+      _retryCount.remove(t.id);
+      await retry(t.id);
+    }
+    if (failed.isNotEmpty) {
+      AppLogger.instance.info('dl', 'retryAll: ${failed.length} tasks');
+      notifyListeners();
     }
   }
 
