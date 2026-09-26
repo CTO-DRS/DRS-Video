@@ -1773,4 +1773,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get smartPlayAll => 'Play all';
+
+  @override
+  String get settingsBackup => 'Backup & restore';
+
+  @override
+  String get backupTitle => 'Backup & restore';
+
+  @override
+  String get backupIncludesTitle => 'What the backup file includes';
+
+  @override
+  String backupItemsCount(int count) {
+    return '$count library items';
+  }
+
+  @override
+  String backupPlaylistsCount(int count) {
+    return '$count playlists';
+  }
+
+  @override
+  String backupProgressCount(int count) {
+    return '$count saved watch positions';
+  }
+
+  @override
+  String backupSearchesCount(int count) {
+    return '$count saved searches';
+  }
+
+  @override
+  String get backupSettingsRow => 'All settings and preferences';
+
+  @override
+  String get backupNeverDeletes =>
+      'Restore only adds — nothing is deleted from your current data.';
+
+  @override
+  String get backupExport => 'Export backup';
+
+  @override
+  String backupExportedTo(String path) {
+    return 'File created: $path';
+  }
+
+  @override
+  String get backupExportDone =>
+      'Backup created — share it and keep it somewhere safe';
+
+  @override
+  String get backupImport => 'Restore from backup file';
+
+  @override
+  String get backupMergeNote =>
+      'Restore merges into your library: existing items are skipped and nothing is deleted.';
+
+  @override
+  String get backupConfirmTitle => 'Restore this backup?';
+
+  @override
+  String backupConfirmBody(String version, String date) {
+    return 'Backup from version $version made on $date. Its data will be merged with your current library.';
+  }
+
+  @override
+  String get backupConfirmRestore => 'Restore';
+
+  @override
+  String get backupImportDoneTitle => 'Restore complete';
+
+  @override
+  String backupImportDone(int added, int skipped, int playlists, int merged,
+      int progress, int searches) {
+    return 'Added $added items, skipped $skipped existing • $playlists new and $merged merged playlists • $progress watch positions • $searches searches';
+  }
+
+  @override
+  String backupFailed(String error) {
+    return 'Backup failed: $error';
+  }
+
+  @override
+  String get sortPlayCount => 'Most played';
+
+  @override
+  String get sortResolution => 'Video resolution';
+
+  @override
+  String get sortDirectionAscending => 'Ascending order';
+
+  @override
+  String get sortDirectionDescending => 'Descending order';
+
+  @override
+  String get streamKindHls => 'HLS live stream — plays instantly';
+
+  @override
+  String get streamKindDash => 'DASH stream — plays instantly';
+
+  @override
+  String get streamKindFile => 'Direct video file';
 }

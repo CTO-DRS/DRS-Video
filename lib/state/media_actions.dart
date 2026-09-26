@@ -7,6 +7,7 @@ import '../data/models/media_item.dart';
 import '../data/repositories/library_repository.dart';
 import '../data/sources/source_adapter.dart';
 import '../services/network/social_resolver.dart';
+import '../services/network/stream_detector.dart';
 import '../services/network/tiktok_resolver.dart';
 import '../services/network/youtube_resolver.dart';
 import '../services/player/player_service.dart';
@@ -55,6 +56,16 @@ class MediaActions extends ChangeNotifier {
             outroStartMs: resolved.outroStartMs,
             headers: resolved.headers,
           );
+      // Live-stream detection (v1.7.0): HLS/DASH URLs that look live get
+      // liveHint so the player skips resume + progress persistence and
+      // shows the LIVE badge. Pure classification — no extra network I/O:
+      // it reuses the probe results the adapter already gathered.
+      item.liveHint = StreamDetector.isLiveLike(
+        url: item.uri,
+        contentType: resolved.contentType,
+        sizeBytes: resolved.sizeBytes,
+        resumable: resolved.resumable,
+      );
       if (existing == null) {
         await _library.upsert(item);
       }

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../services/network/stream_detector.dart';
 import '../../../state/media_actions.dart';
 import '../../../widgets/common/error_view.dart';
 import '../../player/play_helpers.dart';
 
 /// Bottom sheet for opening a video URL (direct adapter resolve + play).
+/// v1.7.0: live stream badge — HLS/DASH URLs get an instant visual hint
+/// while typing, powered by the pure StreamDetector classifier.
 Future<void> showOpenUrlSheet(BuildContext context) async {
   final controller = TextEditingController();
   final l = AppLocalizations.of(context)!;
@@ -34,6 +37,34 @@ Future<void> showOpenUrlSheet(BuildContext context) async {
               prefixIcon: const Icon(Icons.link),
             ),
             onSubmitted: (_) => _go(sheetContext, context, controller.text),
+          ),
+          // Typing hint chip: shows what kind of stream the URL looks like.
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller,
+            builder: (ctx, value, _) {
+              final badge = StreamDetector.badgeFor(value.text.trim());
+              if (badge == null) return const SizedBox.shrink();
+              final (icon, label) = switch (badge) {
+                StreamKind.hls => (Icons.live_tv, l.streamKindHls),
+                StreamKind.dash => (Icons.stream, l.streamKindDash),
+                StreamKind.progressive => (
+                    Icons.videocam_outlined,
+                    l.streamKindFile
+                  ),
+                StreamKind.unknown => (Icons.help_outline, ''),
+              };
+              return Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(children: [
+                  Icon(icon,
+                      size: 16, color: Theme.of(ctx).colorScheme.primary),
+                  const SizedBox(width: 6),
+                  Text(label,
+                      style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(ctx).colorScheme.primary)),
+                ]),
+              );
+            },
           ),
           const SizedBox(height: 16),
           FilledButton.icon(

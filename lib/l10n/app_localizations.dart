@@ -3403,6 +3403,169 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تشغيل الكل'**
   String get smartPlayAll;
+
+  /// No description provided for @settingsBackup.
+  ///
+  /// In ar, this message translates to:
+  /// **'النسخ الاحتياطي والاستعادة'**
+  String get settingsBackup;
+
+  /// No description provided for @backupTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'النسخ الاحتياطي والاستعادة'**
+  String get backupTitle;
+
+  /// No description provided for @backupIncludesTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ما يشمله ملف النسخة'**
+  String get backupIncludesTitle;
+
+  /// No description provided for @backupItemsCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} عنصر في المكتبة'**
+  String backupItemsCount(int count);
+
+  /// No description provided for @backupPlaylistsCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} قائمة تشغيل'**
+  String backupPlaylistsCount(int count);
+
+  /// No description provided for @backupProgressCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} موضع مشاهدة محفوظ'**
+  String backupProgressCount(int count);
+
+  /// No description provided for @backupSearchesCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} عملية بحث محفوظة'**
+  String backupSearchesCount(int count);
+
+  /// No description provided for @backupSettingsRow.
+  ///
+  /// In ar, this message translates to:
+  /// **'جميع الإعدادات والتفضيلات'**
+  String get backupSettingsRow;
+
+  /// No description provided for @backupNeverDeletes.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاستعادة تضيف فقط ولا تحذف شيئًا من بياناتك الحالية.'**
+  String get backupNeverDeletes;
+
+  /// No description provided for @backupExport.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصدير نسخة احتياطية'**
+  String get backupExport;
+
+  /// No description provided for @backupExportedTo.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إنشاء الملف: {path}'**
+  String backupExportedTo(String path);
+
+  /// No description provided for @backupExportDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إنشاء النسخة الاحتياطية — شاركها واحفظها في مكان آمن'**
+  String get backupExportDone;
+
+  /// No description provided for @backupImport.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة من ملف نسخة'**
+  String get backupImport;
+
+  /// No description provided for @backupMergeNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاستعادة تدمج البيانات مع مكتبتك: العناصر الموجودة مسبقًا تُتجاهل ولا يُحذف شيء.'**
+  String get backupMergeNote;
+
+  /// No description provided for @backupConfirmTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة هذه النسخة؟'**
+  String get backupConfirmTitle;
+
+  /// No description provided for @backupConfirmBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسخة من إصدار {version} بتاريخ {date}. سيتم دمج بياناتها مع مكتبتك الحالية.'**
+  String backupConfirmBody(String version, String date);
+
+  /// No description provided for @backupConfirmRestore.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة'**
+  String get backupConfirmRestore;
+
+  /// No description provided for @backupImportDoneTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتملت الاستعادة'**
+  String get backupImportDoneTitle;
+
+  /// No description provided for @backupImportDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُضيف {added} عنصرًا وتجاهُل {skipped} موجود مسبقًا • قوائم جديدة {playlists} ومدمجة {merged} • مواضع مشاهدة {progress} • عمليات بحث {searches}'**
+  String backupImportDone(int added, int skipped, int playlists, int merged,
+      int progress, int searches);
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشل النسخ الاحتياطي: {error}'**
+  String backupFailed(String error);
+
+  /// No description provided for @sortPlayCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأكثر تشغيلاً'**
+  String get sortPlayCount;
+
+  /// No description provided for @sortResolution.
+  ///
+  /// In ar, this message translates to:
+  /// **'دقة الفيديو'**
+  String get sortResolution;
+
+  /// No description provided for @sortDirectionAscending.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترتيب تصاعدي'**
+  String get sortDirectionAscending;
+
+  /// No description provided for @sortDirectionDescending.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترتيب تنازلي'**
+  String get sortDirectionDescending;
+
+  /// No description provided for @streamKindHls.
+  ///
+  /// In ar, this message translates to:
+  /// **'بث مباشر HLS — سيُشغّل فورًا'**
+  String get streamKindHls;
+
+  /// No description provided for @streamKindDash.
+  ///
+  /// In ar, this message translates to:
+  /// **'بث DASH — سيُشغّل فورًا'**
+  String get streamKindDash;
+
+  /// No description provided for @streamKindFile.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملف فيديو مباشر'**
+  String get streamKindFile;
 }
 
 class _AppLocalizationsDelegate

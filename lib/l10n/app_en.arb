@@ -697,5 +697,106 @@
   },
   "smartSaveAsPlaylist": "Save as playlist",
   "smartPlaylistSaved": "Playlist saved to your playlists",
-  "smartPlayAll": "Play all"
+  "smartPlayAll": "Play all",
+  "settingsBackup": "Backup & restore",
+  "backupTitle": "Backup & restore",
+  "backupIncludesTitle": "What the backup file includes",
+  "backupItemsCount": "{count} library items",
+  "@backupItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupPlaylistsCount": "{count} playlists",
+  "@backupPlaylistsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupProgressCount": "{count} saved watch positions",
+  "@backupProgressCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupSearchesCount": "{count} saved searches",
+  "@backupSearchesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupSettingsRow": "All settings and preferences",
+  "backupNeverDeletes": "Restore only adds — nothing is deleted from your current data.",
+  "backupExport": "Export backup",
+  "backupExportedTo": "File created: {path}",
+  "@backupExportedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "backupExportDone": "Backup created — share it and keep it somewhere safe",
+  "backupImport": "Restore from backup file",
+  "backupMergeNote": "Restore merges into your library: existing items are skipped and nothing is deleted.",
+  "backupConfirmTitle": "Restore this backup?",
+  "backupConfirmBody": "Backup from version {version} made on {date}. Its data will be merged with your current library.",
+  "@backupConfirmBody": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "backupConfirmRestore": "Restore",
+  "backupImportDoneTitle": "Restore complete",
+  "backupImportDone": "Added {added} items, skipped {skipped} existing • {playlists} new and {merged} merged playlists • {progress} watch positions • {searches} searches",
+  "@backupImportDone": {
+    "placeholders": {
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "playlists": {
+        "type": "int"
+      },
+      "merged": {
+        "type": "int"
+      },
+      "progress": {
+        "type": "int"
+      },
+      "searches": {
+        "type": "int"
+      }
+    }
+  },
+  "backupFailed": "Backup failed: {error}",
+  "@backupFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sortPlayCount": "Most played",
+  "sortResolution": "Video resolution",
+  "sortDirectionAscending": "Ascending order",
+  "sortDirectionDescending": "Descending order",
+  "streamKindHls": "HLS live stream — plays instantly",
+  "streamKindDash": "DASH stream — plays instantly",
+  "streamKindFile": "Direct video file"
 }

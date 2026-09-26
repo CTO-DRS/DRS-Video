@@ -5,7 +5,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.6.0';
+  static const String appVersion = '1.7.0';
 
   static const String dbName = 'drs_video.db';
   static const int dbVersion = 4;
@@ -188,6 +188,10 @@ class PrefKeys {
   static const blockedRequestsCount = 'blocked_requests_count';
   static const vpnAutoReconnect = 'vpn_auto_reconnect';
   static const vpnLastServer = 'vpn_last_server';
+
+  /// Library sort key + direction persistence (v1.7.0).
+  static const librarySort = 'library_sort';
+  static const librarySortDirection = 'library_sort_direction';
 }
 
 /// Download priority values.

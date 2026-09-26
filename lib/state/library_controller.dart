@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../core/constants/app_constants.dart';
+import '../core/storage/preferences_service.dart';
 import '../core/utils/logger.dart';
 import '../data/models/media_item.dart';
 import '../data/repositories/history_repository.dart';
@@ -14,13 +16,43 @@ class LibraryController extends ChangeNotifier {
     required LibraryRepository library,
     required HistoryRepository history,
     required PlaylistRepository playlists,
+    PreferencesService? prefs,
   })  : _library = library,
         _history = history,
-        _playlists = playlists;
+        _playlists = playlists,
+        _prefs = prefs {
+    _restoreSortPrefs();
+  }
 
   final LibraryRepository _library;
   final HistoryRepository _history;
   final PlaylistRepository _playlists;
+  final PreferencesService? _prefs;
+
+  /// Restores the last-used sort key/direction (v1.7.0). Corrupt or
+  /// unknown stored names silently fall back to the defaults.
+  void _restoreSortPrefs() {
+    final p = _prefs;
+    if (p == null) return;
+    final s = p.raw.getString(PrefKeys.librarySort);
+    if (s != null) {
+      final restored = SortBy.values.where((v) => v.name == s).firstOrNull;
+      if (restored != null) sort = restored;
+    }
+    final d = p.raw.getString(PrefKeys.librarySortDirection);
+    if (d != null) {
+      final restoredDir =
+          SortDirection.values.where((v) => v.name == d).firstOrNull;
+      if (restoredDir != null) direction = restoredDir;
+    }
+  }
+
+  void _persistSortPrefs() {
+    final p = _prefs;
+    if (p == null) return;
+    p.raw.setString(PrefKeys.librarySort, sort.name);
+    p.raw.setString(PrefKeys.librarySortDirection, direction.name);
+  }
 
   LibraryTab tab = LibraryTab.all;
   List<MediaItem> items = [];
@@ -34,6 +66,7 @@ class LibraryController extends ChangeNotifier {
   String? sourceFilter;
   DurationFilter durationFilter = DurationFilter.any;
   SortBy sort = SortBy.dateAdded;
+  SortDirection direction = SortDirection.descending;
 
   // Multi-select
   final Set<String> selected = {};
@@ -82,6 +115,7 @@ class LibraryController extends ChangeNotifier {
         favoritesOnly: favoritesOnly,
         durationFilter: durationFilter,
         sort: tab == LibraryTab.recent ? SortBy.dateAdded : sort,
+        direction: direction,
       );
 
   void setTab(LibraryTab t) {
@@ -111,8 +145,24 @@ class LibraryController extends ChangeNotifier {
 
   void setSort(SortBy s) {
     sort = s;
+    _persistSortPrefs();
     load();
   }
+
+  void setDirection(SortDirection d) {
+    if (direction == d) return;
+    direction = d;
+    _persistSortPrefs();
+    load();
+  }
+
+  /// Flips the current direction and persists it (used by the toolbar
+  /// toggle button on the library screen).
+  void toggleDirection() => setDirection(
+        direction == SortDirection.ascending
+            ? SortDirection.descending
+            : SortDirection.ascending,
+      );
 
   void toggleSelect(String id) {
     selected.contains(id) ? selected.remove(id) : selected.add(id);

@@ -226,6 +226,7 @@ class _DrsAppState extends State<DrsApp> {
           library: services.library,
           history: services.history,
           playlists: services.playlists,
+          prefs: services.prefs,
         )),
         ChangeNotifierProvider(create: (_) => PlaylistsController(
           playlists: services.playlists,

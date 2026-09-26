@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_constants.dart';
+import '../utils/logger.dart';
 
 /// Typed wrapper over SharedPreferences for every app setting.
 class PreferencesService {
@@ -100,4 +101,55 @@ class PreferencesService {
       v == null ? _prefs.remove(PrefKeys.vpnLastServer) : _prefs.setString(PrefKeys.vpnLastServer, v);
 
   Future<void> clearAll() => _prefs.clear();
+
+  // ---- backup snapshot (v1.7.0) ------------------------------------------
+
+  /// Keys excluded from backup: device/session state that should never be
+  /// transplanted onto another installation.
+  static const _backupExcludedKeys = <String>{
+    PrefKeys.firstRunDone,
+    PrefKeys.blockedRequestsCount,
+  };
+
+  /// A typed snapshot of every stored preference (minus excluded keys).
+  /// Values keep their runtime types so jsonEncode stays faithful.
+  Map<String, Object?> exportSnapshot() {
+    final out = <String, Object?>{};
+    for (final key in _prefs.getKeys()) {
+      if (_backupExcludedKeys.contains(key)) continue;
+      final v = _prefs.get(key);
+      if (v != null) out[key] = v;
+    }
+    return out;
+  }
+
+  /// Applies a snapshot produced by [exportSnapshot]. Unknown keys are
+  /// written as-is (forward compatible), values must match a supported
+  /// type. Returns how many keys were actually written.
+  Future<int> applySnapshot(Map<String, Object?> data) async {
+    var applied = 0;
+    for (final entry in data.entries) {
+      final v = entry.value;
+      try {
+        if (v is String) {
+          await _prefs.setString(entry.key, v);
+        } else if (v is int) {
+          await _prefs.setInt(entry.key, v);
+        } else if (v is bool) {
+          await _prefs.setBool(entry.key, v);
+        } else if (v is double) {
+          await _prefs.setDouble(entry.key, v);
+        } else if (v is List) {
+          await _prefs.setStringList(
+              entry.key, v.whereType<String>().toList());
+        } else {
+          continue;
+        }
+        applied++;
+      } catch (e) {
+        AppLogger.instance.warning('prefs', 'snapshot key ${entry.key} skipped: $e');
+      }
+    }
+    return applied;
+  }
 }

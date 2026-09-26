@@ -2,7 +2,11 @@ import 'package:sqflite/sqflite.dart';
 import '../../core/storage/database_service.dart';
 import '../models/media_item.dart';
 
-enum SortBy { name, dateAdded, recentlyPlayed, duration, size }
+enum SortBy { name, dateAdded, recentlyPlayed, duration, size, playCount, resolution }
+
+/// Sort direction for the library list (v1.7.0). Every sort key honours it;
+/// NULL values always stay last regardless of direction.
+enum SortDirection { ascending, descending }
 
 enum DurationFilter { any, short, medium, long, veryLong }
 
@@ -15,6 +19,7 @@ class LibraryQuery {
     this.favoritesOnly = false,
     this.durationFilter = DurationFilter.any,
     this.sort = SortBy.dateAdded,
+    this.direction = SortDirection.descending,
     this.limit,
   });
 
@@ -24,6 +29,7 @@ class LibraryQuery {
   final bool favoritesOnly;
   final DurationFilter durationFilter;
   final SortBy sort;
+  final SortDirection direction;
   final int? limit;
 }
 
@@ -81,12 +87,20 @@ class LibraryRepository {
       case DurationFilter.any:
     }
 
+    // Direction-aware ordering with a stable NULLS-LAST guarantee for every
+    // key: the "(expr IS NULL) ASC" guard sorts NULLs to the end no matter
+    // which way the main expression runs.
+    final dir = q.direction == SortDirection.ascending ? 'ASC' : 'DESC';
     final orderBy = switch (q.sort) {
-      SortBy.name => 'title COLLATE NOCASE ASC',
-      SortBy.dateAdded => 'added_at DESC',
-      SortBy.recentlyPlayed => 'last_played_at IS NULL, last_played_at DESC',
-      SortBy.duration => 'duration_ms IS NULL, duration_ms DESC',
-      SortBy.size => 'size_bytes IS NULL, size_bytes DESC',
+      SortBy.name => 'title COLLATE NOCASE $dir',
+      SortBy.dateAdded => 'added_at $dir',
+      SortBy.recentlyPlayed => '(last_played_at IS NULL) ASC, last_played_at $dir',
+      SortBy.duration => '(duration_ms IS NULL) ASC, duration_ms $dir',
+      SortBy.size => '(size_bytes IS NULL) ASC, size_bytes $dir',
+      SortBy.playCount => 'play_count $dir',
+      SortBy.resolution =>
+        '(CASE WHEN width IS NULL OR height IS NULL THEN NULL ELSE width * height END) IS NULL ASC, '
+            '(CASE WHEN width IS NULL OR height IS NULL THEN NULL ELSE width * height END) $dir',
     };
 
     final rows = await database.query(

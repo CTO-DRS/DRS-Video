@@ -11,6 +11,7 @@ import '../../services/platform/native_channel.dart';
 import '../../services/sharing/share_service.dart';
 import '../../state/downloads_controller.dart';
 import '../../state/settings_controller.dart';
+import 'backup_screen.dart';
 import 'diagnostics_screen.dart';
 import 'storage_screen.dart';
 import '../vpn/protection_screen.dart';
@@ -43,6 +44,11 @@ class SettingsScreen extends StatelessWidget {
           _Section(l.settingsStorage, Icons.storage_outlined, context, () {
             Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const StorageScreen()));
+          }),
+          // v1.7.0: backup & restore (full data export/import).
+          _Section(l.settingsBackup, Icons.backup_outlined, context, () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const BackupScreen()));
           }),
           // v1.4.0: protection system + free VPN client.
           _Section(l.protectionTitle, Icons.security_outlined, context, () {

@@ -245,22 +245,58 @@ class _LibraryScreenState extends State<LibraryScreen> {
               title: Text(l.librarySortBy),
               titleTextStyle: Theme.of(sheet).textTheme.titleMedium,
             ),
-            for (final sort in SortBy.values)
-              RadioListTile<SortBy>(
-                value: sort,
-                groupValue: controller.sort,
-                title: Text(switch (sort) {
-                  SortBy.name => l.sortName,
-                  SortBy.dateAdded => l.sortDateAdded,
-                  SortBy.recentlyPlayed => l.sortRecentlyPlayed,
-                  SortBy.duration => l.sortDuration,
-                  SortBy.size => l.sortSize,
-                }),
-                onChanged: (v) {
-                  if (v != null) controller.setSort(v);
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final sort in SortBy.values)
+                      RadioListTile<SortBy>(
+                        value: sort,
+                        groupValue: controller.sort,
+                        title: Text(switch (sort) {
+                          SortBy.name => l.sortName,
+                          SortBy.dateAdded => l.sortDateAdded,
+                          SortBy.recentlyPlayed => l.sortRecentlyPlayed,
+                          SortBy.duration => l.sortDuration,
+                          SortBy.size => l.sortSize,
+                          SortBy.playCount => l.sortPlayCount,
+                          SortBy.resolution => l.sortResolution,
+                        }),
+                        onChanged: (v) {
+                          if (v != null) controller.setSort(v);
+                          Navigator.of(sheet).pop();
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            // v1.7.0: direction toggle — flips asc/desc for any sort key.
+            ListTile(
+              leading: Icon(
+                controller.direction == SortDirection.ascending
+                    ? Icons.south
+                    : Icons.north,
+              ),
+              title: Text(
+                controller.direction == SortDirection.ascending
+                    ? l.sortDirectionAscending
+                    : l.sortDirectionDescending,
+              ),
+              trailing: Switch(
+                value: controller.direction == SortDirection.ascending,
+                onChanged: (_) {
+                  controller.toggleDirection();
                   Navigator.of(sheet).pop();
                 },
               ),
+              onTap: () {
+                controller.toggleDirection();
+                Navigator.of(sheet).pop();
+              },
+            ),
           ],
         ),
       ),

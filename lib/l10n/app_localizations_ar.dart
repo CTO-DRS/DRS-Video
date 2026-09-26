@@ -1762,4 +1762,105 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get smartPlayAll => 'تشغيل الكل';
+
+  @override
+  String get settingsBackup => 'النسخ الاحتياطي والاستعادة';
+
+  @override
+  String get backupTitle => 'النسخ الاحتياطي والاستعادة';
+
+  @override
+  String get backupIncludesTitle => 'ما يشمله ملف النسخة';
+
+  @override
+  String backupItemsCount(int count) {
+    return '$count عنصر في المكتبة';
+  }
+
+  @override
+  String backupPlaylistsCount(int count) {
+    return '$count قائمة تشغيل';
+  }
+
+  @override
+  String backupProgressCount(int count) {
+    return '$count موضع مشاهدة محفوظ';
+  }
+
+  @override
+  String backupSearchesCount(int count) {
+    return '$count عملية بحث محفوظة';
+  }
+
+  @override
+  String get backupSettingsRow => 'جميع الإعدادات والتفضيلات';
+
+  @override
+  String get backupNeverDeletes =>
+      'الاستعادة تضيف فقط ولا تحذف شيئًا من بياناتك الحالية.';
+
+  @override
+  String get backupExport => 'تصدير نسخة احتياطية';
+
+  @override
+  String backupExportedTo(String path) {
+    return 'تم إنشاء الملف: $path';
+  }
+
+  @override
+  String get backupExportDone =>
+      'تم إنشاء النسخة الاحتياطية — شاركها واحفظها في مكان آمن';
+
+  @override
+  String get backupImport => 'استعادة من ملف نسخة';
+
+  @override
+  String get backupMergeNote =>
+      'الاستعادة تدمج البيانات مع مكتبتك: العناصر الموجودة مسبقًا تُتجاهل ولا يُحذف شيء.';
+
+  @override
+  String get backupConfirmTitle => 'استعادة هذه النسخة؟';
+
+  @override
+  String backupConfirmBody(String version, String date) {
+    return 'نسخة من إصدار $version بتاريخ $date. سيتم دمج بياناتها مع مكتبتك الحالية.';
+  }
+
+  @override
+  String get backupConfirmRestore => 'استعادة';
+
+  @override
+  String get backupImportDoneTitle => 'اكتملت الاستعادة';
+
+  @override
+  String backupImportDone(int added, int skipped, int playlists, int merged,
+      int progress, int searches) {
+    return 'أُضيف $added عنصرًا وتجاهُل $skipped موجود مسبقًا • قوائم جديدة $playlists ومدمجة $merged • مواضع مشاهدة $progress • عمليات بحث $searches';
+  }
+
+  @override
+  String backupFailed(String error) {
+    return 'فشل النسخ الاحتياطي: $error';
+  }
+
+  @override
+  String get sortPlayCount => 'الأكثر تشغيلاً';
+
+  @override
+  String get sortResolution => 'دقة الفيديو';
+
+  @override
+  String get sortDirectionAscending => 'ترتيب تصاعدي';
+
+  @override
+  String get sortDirectionDescending => 'ترتيب تنازلي';
+
+  @override
+  String get streamKindHls => 'بث مباشر HLS — سيُشغّل فورًا';
+
+  @override
+  String get streamKindDash => 'بث DASH — سيُشغّل فورًا';
+
+  @override
+  String get streamKindFile => 'ملف فيديو مباشر';
 }
