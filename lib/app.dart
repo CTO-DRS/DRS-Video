@@ -10,6 +10,7 @@ import 'core/storage/preferences_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
 import 'core/utils/crash_store.dart';
+import 'data/repositories/browser_repository.dart';
 import 'features/downloads/downloads_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/library/library_screen.dart';
@@ -39,6 +40,7 @@ import 'state/local_media_controller.dart';
 import 'state/media_actions.dart';
 import 'state/platforms_controller.dart';
 import 'state/playlists_controller.dart';
+import 'state/protection_controller.dart';
 import 'state/search_controller.dart' as search_ctrl;
 import 'state/settings_controller.dart';
 import 'state/sources_controller.dart';
@@ -259,6 +261,13 @@ class _DrsAppState extends State<DrsApp> {
             library: services.library,
           ),
         ),
+        // v1.4.0: protection system (ad-block counter, incognito) + free
+        // VPN service (engine init stays lazy until first screen open).
+        ChangeNotifierProvider(
+          create: (_) => ProtectionController(prefs: services.prefs),
+        ),
+        ChangeNotifierProvider.value(value: services.vpn),
+        Provider<BrowserRepository>.value(value: services.browser),
       ],
       child: Consumer<ThemeController>(
         builder: (context, theme, _) => DynamicColorBuilder(

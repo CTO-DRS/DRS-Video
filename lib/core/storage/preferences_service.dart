@@ -71,5 +71,33 @@ class PreferencesService {
   int get maxThumbnailCacheMb =>
       _prefs.getInt(PrefKeys.maxThumbnailCacheMb) ?? (AppConstants.maxThumbnailCacheBytes ~/ (1024 * 1024));
 
+  // ---- built-in browser + protection (v1.4.0) ----
+
+  /// In-browser ad/tracker blocking (bundled StevenBlack domains).
+  bool get adBlockEnabled => _prefs.getBool(PrefKeys.adBlockEnabled) ?? true;
+  set adBlockEnabled(bool v) => _prefs.setBool(PrefKeys.adBlockEnabled, v);
+
+  /// When true the browser records NO history and no watch hand-offs.
+  bool get browserIncognito => _prefs.getBool(PrefKeys.browserIncognito) ?? false;
+  set browserIncognito(bool v) => _prefs.setBool(PrefKeys.browserIncognito, v);
+
+  /// Desktop user-agent toggle (full web layouts of platforms).
+  bool get browserDesktopUa => _prefs.getBool(PrefKeys.browserDesktopUa) ?? false;
+  set browserDesktopUa(bool v) => _prefs.setBool(PrefKeys.browserDesktopUa, v);
+
+  /// Lifetime count of ad/tracker requests blocked inside the browser.
+  int get blockedRequestsCount => _prefs.getInt(PrefKeys.blockedRequestsCount) ?? 0;
+  set blockedRequestsCount(int v) => _prefs.setInt(PrefKeys.blockedRequestsCount, v);
+
+  /// Remember the last free-VPN server and offer one-tap reconnect.
+  bool get vpnAutoReconnect => _prefs.getBool(PrefKeys.vpnAutoReconnect) ?? false;
+  set vpnAutoReconnect(bool v) => _prefs.setBool(PrefKeys.vpnAutoReconnect, v);
+
+  /// Serialized JSON of the last VPN server (VPNGate row or imported
+  /// config) so the protection screen can offer one-tap reconnect.
+  String? get vpnLastServer => _prefs.getString(PrefKeys.vpnLastServer);
+  set vpnLastServer(String? v) =>
+      v == null ? _prefs.remove(PrefKeys.vpnLastServer) : _prefs.setString(PrefKeys.vpnLastServer, v);
+
   Future<void> clearAll() => _prefs.clear();
 }

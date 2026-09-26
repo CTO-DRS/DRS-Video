@@ -547,5 +547,109 @@
   "addSubtitleUrl": "إضافة رابط ترجمة",
   "subtitleUrlHint": "رابط ملف الترجمة (SRT/VTT)",
   "subtitleAdded": "تم تحميل الترجمة",
-  "subtitleInvalid": "تعذر تحميل الترجمة"
+  "subtitleInvalid": "تعذر تحميل الترجمة",
+
+  "platformsSites": "المواقع",
+  "sitesSearchHint": "ابحث عن منصة (YouTube، TikTok، شاهد...)",
+  "sitesAll": "الكل",
+  "sitesCatMine": "مواقعي",
+  "sitesCatVideo": "فيديو",
+  "sitesCatArabic": "عربية",
+  "sitesCatMovies": "أفلام",
+  "sitesCatLive": "أخبار وبث",
+  "sitesCatSports": "رياضة",
+  "sitesCatMusic": "موسيقى",
+  "sitesCatAnime": "أنمي",
+  "sitesCatSocial": "تواصل",
+  "sitesCatLearn": "تعليم",
+  "sitesCatTv": "تلفزيون",
+  "sitesAddAny": "أضف أي موقع",
+  "sitesAddTitle": "إضافة موقع",
+  "sitesAddName": "الاسم",
+  "sitesAddUrl": "العنوان",
+  "sitesNameRequired": "الاسم مطلوب",
+  "sitesBookmarks": "العلامات المرجعية",
+  "bookmarksEmpty": "لا توجد علامات مرجعية بعد — استخدم نجمة داخل المتصفح لحفظ الصفحات",
+  "bookmarkAdded": "أضيف إلى العلامات المرجعية",
+  "bookmarkRemoved": "أزيل من العلامات المرجعية",
+  "bookmarkAdd": "حفظ في العلامات المرجعية",
+  "bookmarkRemove": "إزالة من العلامات المرجعية",
+  "browserUaTooltip": "التبديل بين واجهة الجوال وواجهة سطح المكتب",
+  "browserBlockedSession": "المحجوبة في هذه الصفحة: {count}",
+  "@browserBlockedSession": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "browserAddressHint": "ابحث أو أدخل عنوان موقع",
+  "browserShieldTooltip": "الحماية وحظر الإعلانات",
+  "browserStreamsTooltip": "الفيديوهات المكتشفة في الصفحة",
+  "browserStreamsTitle": "فيديو مكتشف في الصفحة",
+  "browserPlayThisPage": "تشغيل هذه الصفحة بمشغل DRS",
+  "browserPlayInPlayer": "تشغيل بالمشغل الأصلي",
+  "browserNoStreams": "لم يُكتشف فيديو قابل للتشغيل في هذه الصفحة بعد — تنقل داخل الموقع وحاول مجدداً",
+  "browserPlayFailed": "تعذر فتح هذا الرابط في المشغل",
+
+  "protectionTitle": "الحماية والـ VPN",
+  "protectionAdBlockTitle": "الحماية من الإعلانات",
+  "protectionAdBlock": "حظر الإعلانات والمتتبعات",
+  "protectionAdBlockDesc": "يحجب أكثر من 75 ألف نطاق إعلانات ومتتبعات داخل المتصفح المدمج",
+  "protectionIncognito": "التصفح الخاص",
+  "protectionIncognitoDesc": "عدم حفظ سجل التصفح",
+  "protectionBlockedTotal": "الطلبات المحجوبة حتى الآن: {count}",
+  "@protectionBlockedTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "protectionResetCounter": "تصفير",
+  "protectionBlocklistInfo": "قائمة الحظر من مشروع StevenBlack مفتوح المصدر (رخصة MIT) وتُحدّث مع كل إصدار. لا يتم تجاوز أنظمة حماية المحتوى (DRM) لأي منصة.",
+  "protectionHonestNote": "ملاحظة صادقة: حظر الإعلانات يعمل داخل المتصفح المدمج. بعض المنصات (مثل يوتيوب) تُدمج إعلاناتها مع محتوى الفيديو نفسه فلا يمكن حجبها دون تعطيل التشغيل. يعمل VPN عبر OpenVPN فقط على أجهزة Android.",
+
+  "vpnTitle": "VPN مجاني (OpenVPN)",
+  "vpnStateConnected": "متصل",
+  "vpnStateBusy": "جارٍ المعالجة",
+  "vpnStateError": "خطأ",
+  "vpnStateUnsupported": "غير مدعوم",
+  "vpnStateOff": "غير متصل",
+  "vpnConnectedTo": "متصل بـ {name}",
+  "@vpnConnectedTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vpnConnecting": "جارٍ الاتصال… ({stage})",
+  "@vpnConnecting": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "vpnDisconnectedHint": "اختر خادماً مجانياً أو استورد ملف .ovpn للاتصال المشفر",
+  "vpnPickServer": "اختر خادماً مجانياً",
+  "vpnServersTitle": "خوادم مجانية عامة (VPNGate)",
+  "vpnServersFail": "تعذر جلب قائمة الخوادم — تحقق من الاتصال",
+  "vpnNoServers": "لا توجد خوادم متاحة حالياً",
+  "vpnImport": "استيراد .ovpn",
+  "vpnImportedFile": "ملف مستورد",
+  "vpnInvalidConfig": "الملف ليس إعداد OpenVPN صالحاً",
+  "vpnDisconnect": "قطع الاتصال",
+  "vpnReconnect": "إعادة الاتصال: {name}",
+  "@vpnReconnect": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vpnConnectFailed": "فشل الاتصال — جرّب خادماً آخر",
+  "vpnError": "حدث خطأ أثناء الاتصال. جرّب خادماً آخر.",
+  "vpnUnsupported": "عميل VPN يعمل على أجهزة Android فقط (يتطلب إذن النظام)."
 }

@@ -1380,4 +1380,222 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subtitleInvalid => 'Could not load subtitle';
+
+  @override
+  String get platformsSites => 'Sites';
+
+  @override
+  String get sitesSearchHint => 'Search platforms (YouTube, TikTok, Netflix…)';
+
+  @override
+  String get sitesAll => 'All';
+
+  @override
+  String get sitesCatMine => 'My sites';
+
+  @override
+  String get sitesCatVideo => 'Video';
+
+  @override
+  String get sitesCatArabic => 'Arabic';
+
+  @override
+  String get sitesCatMovies => 'Movies';
+
+  @override
+  String get sitesCatLive => 'News & live';
+
+  @override
+  String get sitesCatSports => 'Sports';
+
+  @override
+  String get sitesCatMusic => 'Music';
+
+  @override
+  String get sitesCatAnime => 'Anime';
+
+  @override
+  String get sitesCatSocial => 'Social';
+
+  @override
+  String get sitesCatLearn => 'Learning';
+
+  @override
+  String get sitesCatTv => 'TV';
+
+  @override
+  String get sitesAddAny => 'Add any site';
+
+  @override
+  String get sitesAddTitle => 'Add site';
+
+  @override
+  String get sitesAddName => 'Name';
+
+  @override
+  String get sitesAddUrl => 'Address';
+
+  @override
+  String get sitesNameRequired => 'Name is required';
+
+  @override
+  String get sitesBookmarks => 'Bookmarks';
+
+  @override
+  String get bookmarksEmpty =>
+      'No bookmarks yet — use the star inside the browser to save pages';
+
+  @override
+  String get bookmarkAdded => 'Added to bookmarks';
+
+  @override
+  String get bookmarkRemoved => 'Removed from bookmarks';
+
+  @override
+  String get bookmarkAdd => 'Save to bookmarks';
+
+  @override
+  String get bookmarkRemove => 'Remove from bookmarks';
+
+  @override
+  String get browserUaTooltip => 'Switch between mobile and desktop site';
+
+  @override
+  String browserBlockedSession(int count) {
+    return 'Blocked on this page: $count';
+  }
+
+  @override
+  String get browserAddressHint => 'Search or enter site address';
+
+  @override
+  String get browserShieldTooltip => 'Protection & ad blocking';
+
+  @override
+  String get browserStreamsTooltip => 'Videos detected on this page';
+
+  @override
+  String get browserStreamsTitle => 'Video detected on this page';
+
+  @override
+  String get browserPlayThisPage => 'Play this page in the DRS player';
+
+  @override
+  String get browserPlayInPlayer => 'Play in the native player';
+
+  @override
+  String get browserNoStreams =>
+      'No playable video detected on this page yet — browse the site and try again';
+
+  @override
+  String get browserPlayFailed => 'Could not open this link in the player';
+
+  @override
+  String get protectionTitle => 'Protection & VPN';
+
+  @override
+  String get protectionAdBlockTitle => 'Ad protection';
+
+  @override
+  String get protectionAdBlock => 'Block ads & trackers';
+
+  @override
+  String get protectionAdBlockDesc =>
+      'Blocks 75,000+ ad and tracker domains inside the built-in browser';
+
+  @override
+  String get protectionIncognito => 'Incognito browsing';
+
+  @override
+  String get protectionIncognitoDesc => 'Do not save browsing history';
+
+  @override
+  String protectionBlockedTotal(int count) {
+    return 'Requests blocked so far: $count';
+  }
+
+  @override
+  String get protectionResetCounter => 'Reset';
+
+  @override
+  String get protectionBlocklistInfo =>
+      'The blocklist comes from the open-source StevenBlack project (MIT license) and ships with every release. No DRM system of any platform is circumvented.';
+
+  @override
+  String get protectionHonestNote =>
+      'Honest note: ad blocking works inside the built-in browser. Some platforms (e.g. YouTube) bake ads into the video stream itself, which cannot be blocked without breaking playback. The VPN uses OpenVPN on Android devices only.';
+
+  @override
+  String get vpnTitle => 'Free VPN (OpenVPN)';
+
+  @override
+  String get vpnStateConnected => 'Connected';
+
+  @override
+  String get vpnStateBusy => 'Working';
+
+  @override
+  String get vpnStateError => 'Error';
+
+  @override
+  String get vpnStateUnsupported => 'Unsupported';
+
+  @override
+  String get vpnStateOff => 'Disconnected';
+
+  @override
+  String vpnConnectedTo(String name) {
+    return 'Connected to $name';
+  }
+
+  @override
+  String vpnConnecting(String stage) {
+    return 'Connecting… ($stage)';
+  }
+
+  @override
+  String get vpnDisconnectedHint =>
+      'Pick a free server or import a .ovpn file for an encrypted connection';
+
+  @override
+  String get vpnPickServer => 'Pick a free server';
+
+  @override
+  String get vpnServersTitle => 'Free public servers (VPNGate)';
+
+  @override
+  String get vpnServersFail =>
+      'Could not fetch the server list — check your connection';
+
+  @override
+  String get vpnNoServers => 'No servers available right now';
+
+  @override
+  String get vpnImport => 'Import .ovpn';
+
+  @override
+  String get vpnImportedFile => 'Imported file';
+
+  @override
+  String get vpnInvalidConfig =>
+      'The file is not a valid OpenVPN configuration';
+
+  @override
+  String get vpnDisconnect => 'Disconnect';
+
+  @override
+  String vpnReconnect(String name) {
+    return 'Reconnect: $name';
+  }
+
+  @override
+  String get vpnConnectFailed => 'Connection failed — try another server';
+
+  @override
+  String get vpnError =>
+      'Something went wrong while connecting. Try another server.';
+
+  @override
+  String get vpnUnsupported =>
+      'The VPN client works on Android devices only (requires the system permission dialog).';
 }

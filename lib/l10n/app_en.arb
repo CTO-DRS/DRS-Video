@@ -495,5 +495,109 @@
   "addSubtitleUrl": "Add subtitle URL",
   "subtitleUrlHint": "Subtitle file URL (SRT/VTT)",
   "subtitleAdded": "Subtitle loaded",
-  "subtitleInvalid": "Could not load subtitle"
+  "subtitleInvalid": "Could not load subtitle",
+
+  "platformsSites": "Sites",
+  "sitesSearchHint": "Search platforms (YouTube, TikTok, Netflix…)",
+  "sitesAll": "All",
+  "sitesCatMine": "My sites",
+  "sitesCatVideo": "Video",
+  "sitesCatArabic": "Arabic",
+  "sitesCatMovies": "Movies",
+  "sitesCatLive": "News & live",
+  "sitesCatSports": "Sports",
+  "sitesCatMusic": "Music",
+  "sitesCatAnime": "Anime",
+  "sitesCatSocial": "Social",
+  "sitesCatLearn": "Learning",
+  "sitesCatTv": "TV",
+  "sitesAddAny": "Add any site",
+  "sitesAddTitle": "Add site",
+  "sitesAddName": "Name",
+  "sitesAddUrl": "Address",
+  "sitesNameRequired": "Name is required",
+  "sitesBookmarks": "Bookmarks",
+  "bookmarksEmpty": "No bookmarks yet — use the star inside the browser to save pages",
+  "bookmarkAdded": "Added to bookmarks",
+  "bookmarkRemoved": "Removed from bookmarks",
+  "bookmarkAdd": "Save to bookmarks",
+  "bookmarkRemove": "Remove from bookmarks",
+  "browserUaTooltip": "Switch between mobile and desktop site",
+  "browserBlockedSession": "Blocked on this page: {count}",
+  "@browserBlockedSession": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "browserAddressHint": "Search or enter site address",
+  "browserShieldTooltip": "Protection & ad blocking",
+  "browserStreamsTooltip": "Videos detected on this page",
+  "browserStreamsTitle": "Video detected on this page",
+  "browserPlayThisPage": "Play this page in the DRS player",
+  "browserPlayInPlayer": "Play in the native player",
+  "browserNoStreams": "No playable video detected on this page yet — browse the site and try again",
+  "browserPlayFailed": "Could not open this link in the player",
+
+  "protectionTitle": "Protection & VPN",
+  "protectionAdBlockTitle": "Ad protection",
+  "protectionAdBlock": "Block ads & trackers",
+  "protectionAdBlockDesc": "Blocks 75,000+ ad and tracker domains inside the built-in browser",
+  "protectionIncognito": "Incognito browsing",
+  "protectionIncognitoDesc": "Do not save browsing history",
+  "protectionBlockedTotal": "Requests blocked so far: {count}",
+  "@protectionBlockedTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "protectionResetCounter": "Reset",
+  "protectionBlocklistInfo": "The blocklist comes from the open-source StevenBlack project (MIT license) and ships with every release. No DRM system of any platform is circumvented.",
+  "protectionHonestNote": "Honest note: ad blocking works inside the built-in browser. Some platforms (e.g. YouTube) bake ads into the video stream itself, which cannot be blocked without breaking playback. The VPN uses OpenVPN on Android devices only.",
+
+  "vpnTitle": "Free VPN (OpenVPN)",
+  "vpnStateConnected": "Connected",
+  "vpnStateBusy": "Working",
+  "vpnStateError": "Error",
+  "vpnStateUnsupported": "Unsupported",
+  "vpnStateOff": "Disconnected",
+  "vpnConnectedTo": "Connected to {name}",
+  "@vpnConnectedTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vpnConnecting": "Connecting… ({stage})",
+  "@vpnConnecting": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "vpnDisconnectedHint": "Pick a free server or import a .ovpn file for an encrypted connection",
+  "vpnPickServer": "Pick a free server",
+  "vpnServersTitle": "Free public servers (VPNGate)",
+  "vpnServersFail": "Could not fetch the server list — check your connection",
+  "vpnNoServers": "No servers available right now",
+  "vpnImport": "Import .ovpn",
+  "vpnImportedFile": "Imported file",
+  "vpnInvalidConfig": "The file is not a valid OpenVPN configuration",
+  "vpnDisconnect": "Disconnect",
+  "vpnReconnect": "Reconnect: {name}",
+  "@vpnReconnect": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vpnConnectFailed": "Connection failed — try another server",
+  "vpnError": "Something went wrong while connecting. Try another server.",
+  "vpnUnsupported": "The VPN client works on Android devices only (requires the system permission dialog)."
 }

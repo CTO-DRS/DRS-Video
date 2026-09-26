@@ -1373,4 +1373,219 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get subtitleInvalid => 'تعذر تحميل الترجمة';
+
+  @override
+  String get platformsSites => 'المواقع';
+
+  @override
+  String get sitesSearchHint => 'ابحث عن منصة (YouTube، TikTok، شاهد...)';
+
+  @override
+  String get sitesAll => 'الكل';
+
+  @override
+  String get sitesCatMine => 'مواقعي';
+
+  @override
+  String get sitesCatVideo => 'فيديو';
+
+  @override
+  String get sitesCatArabic => 'عربية';
+
+  @override
+  String get sitesCatMovies => 'أفلام';
+
+  @override
+  String get sitesCatLive => 'أخبار وبث';
+
+  @override
+  String get sitesCatSports => 'رياضة';
+
+  @override
+  String get sitesCatMusic => 'موسيقى';
+
+  @override
+  String get sitesCatAnime => 'أنمي';
+
+  @override
+  String get sitesCatSocial => 'تواصل';
+
+  @override
+  String get sitesCatLearn => 'تعليم';
+
+  @override
+  String get sitesCatTv => 'تلفزيون';
+
+  @override
+  String get sitesAddAny => 'أضف أي موقع';
+
+  @override
+  String get sitesAddTitle => 'إضافة موقع';
+
+  @override
+  String get sitesAddName => 'الاسم';
+
+  @override
+  String get sitesAddUrl => 'العنوان';
+
+  @override
+  String get sitesNameRequired => 'الاسم مطلوب';
+
+  @override
+  String get sitesBookmarks => 'العلامات المرجعية';
+
+  @override
+  String get bookmarksEmpty =>
+      'لا توجد علامات مرجعية بعد — استخدم نجمة داخل المتصفح لحفظ الصفحات';
+
+  @override
+  String get bookmarkAdded => 'أضيف إلى العلامات المرجعية';
+
+  @override
+  String get bookmarkRemoved => 'أزيل من العلامات المرجعية';
+
+  @override
+  String get bookmarkAdd => 'حفظ في العلامات المرجعية';
+
+  @override
+  String get bookmarkRemove => 'إزالة من العلامات المرجعية';
+
+  @override
+  String get browserUaTooltip => 'التبديل بين واجهة الجوال وواجهة سطح المكتب';
+
+  @override
+  String browserBlockedSession(int count) {
+    return 'المحجوبة في هذه الصفحة: $count';
+  }
+
+  @override
+  String get browserAddressHint => 'ابحث أو أدخل عنوان موقع';
+
+  @override
+  String get browserShieldTooltip => 'الحماية وحظر الإعلانات';
+
+  @override
+  String get browserStreamsTooltip => 'الفيديوهات المكتشفة في الصفحة';
+
+  @override
+  String get browserStreamsTitle => 'فيديو مكتشف في الصفحة';
+
+  @override
+  String get browserPlayThisPage => 'تشغيل هذه الصفحة بمشغل DRS';
+
+  @override
+  String get browserPlayInPlayer => 'تشغيل بالمشغل الأصلي';
+
+  @override
+  String get browserNoStreams =>
+      'لم يُكتشف فيديو قابل للتشغيل في هذه الصفحة بعد — تنقل داخل الموقع وحاول مجدداً';
+
+  @override
+  String get browserPlayFailed => 'تعذر فتح هذا الرابط في المشغل';
+
+  @override
+  String get protectionTitle => 'الحماية والـ VPN';
+
+  @override
+  String get protectionAdBlockTitle => 'الحماية من الإعلانات';
+
+  @override
+  String get protectionAdBlock => 'حظر الإعلانات والمتتبعات';
+
+  @override
+  String get protectionAdBlockDesc =>
+      'يحجب أكثر من 75 ألف نطاق إعلانات ومتتبعات داخل المتصفح المدمج';
+
+  @override
+  String get protectionIncognito => 'التصفح الخاص';
+
+  @override
+  String get protectionIncognitoDesc => 'عدم حفظ سجل التصفح';
+
+  @override
+  String protectionBlockedTotal(int count) {
+    return 'الطلبات المحجوبة حتى الآن: $count';
+  }
+
+  @override
+  String get protectionResetCounter => 'تصفير';
+
+  @override
+  String get protectionBlocklistInfo =>
+      'قائمة الحظر من مشروع StevenBlack مفتوح المصدر (رخصة MIT) وتُحدّث مع كل إصدار. لا يتم تجاوز أنظمة حماية المحتوى (DRM) لأي منصة.';
+
+  @override
+  String get protectionHonestNote =>
+      'ملاحظة صادقة: حظر الإعلانات يعمل داخل المتصفح المدمج. بعض المنصات (مثل يوتيوب) تُدمج إعلاناتها مع محتوى الفيديو نفسه فلا يمكن حجبها دون تعطيل التشغيل. يعمل VPN عبر OpenVPN فقط على أجهزة Android.';
+
+  @override
+  String get vpnTitle => 'VPN مجاني (OpenVPN)';
+
+  @override
+  String get vpnStateConnected => 'متصل';
+
+  @override
+  String get vpnStateBusy => 'جارٍ المعالجة';
+
+  @override
+  String get vpnStateError => 'خطأ';
+
+  @override
+  String get vpnStateUnsupported => 'غير مدعوم';
+
+  @override
+  String get vpnStateOff => 'غير متصل';
+
+  @override
+  String vpnConnectedTo(String name) {
+    return 'متصل بـ $name';
+  }
+
+  @override
+  String vpnConnecting(String stage) {
+    return 'جارٍ الاتصال… ($stage)';
+  }
+
+  @override
+  String get vpnDisconnectedHint =>
+      'اختر خادماً مجانياً أو استورد ملف .ovpn للاتصال المشفر';
+
+  @override
+  String get vpnPickServer => 'اختر خادماً مجانياً';
+
+  @override
+  String get vpnServersTitle => 'خوادم مجانية عامة (VPNGate)';
+
+  @override
+  String get vpnServersFail => 'تعذر جلب قائمة الخوادم — تحقق من الاتصال';
+
+  @override
+  String get vpnNoServers => 'لا توجد خوادم متاحة حالياً';
+
+  @override
+  String get vpnImport => 'استيراد .ovpn';
+
+  @override
+  String get vpnImportedFile => 'ملف مستورد';
+
+  @override
+  String get vpnInvalidConfig => 'الملف ليس إعداد OpenVPN صالحاً';
+
+  @override
+  String get vpnDisconnect => 'قطع الاتصال';
+
+  @override
+  String vpnReconnect(String name) {
+    return 'إعادة الاتصال: $name';
+  }
+
+  @override
+  String get vpnConnectFailed => 'فشل الاتصال — جرّب خادماً آخر';
+
+  @override
+  String get vpnError => 'حدث خطأ أثناء الاتصال. جرّب خادماً آخر.';
+
+  @override
+  String get vpnUnsupported =>
+      'عميل VPN يعمل على أجهزة Android فقط (يتطلب إذن النظام).';
 }

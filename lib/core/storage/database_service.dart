@@ -108,7 +108,35 @@ class DatabaseService {
         created_at INTEGER NOT NULL
       )''');
     _createStreamTables(batch);
+    _createBrowserTables(batch);
     await batch.commit(noResult: true);
+  }
+
+  /// Built-in browser tables (v4): history, bookmarks, user-added sites.
+  void _createBrowserTables(Batch batch) {
+    batch.execute('''
+      CREATE TABLE browser_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        url TEXT NOT NULL,
+        title TEXT,
+        visited_at INTEGER NOT NULL
+      )''');
+    batch.execute(
+        'CREATE INDEX idx_browser_history_time ON browser_history(visited_at DESC)');
+    batch.execute('''
+      CREATE TABLE browser_bookmarks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        url TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )''');
+    batch.execute('''
+      CREATE TABLE user_sites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        url TEXT NOT NULL UNIQUE,
+        created_at INTEGER NOT NULL
+      )''');
   }
 
   /// Streaming-platform tables (v3): IPTV playlists/channels + NAS servers.
@@ -162,6 +190,12 @@ class DatabaseService {
       batch.execute('ALTER TABLE media_items ADD COLUMN play_uri TEXT');
       await batch.commit(noResult: true);
     }
+    // v4: built-in browser (history / bookmarks / user sites).
+    if (oldVersion < 4) {
+      final batch = db.batch();
+      _createBrowserTables(batch);
+      await batch.commit(noResult: true);
+    }
   }
 
   Future<void> close() async {
@@ -176,6 +210,7 @@ class DatabaseService {
       'watch_progress', 'playlist_items', 'playlists',
       'downloads', 'search_history', 'media_items', 'sources',
       'iptv_channels', 'iptv_playlists', 'nas_servers',
+      'browser_history', 'browser_bookmarks', 'user_sites',
     ]) {
       batch.delete(table);
     }

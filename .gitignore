@@ -55,3 +55,4 @@ local.properties
 
 # === Local deliverables (releases go to GitHub Releases) ===
 /download/
+android/build/

@@ -13,6 +13,7 @@ import '../../state/downloads_controller.dart';
 import '../../state/settings_controller.dart';
 import 'diagnostics_screen.dart';
 import 'storage_screen.dart';
+import '../vpn/protection_screen.dart';
 
 /// Settings Center: playback, downloads, appearance, storage, privacy,
 /// notifications, about.
@@ -42,6 +43,11 @@ class SettingsScreen extends StatelessWidget {
           _Section(l.settingsStorage, Icons.storage_outlined, context, () {
             Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const StorageScreen()));
+          }),
+          // v1.4.0: protection system + free VPN client.
+          _Section(l.protectionTitle, Icons.security_outlined, context, () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProtectionScreen()));
           }),
           _Section(l.setDiagnostics, Icons.troubleshoot_outlined, context, () {
             Navigator.of(context).push(

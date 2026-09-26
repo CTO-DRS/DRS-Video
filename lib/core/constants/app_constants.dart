@@ -5,10 +5,10 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.3.0';
+  static const String appVersion = '1.4.0';
 
   static const String dbName = 'drs_video.db';
-  static const int dbVersion = 3;
+  static const int dbVersion = 4;
 
   /// Android MethodChannel used by MainActivity (Kotlin).
   static const String nativeChannel = 'drs.video/native';
@@ -100,6 +100,50 @@ class AppConstants {
 
   /// Timeout used when resolving a YouTube title during smart-link save.
   static const Duration youtubeTitleTimeout = Duration(seconds: 6);
+
+  // ---- Built-in platform browser (v1.4.0) ----
+
+  /// Blocklist asset bundled for in-browser ad/tracker blocking
+  /// (one real domain per line, StevenBlack unified list).
+  static const String adBlockAsset = 'assets/blocklists/ad_domains.txt';
+
+  /// Bundled real-platforms catalog asset (v1.4.0).
+  static const String sitesCatalogAsset = 'assets/sites/catalog.json';
+
+  /// User-Agent for the built-in browser. Desktop UA unlocks the full
+  /// web versions of platforms (YouTube/TikTok desktop layouts).
+  static const String browserDesktopUserAgent =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+      '(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+
+  /// Default (mobile) UA keeps Android behavior of the sites.
+  static const String browserMobileUserAgent =
+      'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 '
+      '(KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36';
+
+  /// File extensions considered a playable video/stream when detected
+  /// inside the browser (shown in the "open in player" sheet).
+  static const List<String> streamFileExtensions = [
+    'm3u8', 'mpd', 'mp4', 'm4v', 'mkv', 'webm', 'ts', 'mov', 'flv', '3gp',
+  ];
+
+  /// Maximum number of browser history rows kept in SQLite.
+  static const int browserHistoryCap = 500;
+
+  /// Maximum number of detected streams remembered per browser page.
+  static const int browserDetectedStreamsCap = 12;
+
+  // ---- Free VPN (v1.4.0) ----
+
+  /// VPNGate public API (University of Tsukuba project). Free OpenVPN
+  /// servers, no registration. Configs are decoded from the CSV itself.
+  static const String vpngateApiUrl = 'https://www.vpngate.net/api/iphone/';
+
+  /// Timeout for fetching/refreshing the free server list.
+  static const Duration vpngateFetchTimeout = Duration(seconds: 30);
+
+  /// Only servers at/above this speed (bits/sec) are offered by default.
+  static const int vpngateMinSpeedBps = 1000000;
 }
 
 /// NAS transport protocols.
@@ -136,6 +180,14 @@ class PrefKeys {
   static const firstRunDone = 'first_run_done';
 
   static const maxThumbnailCacheMb = 'max_thumbnail_cache_mb';
+
+  // ---- Built-in browser + protection (v1.4.0) ----
+  static const adBlockEnabled = 'ad_block_enabled';
+  static const browserIncognito = 'browser_incognito';
+  static const browserDesktopUa = 'browser_desktop_ua';
+  static const blockedRequestsCount = 'blocked_requests_count';
+  static const vpnAutoReconnect = 'vpn_auto_reconnect';
+  static const vpnLastServer = 'vpn_last_server';
 }
 
 /// Download priority values.

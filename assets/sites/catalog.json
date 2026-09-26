@@ -1,0 +1,1026 @@
+{
+ "v": 1,
+ "count": 204,
+ "sites": [
+  {
+   "n": "YouTube",
+   "u": "https://www.youtube.com",
+   "c": "video"
+  },
+  {
+   "n": "TikTok",
+   "u": "https://www.tiktok.com",
+   "c": "video"
+  },
+  {
+   "n": "Instagram",
+   "u": "https://www.instagram.com",
+   "c": "video"
+  },
+  {
+   "n": "Facebook Watch",
+   "u": "https://www.facebook.com/watch",
+   "c": "video"
+  },
+  {
+   "n": "Snapchat",
+   "u": "https://www.snapchat.com/explore",
+   "c": "video"
+  },
+  {
+   "n": "X (Twitter)",
+   "u": "https://x.com",
+   "c": "video"
+  },
+  {
+   "n": "Reddit",
+   "u": "https://www.reddit.com",
+   "c": "video"
+  },
+  {
+   "n": "Vimeo",
+   "u": "https://vimeo.com",
+   "c": "video"
+  },
+  {
+   "n": "Dailymotion",
+   "u": "https://www.dailymotion.com",
+   "c": "video"
+  },
+  {
+   "n": "Rumble",
+   "u": "https://rumble.com",
+   "c": "video"
+  },
+  {
+   "n": "Odysee",
+   "u": "https://odysee.com",
+   "c": "video"
+  },
+  {
+   "n": "BitChute",
+   "u": "https://www.bitchute.com",
+   "c": "video"
+  },
+  {
+   "n": "Streamable",
+   "u": "https://streamable.com",
+   "c": "video"
+  },
+  {
+   "n": "Imgur",
+   "u": "https://imgur.com",
+   "c": "video"
+  },
+  {
+   "n": "VK Video",
+   "u": "https://vk.com/video",
+   "c": "video"
+  },
+  {
+   "n": "Likee",
+   "u": "https://likee.video",
+   "c": "video"
+  },
+  {
+   "n": "Kwai",
+   "u": "https://www.kwai.com",
+   "c": "video"
+  },
+  {
+   "n": "Triller",
+   "u": "https://triller.co",
+   "c": "video"
+  },
+  {
+   "n": "Niconico",
+   "u": "https://www.nicovideo.jp",
+   "c": "video"
+  },
+  {
+   "n": "Bilibili",
+   "u": "https://www.bilibili.com",
+   "c": "video"
+  },
+  {
+   "n": "iQIYI",
+   "u": "https://www.iq.com",
+   "c": "video"
+  },
+  {
+   "n": "Youku",
+   "u": "https://www.youku.com",
+   "c": "video"
+  },
+  {
+   "n": "WeTV",
+   "u": "https://wetv.vip",
+   "c": "video"
+  },
+  {
+   "n": "Viu",
+   "u": "https://www.viu.com",
+   "c": "video"
+  },
+  {
+   "n": "Rakuten Viki",
+   "u": "https://www.viki.com",
+   "c": "video"
+  },
+  {
+   "n": "MX Player",
+   "u": "https://www.mxplayer.in",
+   "c": "video"
+  },
+  {
+   "n": "ZEE5",
+   "u": "https://www.zee5.com",
+   "c": "video"
+  },
+  {
+   "n": "SonyLIV",
+   "u": "https://www.sonyliv.com",
+   "c": "video"
+  },
+  {
+   "n": "JioHotstar",
+   "u": "https://www.hotstar.com",
+   "c": "video"
+  },
+  {
+   "n": "JioCinema",
+   "u": "https://www.jiocinema.com",
+   "c": "video"
+  },
+  {
+   "n": "Eros Now",
+   "u": "https://erosnow.com",
+   "c": "video"
+  },
+  {
+   "n": "ShemarooMe",
+   "u": "https://shemaroome.com",
+   "c": "video"
+  },
+  {
+   "n": "Netflix",
+   "u": "https://www.netflix.com",
+   "c": "movies"
+  },
+  {
+   "n": "Prime Video",
+   "u": "https://www.primevideo.com",
+   "c": "movies"
+  },
+  {
+   "n": "Disney+",
+   "u": "https://www.disneyplus.com",
+   "c": "movies"
+  },
+  {
+   "n": "Max",
+   "u": "https://www.max.com",
+   "c": "movies"
+  },
+  {
+   "n": "Hulu",
+   "u": "https://www.hulu.com",
+   "c": "movies"
+  },
+  {
+   "n": "Apple TV+",
+   "u": "https://tv.apple.com",
+   "c": "movies"
+  },
+  {
+   "n": "Paramount+",
+   "u": "https://www.paramountplus.com",
+   "c": "movies"
+  },
+  {
+   "n": "Peacock",
+   "u": "https://www.peacocktv.com",
+   "c": "movies"
+  },
+  {
+   "n": "Crackle",
+   "u": "https://www.crackle.com",
+   "c": "movies"
+  },
+  {
+   "n": "Tubi",
+   "u": "https://tubitv.com",
+   "c": "movies"
+  },
+  {
+   "n": "Plex",
+   "u": "https://watch.plex.tv",
+   "c": "movies"
+  },
+  {
+   "n": "Pluto TV",
+   "u": "https://pluto.tv",
+   "c": "movies"
+  },
+  {
+   "n": "The Roku Channel",
+   "u": "https://therokuchannel.roku.com",
+   "c": "movies"
+  },
+  {
+   "n": "Amazon Freevee",
+   "u": "https://www.amazon.com/freevee",
+   "c": "movies"
+  },
+  {
+   "n": "MUBI",
+   "u": "https://mubi.com",
+   "c": "movies"
+  },
+  {
+   "n": "Shudder",
+   "u": "https://www.shudder.com",
+   "c": "movies"
+  },
+  {
+   "n": "AMC+",
+   "u": "https://www.amcplus.com",
+   "c": "movies"
+  },
+  {
+   "n": "Starz",
+   "u": "https://www.starz.com",
+   "c": "movies"
+  },
+  {
+   "n": "BritBox",
+   "u": "https://www.britbox.com",
+   "c": "movies"
+  },
+  {
+   "n": "Acorn TV",
+   "u": "https://acorn.tv",
+   "c": "movies"
+  },
+  {
+   "n": "PBS",
+   "u": "https://www.pbs.org",
+   "c": "movies"
+  },
+  {
+   "n": "PBS Kids",
+   "u": "https://pbskids.org",
+   "c": "movies"
+  },
+  {
+   "n": "Kanopy",
+   "u": "https://www.kanopy.com",
+   "c": "movies"
+  },
+  {
+   "n": "Hoopla",
+   "u": "https://www.hoopladigital.com",
+   "c": "movies"
+  },
+  {
+   "n": "Fandango at Home",
+   "u": "https://athome.fandango.com",
+   "c": "movies"
+  },
+  {
+   "n": "Sundance Now",
+   "u": "https://www.sundancenow.com",
+   "c": "movies"
+  },
+  {
+   "n": "Topic",
+   "u": "https://www.topic.com",
+   "c": "movies"
+  },
+  {
+   "n": "شاهد Shahid",
+   "u": "https://shahid.mbc.net",
+   "c": "arabic"
+  },
+  {
+   "n": "WATCH IT",
+   "u": "https://watchit.app",
+   "c": "arabic"
+  },
+  {
+   "n": "StarzPlay",
+   "u": "https://starzplay.com",
+   "c": "arabic"
+  },
+  {
+   "n": "OSN+",
+   "u": "https://osnplus.com",
+   "c": "arabic"
+  },
+  {
+   "n": "Jawwy TV",
+   "u": "https://jawwy.tv",
+   "c": "arabic"
+  },
+  {
+   "n": "أنغامي Anghami",
+   "u": "https://anghami.com",
+   "c": "arabic"
+  },
+  {
+   "n": "MBC",
+   "u": "https://www.mbc.net",
+   "c": "arabic"
+  },
+  {
+   "n": "الجزيرة",
+   "u": "https://www.aljazeera.net",
+   "c": "arabic"
+  },
+  {
+   "n": "الجزيرة الوثائقية",
+   "u": "https://www.aljazeera.net/documentation",
+   "c": "arabic"
+  },
+  {
+   "n": "العربية",
+   "u": "https://www.alarabiya.net",
+   "c": "arabic"
+  },
+  {
+   "n": "الحدث",
+   "u": "https://www.alarabiya.net/alhadath",
+   "c": "arabic"
+  },
+  {
+   "n": "سكاي نيوز عربية",
+   "u": "https://www.skynewsarabia.com",
+   "c": "arabic"
+  },
+  {
+   "n": "الشرق Asharq News",
+   "u": "https://asharqnews.com",
+   "c": "arabic"
+  },
+  {
+   "n": "ثمانية",
+   "u": "https://thmanyah.com",
+   "c": "arabic"
+  },
+  {
+   "n": "الشرق الأوسط",
+   "u": "https://aawsat.com",
+   "c": "arabic"
+  },
+  {
+   "n": "البيان",
+   "u": "https://www.albayan.ae",
+   "c": "arabic"
+  },
+  {
+   "n": "الخليج",
+   "u": "https://www.alkhaleej.ae",
+   "c": "arabic"
+  },
+  {
+   "n": "اليوم السابع",
+   "u": "https://www.youm7.com",
+   "c": "arabic"
+  },
+  {
+   "n": "المصري اليوم",
+   "u": "https://www.almasryalyoum.com",
+   "c": "arabic"
+  },
+  {
+   "n": "البلاد",
+   "u": "https://www.elbalad.news",
+   "c": "arabic"
+  },
+  {
+   "n": "فلوجرز",
+   "u": "https://flogers.com",
+   "c": "arabic"
+  },
+  {
+   "n": "2M المغربية",
+   "u": "https://www.2m.ma",
+   "c": "arabic"
+  },
+  {
+   "n": "الشروق الجزائرية",
+   "u": "https://www.echoroukonline.com",
+   "c": "arabic"
+  },
+  {
+   "n": "النهار الجزائرية",
+   "u": "https://www.ennaharonline.com",
+   "c": "arabic"
+  },
+  {
+   "n": "السومرية",
+   "u": "https://www.alsumaria.tv",
+   "c": "arabic"
+  },
+  {
+   "n": "الرأي الكويتية",
+   "u": "https://www.alraimedia.com",
+   "c": "arabic"
+  },
+  {
+   "n": "رؤيا",
+   "u": "https://www.roya-news.com",
+   "c": "arabic"
+  },
+  {
+   "n": "عمان نت",
+   "u": "https://ammonnews.net",
+   "c": "arabic"
+  },
+  {
+   "n": "النهار اللبنانية",
+   "u": "https://www.annahar.com",
+   "c": "arabic"
+  },
+  {
+   "n": "الميادين",
+   "u": "https://almayadeen.net",
+   "c": "arabic"
+  },
+  {
+   "n": "المنار",
+   "u": "https://almanar.com.lb",
+   "c": "arabic"
+  },
+  {
+   "n": "دبي الإعلامية",
+   "u": "https://www.dubaimedia.ae",
+   "c": "arabic"
+  },
+  {
+   "n": "أبوظبي الإعلامية",
+   "u": "https://www.admedia.gov.ae",
+   "c": "arabic"
+  },
+  {
+   "n": "الشروق تونس",
+   "u": "https://www.shorouknews.com",
+   "c": "arabic"
+  },
+  {
+   "n": "CNN",
+   "u": "https://www.cnn.com",
+   "c": "live"
+  },
+  {
+   "n": "BBC News",
+   "u": "https://www.bbc.com/news",
+   "c": "live"
+  },
+  {
+   "n": "BBC Arabic",
+   "u": "https://www.bbc.com/arabic",
+   "c": "live"
+  },
+  {
+   "n": "Sky News",
+   "u": "https://news.sky.com",
+   "c": "live"
+  },
+  {
+   "n": "Fox News",
+   "u": "https://www.foxnews.com",
+   "c": "live"
+  },
+  {
+   "n": "NBC News",
+   "u": "https://www.nbcnews.com",
+   "c": "live"
+  },
+  {
+   "n": "ABC News",
+   "u": "https://abcnews.go.com",
+   "c": "live"
+  },
+  {
+   "n": "CBS News",
+   "u": "https://www.cbsnews.com",
+   "c": "live"
+  },
+  {
+   "n": "Al Jazeera English",
+   "u": "https://www.aljazeera.com",
+   "c": "live"
+  },
+  {
+   "n": "France 24",
+   "u": "https://www.france24.com/ar",
+   "c": "live"
+  },
+  {
+   "n": "DW عربية",
+   "u": "https://www.dw.com/ar",
+   "c": "live"
+  },
+  {
+   "n": "TRT عربي",
+   "u": "https://www.trt.net.tr/arabic",
+   "c": "live"
+  },
+  {
+   "n": "CNN بالعربية",
+   "u": "https://arabic.cnn.com",
+   "c": "live"
+  },
+  {
+   "n": "Euronews",
+   "u": "https://ar.euronews.com",
+   "c": "live"
+  },
+  {
+   "n": "الحرة",
+   "u": "https://www.alhurra.com",
+   "c": "live"
+  },
+  {
+   "n": "Channel NewsAsia",
+   "u": "https://www.channelnewsasia.com",
+   "c": "live"
+  },
+  {
+   "n": "NHK World",
+   "u": "https://www3.nhk.or.jp/nhkworld",
+   "c": "live"
+  },
+  {
+   "n": "CGTN",
+   "u": "https://www.cgtn.com",
+   "c": "live"
+  },
+  {
+   "n": "DAZN",
+   "u": "https://www.dazn.com",
+   "c": "sports"
+  },
+  {
+   "n": "ESPN",
+   "u": "https://www.espn.com",
+   "c": "sports"
+  },
+  {
+   "n": "Sky Sports",
+   "u": "https://www.skysports.com",
+   "c": "sports"
+  },
+  {
+   "n": "BBC Sport",
+   "u": "https://www.bbc.com/sport",
+   "c": "sports"
+  },
+  {
+   "n": "beIN SPORTS",
+   "u": "https://www.beinsports.com",
+   "c": "sports"
+  },
+  {
+   "n": "Eurosport",
+   "u": "https://www.eurosport.com",
+   "c": "sports"
+  },
+  {
+   "n": "FIFA+",
+   "u": "https://www.fifa.com/fifaplus",
+   "c": "sports"
+  },
+  {
+   "n": "UEFA.tv",
+   "u": "https://www.uefa.tv",
+   "c": "sports"
+  },
+  {
+   "n": "NBA",
+   "u": "https://www.nba.com",
+   "c": "sports"
+  },
+  {
+   "n": "NFL",
+   "u": "https://www.nfl.com",
+   "c": "sports"
+  },
+  {
+   "n": "Premier League",
+   "u": "https://www.premierleague.com",
+   "c": "sports"
+  },
+  {
+   "n": "CBS Sports",
+   "u": "https://www.cbssports.com",
+   "c": "sports"
+  },
+  {
+   "n": "Fox Sports",
+   "u": "https://www.foxsports.com",
+   "c": "sports"
+  },
+  {
+   "n": "كووورة",
+   "u": "https://www.kooora.com",
+   "c": "sports"
+  },
+  {
+   "n": "Goal",
+   "u": "https://www.goal.com",
+   "c": "sports"
+  },
+  {
+   "n": "Copa90",
+   "u": "https://www.copa90.com",
+   "c": "sports"
+  },
+  {
+   "n": "YouTube Music",
+   "u": "https://music.youtube.com",
+   "c": "music"
+  },
+  {
+   "n": "Spotify",
+   "u": "https://open.spotify.com",
+   "c": "music"
+  },
+  {
+   "n": "Anghami",
+   "u": "https://play.anghami.com",
+   "c": "music"
+  },
+  {
+   "n": "Deezer",
+   "u": "https://www.deezer.com",
+   "c": "music"
+  },
+  {
+   "n": "SoundCloud",
+   "u": "https://soundcloud.com",
+   "c": "music"
+  },
+  {
+   "n": "Apple Music",
+   "u": "https://music.apple.com",
+   "c": "music"
+  },
+  {
+   "n": "Amazon Music",
+   "u": "https://music.amazon.com",
+   "c": "music"
+  },
+  {
+   "n": "TIDAL",
+   "u": "https://tidal.com",
+   "c": "music"
+  },
+  {
+   "n": "Napster",
+   "u": "https://app.napster.com",
+   "c": "music"
+  },
+  {
+   "n": "Mixcloud",
+   "u": "https://www.mixcloud.com",
+   "c": "music"
+  },
+  {
+   "n": "Bandcamp",
+   "u": "https://bandcamp.com",
+   "c": "music"
+  },
+  {
+   "n": "Audiomack",
+   "u": "https://audiomack.com",
+   "c": "music"
+  },
+  {
+   "n": "Last.fm",
+   "u": "https://www.last.fm",
+   "c": "music"
+  },
+  {
+   "n": "JioSaavn",
+   "u": "https://www.jiosaavn.com",
+   "c": "music"
+  },
+  {
+   "n": "Crunchyroll",
+   "u": "https://www.crunchyroll.com",
+   "c": "anime"
+  },
+  {
+   "n": "HIDIVE",
+   "u": "https://www.hidive.com",
+   "c": "anime"
+  },
+  {
+   "n": "RetroCrush",
+   "u": "https://www.retrocrush.tv",
+   "c": "anime"
+  },
+  {
+   "n": "Midnight Pulp",
+   "u": "https://www.midnightpulp.com",
+   "c": "anime"
+  },
+  {
+   "n": "AsianCrush",
+   "u": "https://www.asiancrush.com",
+   "c": "anime"
+  },
+  {
+   "n": "Detective Conan (YT)",
+   "u": "https://www.youtube.com/@DetectiveConanOfficial",
+   "c": "anime"
+  },
+  {
+   "n": "Threads",
+   "u": "https://www.threads.net",
+   "c": "social"
+  },
+  {
+   "n": "Telegram Web",
+   "u": "https://web.telegram.org",
+   "c": "social"
+  },
+  {
+   "n": "Pinterest",
+   "u": "https://www.pinterest.com",
+   "c": "social"
+  },
+  {
+   "n": "Tumblr",
+   "u": "https://www.tumblr.com",
+   "c": "social"
+  },
+  {
+   "n": "LinkedIn",
+   "u": "https://www.linkedin.com",
+   "c": "social"
+  },
+  {
+   "n": "TED",
+   "u": "https://www.ted.com",
+   "c": "learn"
+  },
+  {
+   "n": "TED-Ed",
+   "u": "https://ed.ted.com",
+   "c": "learn"
+  },
+  {
+   "n": "Khan Academy",
+   "u": "https://www.khanacademy.org",
+   "c": "learn"
+  },
+  {
+   "n": "Khan Academy عربي",
+   "u": "https://ar.khanacademy.org",
+   "c": "learn"
+  },
+  {
+   "n": "Coursera",
+   "u": "https://www.coursera.org",
+   "c": "learn"
+  },
+  {
+   "n": "edX",
+   "u": "https://www.edx.org",
+   "c": "learn"
+  },
+  {
+   "n": "Udemy",
+   "u": "https://www.udemy.com",
+   "c": "learn"
+  },
+  {
+   "n": "Udacity",
+   "u": "https://www.udacity.com",
+   "c": "learn"
+  },
+  {
+   "n": "FutureLearn",
+   "u": "https://www.futurelearn.com",
+   "c": "learn"
+  },
+  {
+   "n": "Alison",
+   "u": "https://alison.com",
+   "c": "learn"
+  },
+  {
+   "n": "Pluralsight",
+   "u": "https://www.pluralsight.com",
+   "c": "learn"
+  },
+  {
+   "n": "Skillshare",
+   "u": "https://www.skillshare.com",
+   "c": "learn"
+  },
+  {
+   "n": "LinkedIn Learning",
+   "u": "https://www.linkedin.com/learning",
+   "c": "learn"
+  },
+  {
+   "n": "إدراك",
+   "u": "https://www.edraak.org",
+   "c": "learn"
+  },
+  {
+   "n": "رواق",
+   "u": "https://www.rwaq.org",
+   "c": "learn"
+  },
+  {
+   "n": "دروب",
+   "u": "https://doroob.sa",
+   "c": "learn"
+  },
+  {
+   "n": "نفهم",
+   "u": "https://www.nafham.com",
+   "c": "learn"
+  },
+  {
+   "n": "BBC iPlayer",
+   "u": "https://www.bbc.co.uk/iplayer",
+   "c": "tv"
+  },
+  {
+   "n": "ITVX",
+   "u": "https://www.itv.com/watch",
+   "c": "tv"
+  },
+  {
+   "n": "Channel 4",
+   "u": "https://www.channel4.com",
+   "c": "tv"
+  },
+  {
+   "n": "France TV",
+   "u": "https://www.france.tv",
+   "c": "tv"
+  },
+  {
+   "n": "ZDF",
+   "u": "https://www.zdf.de",
+   "c": "tv"
+  },
+  {
+   "n": "ARD Mediathek",
+   "u": "https://www.ardmediathek.de",
+   "c": "tv"
+  },
+  {
+   "n": "RaiPlay",
+   "u": "https://www.raiplay.it",
+   "c": "tv"
+  },
+  {
+   "n": "RTVE Play",
+   "u": "https://www.rtve.es/play",
+   "c": "tv"
+  },
+  {
+   "n": "RTÉ Player",
+   "u": "https://www.rte.ie/player",
+   "c": "tv"
+  },
+  {
+   "n": "CBC Gem",
+   "u": "https://www.cbc.ca/gem",
+   "c": "tv"
+  },
+  {
+   "n": "ABC iview",
+   "u": "https://iview.abc.net.au",
+   "c": "tv"
+  },
+  {
+   "n": "TVNZ+",
+   "u": "https://www.tvnz.co.nz",
+   "c": "tv"
+  },
+  {
+   "n": "Mediaset Infinity",
+   "u": "https://mediasetinfinity.mediaset.it",
+   "c": "tv"
+  },
+  {
+   "n": "CTV",
+   "u": "https://www.ctv.ca",
+   "c": "tv"
+  },
+  {
+   "n": "Global TV",
+   "u": "https://www.globaltv.com",
+   "c": "tv"
+  },
+  {
+   "n": "Nine Now",
+   "u": "https://www.9now.com.au",
+   "c": "tv"
+  },
+  {
+   "n": "7plus",
+   "u": "https://7plus.com.au",
+   "c": "tv"
+  },
+  {
+   "n": "Weverse",
+   "u": "https://weverse.io",
+   "c": "video"
+  },
+  {
+   "n": "Coub",
+   "u": "https://coub.com",
+   "c": "video"
+  },
+  {
+   "n": "9GAG Video",
+   "u": "https://9gag.com/video",
+   "c": "video"
+  },
+  {
+   "n": "Naver TV",
+   "u": "https://tv.naver.com",
+   "c": "video"
+  },
+  {
+   "n": "Kakao TV",
+   "u": "https://tv.kakao.com",
+   "c": "video"
+  },
+  {
+   "n": "OK.ru Video",
+   "u": "https://ok.ru/video",
+   "c": "video"
+  },
+  {
+   "n": "Veoh",
+   "u": "https://www.veoh.com",
+   "c": "video"
+  },
+  {
+   "n": "Internet Archive Movies",
+   "u": "https://archive.org/details/movies",
+   "c": "video"
+  },
+  {
+   "n": "Vidio",
+   "u": "https://www.vidio.com",
+   "c": "video"
+  },
+  {
+   "n": "TrueID",
+   "u": "https://www.trueid.net",
+   "c": "video"
+  },
+  {
+   "n": "NASA TV",
+   "u": "https://www.nasa.gov/nasatv",
+   "c": "live"
+  },
+  {
+   "n": "Sky News Arabia (بث)",
+   "u": "https://www.skynewsarabia.com/live",
+   "c": "live"
+  },
+  {
+   "n": "الإخبارية السعودية",
+   "u": "https://www.alekhbariya.net",
+   "c": "arabic"
+  },
+  {
+   "n": "الحدث الجزائرية",
+   "u": "https://www.elheddaf.com",
+   "c": "arabic"
+  },
+  {
+   "n": "DW Live",
+   "u": "https://www.dw.com/en/media-center/live-tv/s-100825",
+   "c": "live"
+  },
+  {
+   "n": "Watcha",
+   "u": "https://watcha.com",
+   "c": "movies"
+  },
+  {
+   "n": "TVING",
+   "u": "https://www.tving.com",
+   "c": "movies"
+  },
+  {
+   "n": "iflix",
+   "u": "https://www.iflix.com",
+   "c": "movies"
+  }
+ ]
+}

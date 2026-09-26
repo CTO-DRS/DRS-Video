@@ -4,6 +4,7 @@ import '../core/network/dio_client.dart';
 import '../core/storage/database_service.dart';
 import '../core/storage/preferences_service.dart';
 import '../core/utils/logger.dart';
+import '../data/repositories/browser_repository.dart';
 import '../data/repositories/download_repository.dart';
 import '../data/repositories/history_repository.dart';
 import '../data/repositories/library_repository.dart';
@@ -21,6 +22,7 @@ import '../services/network/nas_service.dart';
 import '../services/network/stream_source_factory.dart';
 import '../services/recommendations/recommendation_engine.dart';
 import '../services/recommendations/playback_optimizer.dart';
+import '../services/vpn/vpn_service.dart';
 import '../services/sharing/share_service.dart';
 import '../services/storage/storage_analyzer.dart';
 
@@ -62,6 +64,8 @@ class AppServices {
     required this.nas,
     required this.streamFactory,
     required this.iptvImport,
+    required this.browser,
+    required this.vpn,
     required this.health,
   });
 
@@ -86,6 +90,8 @@ class AppServices {
   final NasService nas;
   final StreamSourceFactory streamFactory;
   final IptvImportService iptvImport;
+  final BrowserRepository browser;
+  final VpnService vpn;
   final ServiceHealth health;
 }
 
@@ -196,6 +202,13 @@ Future<AppServices> bootstrap({
   final streamFactory = StreamSourceFactory(library);
   final iptvImport = IptvImportService(iptvRepo);
 
+  // Built-in browser storage (v1.4.0): plain SQLite, same safe channel
+  // as the rest of the repositories (boot contract preserved).
+  final browserRepo = BrowserRepository(await db.database);
+  // Free VPN (v1.4.0): engine init is LAZY (first open of the protection
+  // screen) so no native VPN work can ever happen during boot.
+  final vpn = VpnService(prefs: prefs);
+
   return AppServices(
     prefs: prefs,
     db: db,
@@ -218,6 +231,8 @@ Future<AppServices> bootstrap({
     nas: nasService,
     streamFactory: streamFactory,
     iptvImport: iptvImport,
+    browser: browserRepo,
+    vpn: vpn,
     health: health,
   );
 }

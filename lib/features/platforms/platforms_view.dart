@@ -13,6 +13,7 @@ import '../../services/network/stream_source_factory.dart';
 import '../../state/media_actions.dart';
 import '../../state/platforms_controller.dart';
 import '../player/player_screen.dart';
+import '../sites/sites_tab.dart';
 
 /// المنصات (Platforms) tab: everything for watching videos from outside
 /// the device — direct stream links, IPTV playlists and NAS servers.
@@ -45,13 +46,14 @@ class _PlatformsViewState extends State<PlatformsView> {
     }
 
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: TabBar(
           isScrollable: true,
           tabAlignment: TabAlignment.start,
           tabs: [
+            Tab(icon: const Icon(Icons.public), text: l.platformsSites),
             Tab(icon: const Icon(Icons.link), text: l.platformsLinks),
             Tab(icon: const Icon(Icons.live_tv), text: l.platformsIptv),
             Tab(icon: const Icon(Icons.dns), text: l.platformsNas),
@@ -67,6 +69,7 @@ class _PlatformsViewState extends State<PlatformsView> {
             }
             return TabBarView(
               children: [
+                const SitesTab(),
                 _LinksTab(controller: controller),
                 _IptvTab(controller: controller),
                 _NasTab(controller: controller),

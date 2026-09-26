@@ -2695,6 +2695,402 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تعذر تحميل الترجمة'**
   String get subtitleInvalid;
+
+  /// No description provided for @platformsSites.
+  ///
+  /// In ar, this message translates to:
+  /// **'المواقع'**
+  String get platformsSites;
+
+  /// No description provided for @sitesSearchHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث عن منصة (YouTube، TikTok، شاهد...)'**
+  String get sitesSearchHint;
+
+  /// No description provided for @sitesAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get sitesAll;
+
+  /// No description provided for @sitesCatMine.
+  ///
+  /// In ar, this message translates to:
+  /// **'مواقعي'**
+  String get sitesCatMine;
+
+  /// No description provided for @sitesCatVideo.
+  ///
+  /// In ar, this message translates to:
+  /// **'فيديو'**
+  String get sitesCatVideo;
+
+  /// No description provided for @sitesCatArabic.
+  ///
+  /// In ar, this message translates to:
+  /// **'عربية'**
+  String get sitesCatArabic;
+
+  /// No description provided for @sitesCatMovies.
+  ///
+  /// In ar, this message translates to:
+  /// **'أفلام'**
+  String get sitesCatMovies;
+
+  /// No description provided for @sitesCatLive.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخبار وبث'**
+  String get sitesCatLive;
+
+  /// No description provided for @sitesCatSports.
+  ///
+  /// In ar, this message translates to:
+  /// **'رياضة'**
+  String get sitesCatSports;
+
+  /// No description provided for @sitesCatMusic.
+  ///
+  /// In ar, this message translates to:
+  /// **'موسيقى'**
+  String get sitesCatMusic;
+
+  /// No description provided for @sitesCatAnime.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنمي'**
+  String get sitesCatAnime;
+
+  /// No description provided for @sitesCatSocial.
+  ///
+  /// In ar, this message translates to:
+  /// **'تواصل'**
+  String get sitesCatSocial;
+
+  /// No description provided for @sitesCatLearn.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعليم'**
+  String get sitesCatLearn;
+
+  /// No description provided for @sitesCatTv.
+  ///
+  /// In ar, this message translates to:
+  /// **'تلفزيون'**
+  String get sitesCatTv;
+
+  /// No description provided for @sitesAddAny.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف أي موقع'**
+  String get sitesAddAny;
+
+  /// No description provided for @sitesAddTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة موقع'**
+  String get sitesAddTitle;
+
+  /// No description provided for @sitesAddName.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم'**
+  String get sitesAddName;
+
+  /// No description provided for @sitesAddUrl.
+  ///
+  /// In ar, this message translates to:
+  /// **'العنوان'**
+  String get sitesAddUrl;
+
+  /// No description provided for @sitesNameRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم مطلوب'**
+  String get sitesNameRequired;
+
+  /// No description provided for @sitesBookmarks.
+  ///
+  /// In ar, this message translates to:
+  /// **'العلامات المرجعية'**
+  String get sitesBookmarks;
+
+  /// No description provided for @bookmarksEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد علامات مرجعية بعد — استخدم نجمة داخل المتصفح لحفظ الصفحات'**
+  String get bookmarksEmpty;
+
+  /// No description provided for @bookmarkAdded.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضيف إلى العلامات المرجعية'**
+  String get bookmarkAdded;
+
+  /// No description provided for @bookmarkRemoved.
+  ///
+  /// In ar, this message translates to:
+  /// **'أزيل من العلامات المرجعية'**
+  String get bookmarkRemoved;
+
+  /// No description provided for @bookmarkAdd.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ في العلامات المرجعية'**
+  String get bookmarkAdd;
+
+  /// No description provided for @bookmarkRemove.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة من العلامات المرجعية'**
+  String get bookmarkRemove;
+
+  /// No description provided for @browserUaTooltip.
+  ///
+  /// In ar, this message translates to:
+  /// **'التبديل بين واجهة الجوال وواجهة سطح المكتب'**
+  String get browserUaTooltip;
+
+  /// No description provided for @browserBlockedSession.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحجوبة في هذه الصفحة: {count}'**
+  String browserBlockedSession(int count);
+
+  /// No description provided for @browserAddressHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث أو أدخل عنوان موقع'**
+  String get browserAddressHint;
+
+  /// No description provided for @browserShieldTooltip.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحماية وحظر الإعلانات'**
+  String get browserShieldTooltip;
+
+  /// No description provided for @browserStreamsTooltip.
+  ///
+  /// In ar, this message translates to:
+  /// **'الفيديوهات المكتشفة في الصفحة'**
+  String get browserStreamsTooltip;
+
+  /// No description provided for @browserStreamsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'فيديو مكتشف في الصفحة'**
+  String get browserStreamsTitle;
+
+  /// No description provided for @browserPlayThisPage.
+  ///
+  /// In ar, this message translates to:
+  /// **'تشغيل هذه الصفحة بمشغل DRS'**
+  String get browserPlayThisPage;
+
+  /// No description provided for @browserPlayInPlayer.
+  ///
+  /// In ar, this message translates to:
+  /// **'تشغيل بالمشغل الأصلي'**
+  String get browserPlayInPlayer;
+
+  /// No description provided for @browserNoStreams.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُكتشف فيديو قابل للتشغيل في هذه الصفحة بعد — تنقل داخل الموقع وحاول مجدداً'**
+  String get browserNoStreams;
+
+  /// No description provided for @browserPlayFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر فتح هذا الرابط في المشغل'**
+  String get browserPlayFailed;
+
+  /// No description provided for @protectionTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحماية والـ VPN'**
+  String get protectionTitle;
+
+  /// No description provided for @protectionAdBlockTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحماية من الإعلانات'**
+  String get protectionAdBlockTitle;
+
+  /// No description provided for @protectionAdBlock.
+  ///
+  /// In ar, this message translates to:
+  /// **'حظر الإعلانات والمتتبعات'**
+  String get protectionAdBlock;
+
+  /// No description provided for @protectionAdBlockDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'يحجب أكثر من 75 ألف نطاق إعلانات ومتتبعات داخل المتصفح المدمج'**
+  String get protectionAdBlockDesc;
+
+  /// No description provided for @protectionIncognito.
+  ///
+  /// In ar, this message translates to:
+  /// **'التصفح الخاص'**
+  String get protectionIncognito;
+
+  /// No description provided for @protectionIncognitoDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'عدم حفظ سجل التصفح'**
+  String get protectionIncognitoDesc;
+
+  /// No description provided for @protectionBlockedTotal.
+  ///
+  /// In ar, this message translates to:
+  /// **'الطلبات المحجوبة حتى الآن: {count}'**
+  String protectionBlockedTotal(int count);
+
+  /// No description provided for @protectionResetCounter.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصفير'**
+  String get protectionResetCounter;
+
+  /// No description provided for @protectionBlocklistInfo.
+  ///
+  /// In ar, this message translates to:
+  /// **'قائمة الحظر من مشروع StevenBlack مفتوح المصدر (رخصة MIT) وتُحدّث مع كل إصدار. لا يتم تجاوز أنظمة حماية المحتوى (DRM) لأي منصة.'**
+  String get protectionBlocklistInfo;
+
+  /// No description provided for @protectionHonestNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة صادقة: حظر الإعلانات يعمل داخل المتصفح المدمج. بعض المنصات (مثل يوتيوب) تُدمج إعلاناتها مع محتوى الفيديو نفسه فلا يمكن حجبها دون تعطيل التشغيل. يعمل VPN عبر OpenVPN فقط على أجهزة Android.'**
+  String get protectionHonestNote;
+
+  /// No description provided for @vpnTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'VPN مجاني (OpenVPN)'**
+  String get vpnTitle;
+
+  /// No description provided for @vpnStateConnected.
+  ///
+  /// In ar, this message translates to:
+  /// **'متصل'**
+  String get vpnStateConnected;
+
+  /// No description provided for @vpnStateBusy.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ المعالجة'**
+  String get vpnStateBusy;
+
+  /// No description provided for @vpnStateError.
+  ///
+  /// In ar, this message translates to:
+  /// **'خطأ'**
+  String get vpnStateError;
+
+  /// No description provided for @vpnStateUnsupported.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير مدعوم'**
+  String get vpnStateUnsupported;
+
+  /// No description provided for @vpnStateOff.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير متصل'**
+  String get vpnStateOff;
+
+  /// No description provided for @vpnConnectedTo.
+  ///
+  /// In ar, this message translates to:
+  /// **'متصل بـ {name}'**
+  String vpnConnectedTo(String name);
+
+  /// No description provided for @vpnConnecting.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ الاتصال… ({stage})'**
+  String vpnConnecting(String stage);
+
+  /// No description provided for @vpnDisconnectedHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر خادماً مجانياً أو استورد ملف .ovpn للاتصال المشفر'**
+  String get vpnDisconnectedHint;
+
+  /// No description provided for @vpnPickServer.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر خادماً مجانياً'**
+  String get vpnPickServer;
+
+  /// No description provided for @vpnServersTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'خوادم مجانية عامة (VPNGate)'**
+  String get vpnServersTitle;
+
+  /// No description provided for @vpnServersFail.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر جلب قائمة الخوادم — تحقق من الاتصال'**
+  String get vpnServersFail;
+
+  /// No description provided for @vpnNoServers.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد خوادم متاحة حالياً'**
+  String get vpnNoServers;
+
+  /// No description provided for @vpnImport.
+  ///
+  /// In ar, this message translates to:
+  /// **'استيراد .ovpn'**
+  String get vpnImport;
+
+  /// No description provided for @vpnImportedFile.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملف مستورد'**
+  String get vpnImportedFile;
+
+  /// No description provided for @vpnInvalidConfig.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملف ليس إعداد OpenVPN صالحاً'**
+  String get vpnInvalidConfig;
+
+  /// No description provided for @vpnDisconnect.
+  ///
+  /// In ar, this message translates to:
+  /// **'قطع الاتصال'**
+  String get vpnDisconnect;
+
+  /// No description provided for @vpnReconnect.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة الاتصال: {name}'**
+  String vpnReconnect(String name);
+
+  /// No description provided for @vpnConnectFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشل الاتصال — جرّب خادماً آخر'**
+  String get vpnConnectFailed;
+
+  /// No description provided for @vpnError.
+  ///
+  /// In ar, this message translates to:
+  /// **'حدث خطأ أثناء الاتصال. جرّب خادماً آخر.'**
+  String get vpnError;
+
+  /// No description provided for @vpnUnsupported.
+  ///
+  /// In ar, this message translates to:
+  /// **'عميل VPN يعمل على أجهزة Android فقط (يتطلب إذن النظام).'**
+  String get vpnUnsupported;
 }
 
 class _AppLocalizationsDelegate
