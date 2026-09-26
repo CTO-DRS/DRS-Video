@@ -806,6 +806,24 @@ abstract class AppLocalizations {
   /// **'افتح في المتصفح المدمج'**
   String get openInBrowser;
 
+  /// No description provided for @openExternal.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح في متصفح خارجي'**
+  String get openExternal;
+
+  /// No description provided for @openExternalUnavailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد متصفح خارجي مثبت على الجهاز'**
+  String get openExternalUnavailable;
+
+  /// No description provided for @browserLoadFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر تحميل الصفحة. تحقق من الاتصال أو جرّب متصفحاً خارجياً.'**
+  String get browserLoadFailed;
+
   /// No description provided for @playerResumeFrom.
   ///
   /// In ar, this message translates to:

@@ -165,6 +165,24 @@ class MainActivity : AudioServiceActivity() {
                 startActivity(intent)
                 result.success(null)
             }
+            "open/external" -> {
+                // Escape hatch when the in-app WebView is unavailable or a
+                // site refuses to render: hand the URL to the system.
+                val url = call.argument<String>("url")
+                if (url.isNullOrBlank()) {
+                    result.error("BAD_ARGS", "url required", null)
+                    return
+                }
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                    result.success(true)
+                } catch (e: Exception) {
+                    // No external browser/handler installed.
+                    result.success(false)
+                }
+            }
             else -> result.notImplemented()
         }
     }

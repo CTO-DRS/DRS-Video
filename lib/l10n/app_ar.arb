@@ -139,6 +139,9 @@
   "playerErrorForbidden": "المصدر يمنع التشغيل من خارج موقعه.",
   "playerErrorUnknown": "حدث خطأ غير متوقع أثناء التشغيل.",
   "openInBrowser": "افتح في المتصفح المدمج",
+  "openExternal": "افتح في متصفح خارجي",
+  "openExternalUnavailable": "لا يوجد متصفح خارجي مثبت على الجهاز",
+  "browserLoadFailed": "تعذر تحميل الصفحة. تحقق من الاتصال أو جرّب متصفحاً خارجياً.",
   "playerResumeFrom": "متابعة من {time}؟",
   "@playerResumeFrom": {
     "placeholders": {

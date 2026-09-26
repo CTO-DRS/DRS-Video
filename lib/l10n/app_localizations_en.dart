@@ -378,6 +378,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInBrowser => 'Open in built-in browser';
 
   @override
+  String get openExternal => 'Open in external browser';
+
+  @override
+  String get openExternalUnavailable =>
+      'No external browser is installed on this device';
+
+  @override
+  String get browserLoadFailed =>
+      'Couldn\'t load this page. Check your connection or try an external browser.';
+
+  @override
   String playerResumeFrom(String time) {
     return 'Resume from $time?';
   }

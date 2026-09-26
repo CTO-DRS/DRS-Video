@@ -71,6 +71,12 @@ class NativeChannel {
   /// Opens the system "All files access" settings page.
   Future<void> openManageAllFiles() => _invoke<void>('settings/allFiles');
 
+  /// Hands [url] to the system (external browser / matching app).
+  /// Returns false when no external handler is installed. Used as the
+  /// escape hatch when the in-app WebView cannot render a page (v1.4.2).
+  Future<bool> openExternal(String url) async =>
+      (await _invoke<bool>('open/external', {'url': url})) ?? false;
+
   /// Last session's native (Java/Kotlin) crash log, or null when the
   /// previous session ended cleanly. Used by the boot screen so a hard
   /// crash never stays silent.

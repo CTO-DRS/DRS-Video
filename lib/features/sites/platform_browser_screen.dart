@@ -10,6 +10,7 @@ import '../../core/storage/preferences_service.dart';
 import '../../data/repositories/browser_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/browser/ad_block.dart';
+import '../../services/platform/native_channel.dart';
 import '../../features/player/player_screen.dart';
 import '../../state/media_actions.dart';
 import '../../state/platforms_controller.dart';
@@ -49,6 +50,12 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
   final List<String> _detected = [];
   bool _navigating = false;
 
+  // v1.4.2: hardening for devices with a missing/stubbed WebView or
+  // pages that fail — never leave the user on a silent black screen.
+  bool _loadFailed = false;
+  bool _everLoaded = false;
+  Timer? _watchdog;
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +64,7 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
     _incognito = prefs.browserIncognito;
     _currentUrl = BrowserUtils.normalizeUrl(widget.initialUrl);
     _addressCtl.text = _currentUrl;
+    _armWatchdog();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<ProtectionController>(); // warm listeners
@@ -64,8 +72,21 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
     });
   }
 
+  /// If the WebView never reports any progress (missing system WebView
+  /// provider, plugin failure, dead network), surface a real error UI
+  /// with retry + external-browser escape hatch instead of blackness.
+  void _armWatchdog() {
+    _watchdog?.cancel();
+    _watchdog = Timer(const Duration(seconds: 15), () {
+      if (mounted && !_everLoaded && !_loadFailed) {
+        setState(() => _loadFailed = true);
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _watchdog?.cancel();
     _addressCtl.dispose();
     _addressFocus.dispose();
     // Persist any pending blocked-count delta.
@@ -93,8 +114,24 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
       _navigating = true;
       _detected.clear();
       _sessionBlocked = 0;
+      _loadFailed = false;
+      _everLoaded = false;
     });
+    _armWatchdog();
     await _controller?.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
+  }
+
+  /// Hands the current URL to the system browser when the in-app
+  /// WebView cannot render it (v1.4.2 escape hatch).
+  Future<void> _openExternally() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l = AppLocalizations.of(context)!;
+    final ok = await NativeChannel.instance.openExternal(_currentUrl);
+    if (!ok) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l.openExternalUnavailable)),
+      );
+    }
   }
 
   Future<void> _onLoadStop(InAppWebViewController c, WebUri? url) async {
@@ -104,11 +141,14 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
     final prefs = context.read<PreferencesService>();
     final repo = context.read<BrowserRepository>();
     final protection = context.read<ProtectionController>();
+    _watchdog?.cancel();
     setState(() {
       _currentUrl = pageUrl;
       _addressCtl.text = pageUrl;
       _pageTitle = title;
       _navigating = false;
+      _everLoaded = true;
+      _loadFailed = false;
     });
     _refreshBookmarkState();
     // History recording (respects incognito + the global history switch).
@@ -346,6 +386,12 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
             onPressed: _toggleBookmark,
             icon: Icon(_isBookmarked ? Icons.star : Icons.star_border),
           ),
+          // v1.4.2: always-available escape hatch to the system browser.
+          IconButton(
+            tooltip: l.openExternal,
+            onPressed: _openExternally,
+            icon: const Icon(Icons.open_in_browser),
+          ),
         ],
         bottom: _progress < 1 && _progress > 0
             ? PreferredSize(
@@ -356,7 +402,9 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
       body: Column(
         children: [
           Expanded(
-            child: InAppWebView(
+            child: _loadFailed
+                ? _buildErrorBody(l, theme)
+                : InAppWebView(
               initialUrlRequest: URLRequest(url: WebUri(_currentUrl)),
               initialSettings: InAppWebViewSettings(
                 userAgent: _ua,
@@ -371,6 +419,9 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
               },
               onLoadStop: _onLoadStop,
               onProgressChanged: (c, p) {
+                // Any progress proves the engine is alive — disarm the
+                // black-screen watchdog.
+                if (p > 0 && mounted && !_everLoaded) _everLoaded = true;
                 if (mounted) setState(() => _progress = p / 100);
               },
               onTitleChanged: (c, t) {
@@ -392,7 +443,18 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
               shouldInterceptRequest: _shouldIntercept,
               onLoadResource: _onResource,
               onReceivedError: (c, req, err) {
-                if (mounted) setState(() => _navigating = false);
+                if (!mounted) return;
+                if (req.isForMainFrame == true) {
+                  _watchdog?.cancel();
+                  setState(() {
+                    _navigating = false;
+                    // Only a hard failure when nothing ever loaded;
+                    // sub-frame errors mid-session are ignored.
+                    if (!_everLoaded) _loadFailed = true;
+                  });
+                } else {
+                  setState(() => _navigating = false);
+                }
               },
               onEnterFullscreen: (c) {},
               onExitFullscreen: (c) {},
@@ -400,6 +462,50 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
           ),
         ],
       ),
+      ),
+    );
+  }
+
+  /// Friendly failure state (v1.4.2): shown when the main frame errors
+  /// or the WebView engine stays silent — retry in-app or hand the URL
+  /// to the system browser.
+  Widget _buildErrorBody(AppLocalizations l, ThemeData theme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.wifi_off_rounded,
+                size: 52, color: theme.colorScheme.error),
+            const SizedBox(height: 12),
+            Text(
+              l.browserLoadFailed,
+              style: theme.textTheme.titleSmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _currentUrl,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            FilledButton.tonalIcon(
+              onPressed: () => _load(_currentUrl),
+              icon: const Icon(Icons.refresh),
+              label: Text(l.retry),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _openExternally,
+              icon: const Icon(Icons.open_in_browser),
+              label: Text(l.openExternal),
+            ),
+          ],
+        ),
       ),
     );
   }

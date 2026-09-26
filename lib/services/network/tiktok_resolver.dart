@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 
 import '../../core/utils/logger.dart';
+import 'tiktok_webview_extractor.dart';
 
 /// How long a resolved TikTok stream stays valid in the cache. TikTok CDN
 /// URLs live for hours; after this window the next play re-resolves.
@@ -45,14 +46,16 @@ class TikTokResolved {
 ///
 /// Why this exists: a copied TikTok link is an HTML *page*, not media —
 /// handing it to mpv fails with "unknown playback error". This resolver
-/// performs real extraction through two independent methods:
+/// performs real extraction through FOUR independent methods, cheapest
+/// first:
 ///
-///  1. Mobile feed API (`aweme/v1/feed`) — returns the no-watermark
-///     play address inside `video.play_addr.url_list`.
-///  2. Web page rehydration data — the page embeds its state as JSON in
-///     `__UNIVERSAL_DATA_FOR_REHYDRATION__` (current) or `SIGI_STATE`
-///     (legacy); `video.playAddr` is a playable CDN URL when fetched with
-///     the right User-Agent/Referer, returned as [TikTokResolved.headers].
+///  1. Mobile feed API (`aweme/v1/feed`) — no-watermark play address.
+///  2. Static web page rehydration data (`__UNIVERSAL_DATA_FOR_REHYDRATION__`
+///     / legacy `SIGI_STATE`) — needs UA/Referer headers for the CDN.
+///  3. tikwm.com public resolver API — third-party free service.
+///  4. Headless WebView (v1.4.2) — a real browser engine renders the page
+///     and we read the same payload or capture the video CDN request. This
+///     survives the anti-bot challenges that break plain HTTP fetches.
 ///
 /// Every failure returns null — the caller falls back to direct playback
 /// and the player surfaces the real error; this module never throws.
@@ -142,11 +145,27 @@ class TikTokResolver {
       return viaApi;
     }
 
-    // 3) Web page rehydration data fallback (needs UA/Referer headers).
+    // 3) Static web page rehydration data (needs UA/Referer headers).
     final viaPage = await _resolveViaWebPage(pageUrl, id);
     if (viaPage != null) {
       _cache[id] = _CacheEntry(viaPage);
       return viaPage;
+    }
+
+    // 4) tikwm.com public resolver API (third-party free service).
+    final viaTikwm = await _resolveViaTikwm(pageUrl);
+    if (viaTikwm != null) {
+      _cache[id] = _CacheEntry(viaTikwm);
+      return viaTikwm;
+    }
+
+    // 5) Heavyweight: render the page in a real headless WebView. This
+    //    is the path that survives TikTok's anti-bot challenges because
+    //    the browser engine executes the page's JavaScript for real.
+    final viaWebView = await _resolveViaWebView(pageUrl, id);
+    if (viaWebView != null) {
+      _cache[id] = _CacheEntry(viaWebView);
+      return viaWebView;
     }
     return null;
   }
@@ -233,6 +252,100 @@ class TikTokResolver {
       return parseWebPagePayload(resolved, id);
     } on DioException catch (e) {
       AppLogger.instance.error('tiktok', 'page fetch failed', e, e.stackTrace);
+      return null;
+    }
+  }
+
+  /// tikwm.com response shape:
+  /// `{code: 0, data: {id, title, play, hdplay, author: {nickname}}}`.
+  /// `play`/`hdplay` are absolute https URLs or root-relative proxy paths.
+  static TikTokResolved? parseTikwmJson(Map<String, dynamic> json) {
+    if (json['code'] != 0) return null;
+    final data = json['data'];
+    if (data is! Map<String, dynamic>) return null;
+    final author = data['author'];
+    final play = _absoluteTikwm(data['hdplay'] ?? data['play']);
+    if (play == null) return null;
+    return TikTokResolved(
+      videoId: (data['id'] ?? '').toString(),
+      title: (data['title'] ?? '').toString().trim(),
+      author: author is Map<String, dynamic>
+          ? (author['nickname'] ?? '').toString()
+          : '',
+      playUrl: play,
+      durationMs: _asInt(data['duration']),
+    );
+  }
+
+  static String? _absoluteTikwm(Object? v) {
+    final s = v?.toString() ?? '';
+    if (s.startsWith('http')) return s;
+    if (s.startsWith('/')) return 'https://www.tikwm.com$s';
+    return null;
+  }
+
+  Future<TikTokResolved?> _resolveViaTikwm(String pageUrl) async {
+    try {
+      final dio = _ensureDio();
+      final res = await dio.get<String>(
+        'https://tikwm.com/api/',
+        queryParameters: {'url': pageUrl, 'hd': '1'},
+        options: Options(
+          responseType: ResponseType.plain,
+          headers: {'User-Agent': _mobileUa},
+          validateStatus: (s) => s != null && s < 500,
+        ),
+      );
+      final body = res.data;
+      if (body == null || body.isEmpty) return null;
+      final dynamic json = jsonDecode(body);
+      if (json is! Map<String, dynamic>) return null;
+      return parseTikwmJson(json);
+    } on DioException catch (e) {
+      AppLogger.instance.error('tiktok', 'tikwm http ${e.response?.statusCode}', e, e.stackTrace);
+      return null;
+    } catch (e, s) {
+      AppLogger.instance.error('tiktok', 'tikwm parse failed', e, s);
+      return null;
+    }
+  }
+
+  /// Renders the page in a headless WebView and parses what the real
+  /// browser engine produced (payload JSON first, captured CDN URL as
+  /// fallback).
+  Future<TikTokResolved?> _resolveViaWebView(String pageUrl, String id) async {
+    try {
+      final extraction = await TikTokWebViewExtractor.instance.extract(pageUrl);
+      if (extraction == null) return null;
+
+      if (extraction.payloadJson != null) {
+        try {
+          final dynamic decoded = jsonDecode(extraction.payloadJson!);
+          if (decoded is Map<String, dynamic>) {
+            final parsed = parseWebPagePayload(decoded, id);
+            if (parsed != null) return parsed;
+          }
+        } catch (e, s) {
+          AppLogger.instance.error('tiktok', 'webview payload parse failed', e, s);
+        }
+      }
+
+      final media = extraction.mediaUrl;
+      if (media != null && media.startsWith('http')) {
+        return TikTokResolved(
+          videoId: id,
+          title: '',
+          author: '',
+          playUrl: media,
+          headers: const {
+            'User-Agent': _desktopUa,
+            'Referer': 'https://www.tiktok.com/',
+          },
+        );
+      }
+      return null;
+    } catch (e, s) {
+      AppLogger.instance.error('tiktok', 'webview resolve failed', e, s);
       return null;
     }
   }

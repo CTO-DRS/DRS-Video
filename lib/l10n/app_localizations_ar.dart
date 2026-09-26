@@ -374,6 +374,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get openInBrowser => 'افتح في المتصفح المدمج';
 
   @override
+  String get openExternal => 'افتح في متصفح خارجي';
+
+  @override
+  String get openExternalUnavailable => 'لا يوجد متصفح خارجي مثبت على الجهاز';
+
+  @override
+  String get browserLoadFailed =>
+      'تعذر تحميل الصفحة. تحقق من الاتصال أو جرّب متصفحاً خارجياً.';
+
+  @override
   String playerResumeFrom(String time) {
     return 'متابعة من $time؟';
   }

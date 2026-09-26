@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drs_video/services/network/smart_url.dart';
 import 'package:drs_video/services/network/tiktok_resolver.dart';
+import 'package:drs_video/services/network/tiktok_webview_extractor.dart';
 
 void main() {
   group('TikTokResolver — URL detection', () {
@@ -116,6 +117,92 @@ void main() {
       }}}}}
       ''') as Map<String, dynamic>;
       expect(TikTokResolver.parseWebPagePayload(payload, '7318517321748022790'), isNull);
+    });
+  });
+
+  group('TikTokResolver — tikwm API parser (v1.4.2)', () {
+    test('parses success payload preferring hdplay', () {
+      final json = jsonDecode('''
+      {"code": 0, "msg": "success", "data": {
+        "id": "7318517321748022790",
+        "title": "فيديو التجربة",
+        "play": "/video/tos/useast2a/standard.mp4",
+        "hdplay": "https://www.tikwm.com/video/tos/useast2a/hd.mp4",
+        "wmplay": "https://www.tikwm.com/video/wm.mp4",
+        "duration": 21,
+        "author": {"nickname": "DRS", "unique_id": "drs"}
+      }}
+      ''') as Map<String, dynamic>;
+      final r = TikTokResolver.parseTikwmJson(json);
+      expect(r, isNotNull);
+      expect(r!.videoId, '7318517321748022790');
+      expect(r.title, 'فيديو التجربة');
+      expect(r.author, 'DRS');
+      expect(r.playUrl, 'https://www.tikwm.com/video/tos/useast2a/hd.mp4');
+      expect(r.durationMs, 21);
+    });
+
+    test('falls back to play and prefixes root-relative paths', () {
+      final json = jsonDecode('''
+      {"code": 0, "data": {"id": "1", "title": "t", "play": "/video/x.mp4", "author": {}}}
+      ''') as Map<String, dynamic>;
+      final r = TikTokResolver.parseTikwmJson(json);
+      expect(r!.playUrl, 'https://www.tikwm.com/video/x.mp4');
+    });
+
+    test('returns null on error codes and missing media', () {
+      expect(
+        TikTokResolver.parseTikwmJson({'code': -1, 'msg': 'blocked'}),
+        isNull,
+      );
+      expect(
+        TikTokResolver.parseTikwmJson({'code': 0, 'data': {'id': '1'}}),
+        isNull,
+      );
+      expect(TikTokResolver.parseTikwmJson({}), isNull);
+    });
+  });
+
+  group('TikTokWebViewExtractor — URL matcher (v1.4.2)', () {
+    test('accepts real TikTok video CDN requests', () {
+      expect(
+        TikTokWebViewExtractor.looksLikeVideoUrl(
+            'https://v16-webapp.tiktok.com/video/tos/useast2a/tos-useast2a-ve-0068/e6e1e2.mp4?mime_type=video_mp4'),
+        isTrue,
+      );
+      expect(
+        TikTokWebViewExtractor.looksLikeVideoUrl(
+            'https://v16m-default.akamaized.net/video/tos/useast2a/a.mp4'),
+        isTrue,
+      );
+      expect(
+        TikTokWebViewExtractor.looksLikeVideoUrl(
+            'https://v95-p.douyinvod.com/video/tos/x.mp4'),
+        isFalse, // douyin CDN is out of scope
+      );
+    });
+
+    test('rejects non-media traffic and streamed containers', () {
+      expect(
+        TikTokWebViewExtractor.looksLikeVideoUrl(
+            'https://www.tiktok.com/api/item/detail/?aid=1988'),
+        isFalse,
+      );
+      expect(
+        TikTokWebViewExtractor.looksLikeVideoUrl(
+            'https://v16-webapp.tiktok.com/hls/tos/live.m3u8'),
+        isFalse,
+      );
+      expect(
+        TikTokWebViewExtractor.looksLikeVideoUrl(
+            'blob:https://www.tiktok.com/9b8c-1a2b'),
+        isFalse,
+      );
+      expect(
+        TikTokWebViewExtractor.looksLikeVideoUrl(
+            'https://lf16-tiktok-web.tiktok.com/web/static/js/chunk.js'),
+        isFalse,
+      );
     });
   });
 }
