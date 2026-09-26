@@ -14,7 +14,26 @@ import '../../services/player/player_service.dart';
 import '../../state/floating_player_controller.dart';
 import '../../state/media_actions.dart';
 import '../../widgets/common/error_view.dart';
+import '../sites/platform_browser_screen.dart';
 import 'widgets/track_sheets.dart';
+
+/// True when [url] is an HTML *page* rather than direct media — playback
+/// failures on page links get a "open in built-in browser" escape hatch.
+bool _isPageLink(String url) {
+  final uri = Uri.tryParse(url.trim());
+  if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https')) {
+    return false;
+  }
+  const mediaExt = {
+    '.mp4', '.mkv', '.webm', '.mov', '.avi', '.ts', '.flv', '.m4v',
+    '.m3u8', '.m3u', '.mpd', '.mp3', '.aac', '.m4a', '.flac', '.ogg',
+  };
+  final path = uri.path.toLowerCase();
+  for (final ext in mediaExt) {
+    if (path.endsWith(ext)) return false;
+  }
+  return true;
+}
 
 /// Full-screen professional player with gestures, lock, PiP, tracks,
 /// speed, sleep timer, frame stepping and auto-hiding controls.
@@ -154,7 +173,11 @@ class _PlayerScreenState extends State<PlayerScreen>
     // Error state.
     final error = player.lastError;
     if (error != null && !player.hasMedia) {
-      return ErrorView(error: error, onRetry: () => _retry());
+      return ErrorView(
+        error: error,
+        onRetry: () => _retry(),
+        onOpenInBrowser: _canOpenInBrowser() ? _openInBrowser : null,
+      );
     }
 
     return Stack(
@@ -170,7 +193,11 @@ class _PlayerScreenState extends State<PlayerScreen>
         if (error != null)
           ColoredBox(
             color: Colors.black87,
-            child: ErrorView(error: error, onRetry: () => _retry()),
+            child: ErrorView(
+              error: error,
+              onRetry: () => _retry(),
+              onOpenInBrowser: _canOpenInBrowser() ? _openInBrowser : null,
+            ),
           ),
         if (!_locked) _buildGestureLayer(context),
         if (_locked) _buildLockOverlay(context),
@@ -185,6 +212,22 @@ class _PlayerScreenState extends State<PlayerScreen>
   Future<void> _retry() async {
     final actions = context.read<MediaActions>();
     await actions.playItem(widget.item);
+  }
+
+  // ---- built-in browser fallback (v1.4.1) ----
+
+  /// Offered only for page links (TikTok/YouTube/social HTML pages) that
+  /// the extractor could not turn into direct media.
+  bool _canOpenInBrowser() => _isPageLink(widget.item.uri);
+
+  void _openInBrowser() {
+    Navigator.of(context).push(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => PlatformBrowserScreen(
+        initialUrl: widget.item.uri,
+        title: widget.item.title,
+      ),
+    ));
   }
 
   // ---- gesture layer ----

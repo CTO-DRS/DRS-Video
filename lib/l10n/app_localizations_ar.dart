@@ -371,6 +371,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get playerErrorUnknown => 'حدث خطأ غير متوقع أثناء التشغيل.';
 
   @override
+  String get openInBrowser => 'افتح في المتصفح المدمج';
+
+  @override
   String playerResumeFrom(String time) {
     return 'متابعة من $time؟';
   }

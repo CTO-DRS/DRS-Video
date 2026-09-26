@@ -800,6 +800,12 @@ abstract class AppLocalizations {
   /// **'حدث خطأ غير متوقع أثناء التشغيل.'**
   String get playerErrorUnknown;
 
+  /// No description provided for @openInBrowser.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح في المتصفح المدمج'**
+  String get openInBrowser;
+
   /// No description provided for @playerResumeFrom.
   ///
   /// In ar, this message translates to:

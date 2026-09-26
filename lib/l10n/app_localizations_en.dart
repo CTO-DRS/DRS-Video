@@ -375,6 +375,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'An unexpected error occurred during playback.';
 
   @override
+  String get openInBrowser => 'Open in built-in browser';
+
+  @override
   String playerResumeFrom(String time) {
     return 'Resume from $time?';
   }

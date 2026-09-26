@@ -2,13 +2,25 @@ import 'package:flutter/material.dart';
 import '../../core/errors/app_exception.dart';
 import '../../l10n/app_localizations.dart';
 
-/// Error display with retry + expandable technical details.
+/// Error display with retry + optional secondary action (e.g. open the
+/// page in the built-in browser) + expandable technical details.
 class ErrorView extends StatelessWidget {
-  const ErrorView({super.key, required this.error, this.onRetry, this.compact = false});
+  const ErrorView({
+    super.key,
+    required this.error,
+    this.onRetry,
+    this.compact = false,
+    this.onOpenInBrowser,
+  });
 
   final Object? error;
   final VoidCallback? onRetry;
   final bool compact;
+
+  /// Shown as a secondary action for page links (TikTok/YouTube/social)
+  /// that failed direct playback: the built-in browser can still play
+  /// them in-app (v1.4.1).
+  final VoidCallback? onOpenInBrowser;
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +62,26 @@ class ErrorView extends StatelessWidget {
                 ],
               ),
             ],
-            if (onRetry != null) ...[
+            if (onRetry != null || onOpenInBrowser != null) ...[
               const SizedBox(height: 12),
-              FilledButton.tonalIcon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh),
-                label: Text(l.retry),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (onRetry != null)
+                    FilledButton.tonalIcon(
+                      onPressed: onRetry,
+                      icon: const Icon(Icons.refresh),
+                      label: Text(l.retry),
+                    ),
+                  if (onRetry != null && onOpenInBrowser != null)
+                    const SizedBox(width: 12),
+                  if (onOpenInBrowser != null)
+                    OutlinedButton.icon(
+                      onPressed: onOpenInBrowser,
+                      icon: const Icon(Icons.public),
+                      label: Text(l.openInBrowser),
+                    ),
+                ],
               ),
             ],
           ],

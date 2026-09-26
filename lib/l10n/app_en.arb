@@ -117,6 +117,7 @@
   "playerErrorNotFound": "The file or URL was not found (404).",
   "playerErrorForbidden": "The source blocks playback from outside its site.",
   "playerErrorUnknown": "An unexpected error occurred during playback.",
+  "openInBrowser": "Open in built-in browser",
   "playerResumeFrom": "Resume from {time}?",
   "playerStartOver": "Start over",
   "playerBrightness": "Brightness",

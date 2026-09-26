@@ -6,6 +6,7 @@ import '../core/utils/validators.dart';
 import '../data/models/media_item.dart';
 import '../data/repositories/library_repository.dart';
 import '../data/sources/source_adapter.dart';
+import '../services/network/tiktok_resolver.dart';
 import '../services/network/youtube_resolver.dart';
 import '../services/player/player_service.dart';
 
@@ -118,10 +119,25 @@ class MediaActions extends ChangeNotifier {
   }
 
   /// Resolves a per-session play URL for platform items that need it
-  /// (YouTube watch URLs). Keeps the stable [MediaItem.uri] as the
-  /// identity and stores the time-limited stream in [MediaItem.playUri].
-  /// Returns the external audio URL (YouTube high-quality), or null.
+  /// (YouTube watch URLs, TikTok share links). Keeps the stable
+  /// [MediaItem.uri] as the identity and stores the time-limited stream in
+  /// [MediaItem.playUri]. Returns the external audio URL (YouTube
+  /// high-quality), or null.
   Future<String?> _resolveSessionStream(MediaItem item) async {
+    // TikTok share links are HTML pages, not media — extract the real
+    // MP4 first, otherwise mpv fails with an unknown playback error.
+    if (TikTokResolver.isTikTokUrl(item.uri)) {
+      final r = await TikTokResolver.instance.resolve(item.uri);
+      if (r == null) return null; // graceful: player reports the real error
+      item.liveHint = false;
+      item.playUri = r.playUrl;
+      if (r.width != null) item.width = r.width;
+      if (r.height != null) item.height = r.height;
+      if (r.headers != null && r.headers!.isNotEmpty) {
+        item.headers = {...?item.headers, ...r.headers!};
+      }
+      return null;
+    }
     if (!YouTubeResolver.isYouTubeUrl(item.uri)) return null;
     final r = await YouTubeResolver.instance.resolve(item.uri);
     if (r == null) return null; // graceful: player reports the real error

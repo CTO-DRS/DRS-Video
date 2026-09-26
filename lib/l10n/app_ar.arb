@@ -138,6 +138,7 @@
   "playerErrorNotFound": "الملف أو الرابط غير موجود (404).",
   "playerErrorForbidden": "المصدر يمنع التشغيل من خارج موقعه.",
   "playerErrorUnknown": "حدث خطأ غير متوقع أثناء التشغيل.",
+  "openInBrowser": "افتح في المتصفح المدمج",
   "playerResumeFrom": "متابعة من {time}؟",
   "@playerResumeFrom": {
     "placeholders": {
