@@ -20,8 +20,8 @@ import '../services/notifications/notification_service.dart';
 import '../services/player/player_service.dart';
 import '../services/network/nas_service.dart';
 import '../services/network/stream_source_factory.dart';
-import '../services/recommendations/recommendation_engine.dart';
 import '../services/recommendations/playback_optimizer.dart';
+import '../services/recommendations/smart_recommendation_engine.dart';
 import '../services/vpn/vpn_service.dart';
 import '../services/sharing/share_service.dart';
 import '../services/storage/storage_analyzer.dart';
@@ -80,7 +80,7 @@ class AppServices {
   final PlayerService player;
   final DownloadService downloader;
   final SourceRegistry registry;
-  final RecommendationEngine engine;
+  final SmartRecommendationEngine engine;
   final PlaybackOptimizer optimizer;
   final ShareService share;
   final FileManagerService fileManager;
@@ -221,7 +221,7 @@ Future<AppServices> bootstrap({
     player: player,
     downloader: downloader,
     registry: registry,
-    engine: const RecommendationEngine(),
+    engine: SmartRecommendationEngine(),
     optimizer: const PlaybackOptimizer(),
     share: const ShareService(),
     fileManager: const FileManagerService(),

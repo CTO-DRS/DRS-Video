@@ -3115,6 +3115,216 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'عميل VPN يعمل على أجهزة Android فقط (يتطلب إذن النظام).'**
   String get vpnUnsupported;
+
+  /// No description provided for @didYouMeanPrefix.
+  ///
+  /// In ar, this message translates to:
+  /// **'هل تقصد'**
+  String get didYouMeanPrefix;
+
+  /// No description provided for @activityTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشاطي الذكي'**
+  String get activityTitle;
+
+  /// No description provided for @activityEmptyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا بيانات نشاط بعد'**
+  String get activityEmptyTitle;
+
+  /// No description provided for @activityEmptyBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'شاهد بعض الفيديوهات وستظهر إحصائياتك الذكية هنا تلقائياً.'**
+  String get activityEmptyBody;
+
+  /// No description provided for @activityFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر حساب الإحصائيات'**
+  String get activityFailed;
+
+  /// No description provided for @statWatchTime.
+  ///
+  /// In ar, this message translates to:
+  /// **'وقت المشاهدة'**
+  String get statWatchTime;
+
+  /// No description provided for @statWatched.
+  ///
+  /// In ar, this message translates to:
+  /// **'فيديو شوهد'**
+  String get statWatched;
+
+  /// No description provided for @statCompleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتملت مشاهدة'**
+  String get statCompleted;
+
+  /// No description provided for @statStreak.
+  ///
+  /// In ar, this message translates to:
+  /// **'سلسلة الأيام'**
+  String get statStreak;
+
+  /// No description provided for @hoursUnit.
+  ///
+  /// In ar, this message translates to:
+  /// **'ساعة'**
+  String get hoursUnit;
+
+  /// No description provided for @minutesUnit.
+  ///
+  /// In ar, this message translates to:
+  /// **'دقيقة'**
+  String get minutesUnit;
+
+  /// No description provided for @daysUnit.
+  ///
+  /// In ar, this message translates to:
+  /// **'أيام'**
+  String get daysUnit;
+
+  /// No description provided for @bestStreak.
+  ///
+  /// In ar, this message translates to:
+  /// **'أطول سلسلة مشاهدة: {days} يوماً'**
+  String bestStreak(int days);
+
+  /// No description provided for @peakHourLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'ساعة الذروة: {hour}:00'**
+  String peakHourLabel(int hour);
+
+  /// No description provided for @trend14Title.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشاط آخر 14 يوماً'**
+  String get trend14Title;
+
+  /// No description provided for @trend14Caption.
+  ///
+  /// In ar, this message translates to:
+  /// **'ارتفاع كل عمود يمثل وقت المشاهدة في ذلك اليوم'**
+  String get trend14Caption;
+
+  /// No description provided for @weekdayPatternTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'توزيع المشاهدة على أيام الأسبوع'**
+  String get weekdayPatternTitle;
+
+  /// No description provided for @weekdayMon.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاثنين'**
+  String get weekdayMon;
+
+  /// No description provided for @weekdayTue.
+  ///
+  /// In ar, this message translates to:
+  /// **'الثلاثاء'**
+  String get weekdayTue;
+
+  /// No description provided for @weekdayWed.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأربعاء'**
+  String get weekdayWed;
+
+  /// No description provided for @weekdayThu.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخميس'**
+  String get weekdayThu;
+
+  /// No description provided for @weekdayFri.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجمعة'**
+  String get weekdayFri;
+
+  /// No description provided for @weekdaySat.
+  ///
+  /// In ar, this message translates to:
+  /// **'السبت'**
+  String get weekdaySat;
+
+  /// No description provided for @weekdaySun.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأحد'**
+  String get weekdaySun;
+
+  /// No description provided for @topInterestsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اهتماماتك الأبرز'**
+  String get topInterestsTitle;
+
+  /// No description provided for @cleanupTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'التنظيف الذكي'**
+  String get cleanupTitle;
+
+  /// No description provided for @cleanupNoDuplicates.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مكررات'**
+  String get cleanupNoDuplicates;
+
+  /// No description provided for @cleanupNoDuplicatesBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكتبتك نظيفة — لم نعثر على أي فيديوهات مكررة.'**
+  String get cleanupNoDuplicatesBody;
+
+  /// No description provided for @cleanupFoundClusters.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} مجموعة مكررات محتملة'**
+  String cleanupFoundClusters(int count);
+
+  /// No description provided for @cleanupDeleteSelected.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف المحدد ({count})'**
+  String cleanupDeleteSelected(int count);
+
+  /// No description provided for @cleanupKeepSuggestion.
+  ///
+  /// In ar, this message translates to:
+  /// **'النسخة المقترح الاحتفاظ بها'**
+  String get cleanupKeepSuggestion;
+
+  /// No description provided for @cleanupConfirmTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد إزالة المكررات'**
+  String get cleanupConfirmTitle;
+
+  /// No description provided for @cleanupConfirmBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُزال {count} عنصر من المكتبة. لن تُحذف أي ملفات من جهازك.'**
+  String cleanupConfirmBody(int count);
+
+  /// No description provided for @cleanupDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُزيل {count} عنصر مكرر'**
+  String cleanupDeleted(int count);
+
+  /// No description provided for @cleanupFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشل التنظيف'**
+  String get cleanupFailed;
 }
 
 class _AppLocalizationsDelegate

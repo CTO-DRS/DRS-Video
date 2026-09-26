@@ -11,6 +11,7 @@ import '../platforms/platforms_view.dart';
 import '../player/play_helpers.dart';
 import '../search/search_screen.dart';
 import 'media_item_menu.dart';
+import 'smart_cleanup_screen.dart';
 
 /// Library with tabs, filters, sorting and multi-select bulk operations.
 class LibraryScreen extends StatefulWidget {
@@ -116,6 +117,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return AppBar(
       title: Text(l.navLibrary),
       actions: [
+        IconButton(
+          tooltip: l.cleanupTitle,
+          icon: const Icon(Icons.cleaning_services_outlined),
+          onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SmartCleanupScreen())),
+        ),
         IconButton(
           tooltip: l.addLinkTitle,
           icon: const Icon(Icons.add_link),

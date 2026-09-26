@@ -1612,4 +1612,123 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get vpnUnsupported =>
       'The VPN client works on Android devices only (requires the system permission dialog).';
+
+  @override
+  String get didYouMeanPrefix => 'Did you mean';
+
+  @override
+  String get activityTitle => 'My Smart Activity';
+
+  @override
+  String get activityEmptyTitle => 'No activity yet';
+
+  @override
+  String get activityEmptyBody =>
+      'Watch a few videos and your smart stats will appear here automatically.';
+
+  @override
+  String get activityFailed => 'Couldn\'t compute statistics';
+
+  @override
+  String get statWatchTime => 'Watch time';
+
+  @override
+  String get statWatched => 'Videos watched';
+
+  @override
+  String get statCompleted => 'Completed';
+
+  @override
+  String get statStreak => 'Day streak';
+
+  @override
+  String get hoursUnit => 'h';
+
+  @override
+  String get minutesUnit => 'min';
+
+  @override
+  String get daysUnit => 'days';
+
+  @override
+  String bestStreak(int days) {
+    return 'Longest streak: $days days';
+  }
+
+  @override
+  String peakHourLabel(int hour) {
+    return 'Peak hour: $hour:00';
+  }
+
+  @override
+  String get trend14Title => 'Last 14 days';
+
+  @override
+  String get trend14Caption => 'Bar height = watch time on that day';
+
+  @override
+  String get weekdayPatternTitle => 'Weekday pattern';
+
+  @override
+  String get weekdayMon => 'Mon';
+
+  @override
+  String get weekdayTue => 'Tue';
+
+  @override
+  String get weekdayWed => 'Wed';
+
+  @override
+  String get weekdayThu => 'Thu';
+
+  @override
+  String get weekdayFri => 'Fri';
+
+  @override
+  String get weekdaySat => 'Sat';
+
+  @override
+  String get weekdaySun => 'Sun';
+
+  @override
+  String get topInterestsTitle => 'Top interests';
+
+  @override
+  String get cleanupTitle => 'Smart cleanup';
+
+  @override
+  String get cleanupNoDuplicates => 'No duplicates found';
+
+  @override
+  String get cleanupNoDuplicatesBody =>
+      'Your library is clean — no duplicate videos detected.';
+
+  @override
+  String cleanupFoundClusters(int count) {
+    return '$count possible duplicate group(s)';
+  }
+
+  @override
+  String cleanupDeleteSelected(int count) {
+    return 'Delete selected ($count)';
+  }
+
+  @override
+  String get cleanupKeepSuggestion => 'Suggested copy to keep';
+
+  @override
+  String get cleanupConfirmTitle => 'Confirm duplicate removal';
+
+  @override
+  String cleanupConfirmBody(int count) {
+    return '$count item(s) will be removed from the library. Files on disk are not touched.';
+  }
+
+  @override
+  String cleanupDeleted(int count) {
+    return '$count duplicate(s) removed';
+  }
+
+  @override
+  String get cleanupFailed => 'Cleanup failed';
 }

@@ -1601,4 +1601,123 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get vpnUnsupported =>
       'عميل VPN يعمل على أجهزة Android فقط (يتطلب إذن النظام).';
+
+  @override
+  String get didYouMeanPrefix => 'هل تقصد';
+
+  @override
+  String get activityTitle => 'نشاطي الذكي';
+
+  @override
+  String get activityEmptyTitle => 'لا بيانات نشاط بعد';
+
+  @override
+  String get activityEmptyBody =>
+      'شاهد بعض الفيديوهات وستظهر إحصائياتك الذكية هنا تلقائياً.';
+
+  @override
+  String get activityFailed => 'تعذر حساب الإحصائيات';
+
+  @override
+  String get statWatchTime => 'وقت المشاهدة';
+
+  @override
+  String get statWatched => 'فيديو شوهد';
+
+  @override
+  String get statCompleted => 'اكتملت مشاهدة';
+
+  @override
+  String get statStreak => 'سلسلة الأيام';
+
+  @override
+  String get hoursUnit => 'ساعة';
+
+  @override
+  String get minutesUnit => 'دقيقة';
+
+  @override
+  String get daysUnit => 'أيام';
+
+  @override
+  String bestStreak(int days) {
+    return 'أطول سلسلة مشاهدة: $days يوماً';
+  }
+
+  @override
+  String peakHourLabel(int hour) {
+    return 'ساعة الذروة: $hour:00';
+  }
+
+  @override
+  String get trend14Title => 'نشاط آخر 14 يوماً';
+
+  @override
+  String get trend14Caption => 'ارتفاع كل عمود يمثل وقت المشاهدة في ذلك اليوم';
+
+  @override
+  String get weekdayPatternTitle => 'توزيع المشاهدة على أيام الأسبوع';
+
+  @override
+  String get weekdayMon => 'الاثنين';
+
+  @override
+  String get weekdayTue => 'الثلاثاء';
+
+  @override
+  String get weekdayWed => 'الأربعاء';
+
+  @override
+  String get weekdayThu => 'الخميس';
+
+  @override
+  String get weekdayFri => 'الجمعة';
+
+  @override
+  String get weekdaySat => 'السبت';
+
+  @override
+  String get weekdaySun => 'الأحد';
+
+  @override
+  String get topInterestsTitle => 'اهتماماتك الأبرز';
+
+  @override
+  String get cleanupTitle => 'التنظيف الذكي';
+
+  @override
+  String get cleanupNoDuplicates => 'لا توجد مكررات';
+
+  @override
+  String get cleanupNoDuplicatesBody =>
+      'مكتبتك نظيفة — لم نعثر على أي فيديوهات مكررة.';
+
+  @override
+  String cleanupFoundClusters(int count) {
+    return '$count مجموعة مكررات محتملة';
+  }
+
+  @override
+  String cleanupDeleteSelected(int count) {
+    return 'حذف المحدد ($count)';
+  }
+
+  @override
+  String get cleanupKeepSuggestion => 'النسخة المقترح الاحتفاظ بها';
+
+  @override
+  String get cleanupConfirmTitle => 'تأكيد إزالة المكررات';
+
+  @override
+  String cleanupConfirmBody(int count) {
+    return 'سيُزال $count عنصر من المكتبة. لن تُحذف أي ملفات من جهازك.';
+  }
+
+  @override
+  String cleanupDeleted(int count) {
+    return 'أُزيل $count عنصر مكرر';
+  }
+
+  @override
+  String get cleanupFailed => 'فشل التنظيف';
 }

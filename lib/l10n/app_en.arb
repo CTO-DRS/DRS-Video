@@ -500,7 +500,6 @@
   "subtitleUrlHint": "Subtitle file URL (SRT/VTT)",
   "subtitleAdded": "Subtitle loaded",
   "subtitleInvalid": "Could not load subtitle",
-
   "platformsSites": "Sites",
   "sitesSearchHint": "Search platforms (YouTube, TikTok, Netflix…)",
   "sitesAll": "All",
@@ -543,7 +542,6 @@
   "browserPlayInPlayer": "Play in the native player",
   "browserNoStreams": "No playable video detected on this page yet — browse the site and try again",
   "browserPlayFailed": "Could not open this link in the player",
-
   "protectionTitle": "Protection & VPN",
   "protectionAdBlockTitle": "Ad protection",
   "protectionAdBlock": "Block ads & trackers",
@@ -561,7 +559,6 @@
   "protectionResetCounter": "Reset",
   "protectionBlocklistInfo": "The blocklist comes from the open-source StevenBlack project (MIT license) and ships with every release. No DRM system of any platform is circumvented.",
   "protectionHonestNote": "Honest note: ad blocking works inside the built-in browser. Some platforms (e.g. YouTube) bake ads into the video stream itself, which cannot be blocked without breaking playback. The VPN uses OpenVPN on Android devices only.",
-
   "vpnTitle": "Free VPN (OpenVPN)",
   "vpnStateConnected": "Connected",
   "vpnStateBusy": "Working",
@@ -603,5 +600,82 @@
   },
   "vpnConnectFailed": "Connection failed — try another server",
   "vpnError": "Something went wrong while connecting. Try another server.",
-  "vpnUnsupported": "The VPN client works on Android devices only (requires the system permission dialog)."
+  "vpnUnsupported": "The VPN client works on Android devices only (requires the system permission dialog).",
+  "didYouMeanPrefix": "Did you mean",
+  "activityTitle": "My Smart Activity",
+  "activityEmptyTitle": "No activity yet",
+  "activityEmptyBody": "Watch a few videos and your smart stats will appear here automatically.",
+  "activityFailed": "Couldn't compute statistics",
+  "statWatchTime": "Watch time",
+  "statWatched": "Videos watched",
+  "statCompleted": "Completed",
+  "statStreak": "Day streak",
+  "hoursUnit": "h",
+  "minutesUnit": "min",
+  "daysUnit": "days",
+  "bestStreak": "Longest streak: {days} days",
+  "@bestStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "peakHourLabel": "Peak hour: {hour}:00",
+  "@peakHourLabel": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "trend14Title": "Last 14 days",
+  "trend14Caption": "Bar height = watch time on that day",
+  "weekdayPatternTitle": "Weekday pattern",
+  "weekdayMon": "Mon",
+  "weekdayTue": "Tue",
+  "weekdayWed": "Wed",
+  "weekdayThu": "Thu",
+  "weekdayFri": "Fri",
+  "weekdaySat": "Sat",
+  "weekdaySun": "Sun",
+  "topInterestsTitle": "Top interests",
+  "cleanupTitle": "Smart cleanup",
+  "cleanupNoDuplicates": "No duplicates found",
+  "cleanupNoDuplicatesBody": "Your library is clean — no duplicate videos detected.",
+  "cleanupFoundClusters": "{count} possible duplicate group(s)",
+  "@cleanupFoundClusters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cleanupDeleteSelected": "Delete selected ({count})",
+  "@cleanupDeleteSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cleanupKeepSuggestion": "Suggested copy to keep",
+  "cleanupConfirmTitle": "Confirm duplicate removal",
+  "cleanupConfirmBody": "{count} item(s) will be removed from the library. Files on disk are not touched.",
+  "@cleanupConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cleanupDeleted": "{count} duplicate(s) removed",
+  "@cleanupDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cleanupFailed": "Cleanup failed"
 }

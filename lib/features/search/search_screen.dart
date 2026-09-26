@@ -74,11 +74,13 @@ class _SearchScreenState extends State<SearchScreen> {
           : controller.searching
               ? const Center(child: CircularProgressIndicator())
               : controller.results.isEmpty
-                  ? EmptyState(
-                      icon: Icons.search_off,
-                      title: l.emptySearchTitle,
-                      body: l.emptySearchBody,
-                    )
+                  ? (controller.didYouMean != null
+                      ? _didYouMean(context, controller, theme, l)
+                      : EmptyState(
+                          icon: Icons.search_off,
+                          title: l.emptySearchTitle,
+                          body: l.emptySearchBody,
+                        ))
                   : Column(
                       children: [
                         _filterRow(context, controller, l),
@@ -107,6 +109,38 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ],
                     ),
+    );
+  }
+
+  /// "هل تقصد؟" proposal shown when a query found nothing but a close
+  /// title exists (typo-tolerant suggestion).
+  Widget _didYouMean(BuildContext context, LibrarySearchController controller,
+      ThemeData theme, AppLocalizations l) {
+    final suggestion = controller.didYouMean!;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.auto_fix_high_outlined,
+                size: 48, color: theme.colorScheme.primary),
+            const SizedBox(height: 12),
+            Text(l.emptySearchTitle, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text('${l.didYouMeanPrefix}:', style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            FilledButton.tonal(
+              onPressed: () {
+                _field.text = suggestion;
+                controller.submit(suggestion);
+              },
+              child: Text(suggestion,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

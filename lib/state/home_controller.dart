@@ -8,7 +8,7 @@ import '../data/repositories/history_repository.dart';
 import '../data/repositories/library_repository.dart';
 import '../data/repositories/playlist_repository.dart';
 import '../data/repositories/source_repository.dart';
-import '../services/recommendations/recommendation_engine.dart';
+import '../services/recommendations/smart_recommendation_engine.dart';
 
 class HomeSectionState {
   HomeSectionState({this.items = const [], this.loading = false, this.error});
@@ -26,7 +26,7 @@ class HomeController extends ChangeNotifier {
     required PlaylistRepository playlists,
     required DownloadRepository downloads,
     required SourceRepository sources,
-    required RecommendationEngine engine,
+    required SmartRecommendationEngine engine,
   })  : _library = library,
         _history = history,
         _playlists = playlists,
@@ -39,7 +39,7 @@ class HomeController extends ChangeNotifier {
   final PlaylistRepository _playlists;
   final DownloadRepository _downloads;
   final SourceRepository _sources;
-  final RecommendationEngine _engine;
+  final SmartRecommendationEngine _engine;
 
   HomeSectionState continueWatching = HomeSectionState();
   HomeSectionState recent = HomeSectionState();
@@ -84,17 +84,12 @@ class HomeController extends ChangeNotifier {
       }
       final historyRows = await _history.history(limit: 60);
       final historyItemIds = historyRows.map((m) => m.id).toSet();
+      // v1.5.0 smart engine: time-of-day affinity + keyword affinity +
+      // source diversity, all computed from real local history.
       final scored = _engine.recommend(
         candidates: pool,
         progressByItem: progressMap,
-        recentHistory: [
-          for (final row in historyRows)
-            WatchProgress(
-              itemId: row.id,
-              positionMs: 1,
-              updatedAt: row.lastPlayedAt ?? row.addedAt,
-            ),
-        ],
+        history: historyRows,
       );
 
       continueWatching = HomeSectionState(items: cw);

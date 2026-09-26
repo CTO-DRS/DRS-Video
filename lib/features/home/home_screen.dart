@@ -5,6 +5,7 @@ import '../../services/sharing/share_service.dart';
 import '../../state/home_controller.dart';
 import '../../state/library_controller.dart';
 import '../library/library_screen.dart';
+import '../activity/activity_screen.dart';
 import '../../state/media_actions.dart';
 import '../../widgets/cards/video_card.dart';
 import '../../widgets/common/error_view.dart';
@@ -53,6 +54,12 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         actions: [
+          IconButton(
+            tooltip: l.activityTitle,
+            icon: const Icon(Icons.insights_outlined),
+            onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ActivityScreen())),
+          ),
           IconButton(
             tooltip: l.homeOpenUrl,
             icon: const Icon(Icons.link),

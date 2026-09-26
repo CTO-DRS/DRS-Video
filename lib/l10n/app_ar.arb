@@ -552,7 +552,6 @@
   "subtitleUrlHint": "رابط ملف الترجمة (SRT/VTT)",
   "subtitleAdded": "تم تحميل الترجمة",
   "subtitleInvalid": "تعذر تحميل الترجمة",
-
   "platformsSites": "المواقع",
   "sitesSearchHint": "ابحث عن منصة (YouTube، TikTok، شاهد...)",
   "sitesAll": "الكل",
@@ -595,7 +594,6 @@
   "browserPlayInPlayer": "تشغيل بالمشغل الأصلي",
   "browserNoStreams": "لم يُكتشف فيديو قابل للتشغيل في هذه الصفحة بعد — تنقل داخل الموقع وحاول مجدداً",
   "browserPlayFailed": "تعذر فتح هذا الرابط في المشغل",
-
   "protectionTitle": "الحماية والـ VPN",
   "protectionAdBlockTitle": "الحماية من الإعلانات",
   "protectionAdBlock": "حظر الإعلانات والمتتبعات",
@@ -613,7 +611,6 @@
   "protectionResetCounter": "تصفير",
   "protectionBlocklistInfo": "قائمة الحظر من مشروع StevenBlack مفتوح المصدر (رخصة MIT) وتُحدّث مع كل إصدار. لا يتم تجاوز أنظمة حماية المحتوى (DRM) لأي منصة.",
   "protectionHonestNote": "ملاحظة صادقة: حظر الإعلانات يعمل داخل المتصفح المدمج. بعض المنصات (مثل يوتيوب) تُدمج إعلاناتها مع محتوى الفيديو نفسه فلا يمكن حجبها دون تعطيل التشغيل. يعمل VPN عبر OpenVPN فقط على أجهزة Android.",
-
   "vpnTitle": "VPN مجاني (OpenVPN)",
   "vpnStateConnected": "متصل",
   "vpnStateBusy": "جارٍ المعالجة",
@@ -655,5 +652,82 @@
   },
   "vpnConnectFailed": "فشل الاتصال — جرّب خادماً آخر",
   "vpnError": "حدث خطأ أثناء الاتصال. جرّب خادماً آخر.",
-  "vpnUnsupported": "عميل VPN يعمل على أجهزة Android فقط (يتطلب إذن النظام)."
+  "vpnUnsupported": "عميل VPN يعمل على أجهزة Android فقط (يتطلب إذن النظام).",
+  "didYouMeanPrefix": "هل تقصد",
+  "activityTitle": "نشاطي الذكي",
+  "activityEmptyTitle": "لا بيانات نشاط بعد",
+  "activityEmptyBody": "شاهد بعض الفيديوهات وستظهر إحصائياتك الذكية هنا تلقائياً.",
+  "activityFailed": "تعذر حساب الإحصائيات",
+  "statWatchTime": "وقت المشاهدة",
+  "statWatched": "فيديو شوهد",
+  "statCompleted": "اكتملت مشاهدة",
+  "statStreak": "سلسلة الأيام",
+  "hoursUnit": "ساعة",
+  "minutesUnit": "دقيقة",
+  "daysUnit": "أيام",
+  "bestStreak": "أطول سلسلة مشاهدة: {days} يوماً",
+  "@bestStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "peakHourLabel": "ساعة الذروة: {hour}:00",
+  "@peakHourLabel": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "trend14Title": "نشاط آخر 14 يوماً",
+  "trend14Caption": "ارتفاع كل عمود يمثل وقت المشاهدة في ذلك اليوم",
+  "weekdayPatternTitle": "توزيع المشاهدة على أيام الأسبوع",
+  "weekdayMon": "الاثنين",
+  "weekdayTue": "الثلاثاء",
+  "weekdayWed": "الأربعاء",
+  "weekdayThu": "الخميس",
+  "weekdayFri": "الجمعة",
+  "weekdaySat": "السبت",
+  "weekdaySun": "الأحد",
+  "topInterestsTitle": "اهتماماتك الأبرز",
+  "cleanupTitle": "التنظيف الذكي",
+  "cleanupNoDuplicates": "لا توجد مكررات",
+  "cleanupNoDuplicatesBody": "مكتبتك نظيفة — لم نعثر على أي فيديوهات مكررة.",
+  "cleanupFoundClusters": "{count} مجموعة مكررات محتملة",
+  "@cleanupFoundClusters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cleanupDeleteSelected": "حذف المحدد ({count})",
+  "@cleanupDeleteSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cleanupKeepSuggestion": "النسخة المقترح الاحتفاظ بها",
+  "cleanupConfirmTitle": "تأكيد إزالة المكررات",
+  "cleanupConfirmBody": "سيُزال {count} عنصر من المكتبة. لن تُحذف أي ملفات من جهازك.",
+  "@cleanupConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cleanupDeleted": "أُزيل {count} عنصر مكرر",
+  "@cleanupDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cleanupFailed": "فشل التنظيف"
 }
