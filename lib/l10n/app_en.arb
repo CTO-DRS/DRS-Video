@@ -560,6 +560,33 @@
   "protectionBlocklistInfo": "The blocklist comes from the open-source StevenBlack project (MIT license) and ships with every release. No DRM system of any platform is circumvented.",
   "browserYtAdKillTitle": "YouTube ad protection",
   "browserYtAdKillSub": "Ads are auto-skipped and hidden in the player, search and home pages",
+  "ghTitle": "GitHub & updates",
+  "ghUpdateSection": "App update",
+  "ghCurrentVersion": "Current version: {v}",
+  "ghUpdateAvailable": "New update available: {tag}",
+  "ghCheckUpdate": "Check now",
+  "ghDownloading": "Downloading…",
+  "ghDownloadingPct": "Downloading… {p}%",
+  "ghInstalling": "Downloaded — opening installer…",
+  "ghInstall": "Install update",
+  "ghInstallFailed": "Could not start the installer (check install-permission)",
+  "ghAutoCheck": "Check for updates automatically",
+  "ghAutoCheckDesc": "Silently checks GitHub when the app starts",
+  "ghReleasesSection": "Recent releases",
+  "ghNoReleases": "No releases found — check connectivity",
+  "ghNoNotes": "No release notes",
+  "ghOpenRepo": "Project repository",
+  "ghOpenReleases": "Releases page",
+  "ghOpenDeveloper": "Developer account",
+  "ghOpen": "Open",
+  "playerBookmarks": "Bookmarks",
+  "playerBookmarkEmpty": "No bookmarks yet — add one at the current moment",
+  "playerBookmarkAdd": "Bookmark here",
+  "playerCapture": "Capture frame",
+  "playerCaptureOk": "Frame saved to the app Pictures folder",
+  "playerCaptureFail": "Capture failed",
+  "playerIntroEnd": "Intro ends here",
+  "playerIntroEndSet": "The next video in this folder will start at {s} s",
   "protectionHonestNote": "Honest note: ad blocking works inside the built-in browser. Some platforms (e.g. YouTube) bake ads into the video stream itself, which cannot be blocked without breaking playback. The VPN uses OpenVPN on Android devices only.",
   "vpnTitle": "Free VPN (OpenVPN)",
   "vpnStateConnected": "Connected",
@@ -981,5 +1008,33 @@
   "audioOnlyHint": "Skip video decoding — saves battery and data",
   "audioOnlyNote": "Sound keeps playing while the screen shows this page. Your choice is remembered for the next videos.",
   "audioOnlyActive": "Audio-only mode is on — video decoding is paused to save battery and data.",
-  "audioOnlyRestoreVideo": "Restore video"
+  "audioOnlyRestoreVideo": "Restore video",
+  "@ghCurrentVersion": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "@ghUpdateAvailable": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "@ghDownloadingPct": {
+    "placeholders": {
+      "p": {
+        "type": "int"
+      }
+    }
+  },
+  "@playerIntroEndSet": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  }
 }

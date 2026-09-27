@@ -197,6 +197,51 @@ class MainActivity : AudioServiceActivity() {
                     result.success(false)
                 }
             }
+            "update/install" -> {
+                // v1.12.0 in-app self-update: hand a staged APK (inside the
+                // cache dir, exposed via FileProvider) to the system
+                // installer. The system prompts for "install unknown apps"
+                // permission itself when not yet granted.
+                val path = call.argument<String>("path")
+                if (path.isNullOrBlank()) {
+                    result.error("BAD_ARGS", "path required", null)
+                    return
+                }
+                try {
+                    val file = File(path)
+                    if (!file.exists()) {
+                        result.success(false)
+                        return
+                    }
+                    val authority = "$packageName.fileprovider"
+                    val uri = androidx.core.content.FileProvider.getUriForFile(
+                        this, authority, file
+                    )
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, "application/vnd.android.package-archive")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(intent)
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.success(false)
+                }
+            }
+            "battery/state" -> {
+                // v1.12.0 battery saver: sticky battery-changed broadcast
+                // gives level + charge state without any permission.
+                val intent = registerReceiver(null, android.content.IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                val level = intent?.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1) ?: -1
+                val scale = intent?.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1) ?: -1
+                val status = intent?.getIntExtra(android.os.BatteryManager.EXTRA_STATUS, -1) ?: -1
+                val plugged = intent?.getIntExtra(android.os.BatteryManager.EXTRA_PLUGGED, 0) ?: 0
+                val pct = if (level >= 0 && scale > 0) (level * 100) / scale else -1
+                result.success(mapOf(
+                    "level" to pct,
+                    "plugged" to (plugged != 0 || status == android.os.BatteryManager.BATTERY_STATUS_FULL)
+                ))
+            }
             else -> result.notImplemented()
         }
     }

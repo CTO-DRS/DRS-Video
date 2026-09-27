@@ -82,6 +82,23 @@ class NativeChannel {
   Future<bool> openExternal(String url) async =>
       (await _invoke<bool>('open/external', {'url': url})) ?? false;
 
+  // ---- in-app self-update (v1.12.0) ----
+
+  /// Fires the system package-installer for a staged APK [path] (inside
+  /// the app's cache dir, exposed through FileProvider). Returns false
+  /// when no installer is available or the user blocked installs.
+  Future<bool> installApk(String path) async =>
+      (await _invoke<bool>('update/install', {'path': path})) ?? false;
+
+  /// Current battery state: {'level': 0..100 (-1 unknown), 'plugged': bool}.
+  Future<Map<String, Object?>> batteryState() async {
+    final raw = await _invoke<Map<Object?, Object?>>('battery/state');
+    return <String, Object?>{
+      'level': (raw?['level'] as num?)?.toInt() ?? -1,
+      'plugged': (raw?['plugged'] as bool?) ?? false,
+    };
+  }
+
   /// Last session's native (Java/Kotlin) crash log, or null when the
   /// previous session ended cleanly. Used by the boot screen so a hard
   /// crash never stays silent.

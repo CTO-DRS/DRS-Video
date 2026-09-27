@@ -13,6 +13,7 @@ import '../../state/downloads_controller.dart';
 import '../../state/settings_controller.dart';
 import 'backup_screen.dart';
 import 'diagnostics_screen.dart';
+import 'github_screen.dart';
 import 'storage_screen.dart';
 import '../security/app_lock_settings_screen.dart';
 import '../security/vault_screen.dart';
@@ -66,6 +67,11 @@ class SettingsScreen extends StatelessWidget {
           _Section(l.vaultTitle, Icons.shield_outlined, context, () {
             Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const VaultScreen()));
+          }),
+          // v1.12.0: GitHub hub + in-app self-update.
+          _Section(l.ghTitle, Icons.system_update_alt, context, () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const GitHubScreen()));
           }),
           _Section(l.setDiagnostics, Icons.troubleshoot_outlined, context, () {
             Navigator.of(context).push(

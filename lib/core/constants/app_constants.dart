@@ -5,7 +5,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.11.0';
+  static const String appVersion = '1.12.0';
 
   static const String dbName = 'drs_video.db';
   static const int dbVersion = 5;
@@ -112,6 +112,12 @@ class AppConstants {
 
   /// Bundled real-platforms catalog asset (v1.4.0).
   static const String sitesCatalogAsset = 'assets/sites/catalog.json';
+
+  /// GitHub project coordinates (v1.12.0 in-app updates + hub).
+  static const String githubRepo = 'CTO-DRS/DRS-Video';
+  static const String githubRepoUrl = 'https://github.com/$githubRepo';
+  static const String githubReleasesUrl = '$githubRepoUrl/releases';
+  static const String githubDeveloperUrl = 'https://github.com/CTO-DRS';
 
   /// User-Agent for the built-in browser. Desktop UA unlocks the full
   /// web versions of platforms (YouTube/TikTok desktop layouts).
@@ -226,6 +232,29 @@ class PrefKeys {
   /// Audio-only default (v1.10.0): when true, playback starts with video
   /// decoding disabled (battery/data saver).
   static const audioOnlyDefault = 'audio_only_default';
+
+  // ---- v1.12.0: updates + GitHub + smart playback -------------------------
+
+  /// Auto-check GitHub Releases on app start (update screen tile).
+  static const updateAutoCheck = 'update_auto_check';
+
+  /// Attach YouTube captions automatically when the app resolves a video.
+  static const autoSubtitles = 'auto_subtitles';
+
+  /// Auto-load a same-folder subtitle file for local videos.
+  static const autoSiblingSubs = 'auto_sibling_subs';
+
+  /// Auto switch to audio-only when battery is low and unplugged.
+  static const batterySaver = 'battery_saver';
+
+  /// Cap stream quality (HLS/DASH) to reduce data usage.
+  static const dataSaver = 'data_saver';
+
+  /// Per-item video bookmarks: JSON list of {ms,label}.
+  static const bookmarkPrefix = 'bookmarks_';
+
+  /// Per-folder intro end marker (ms): 'intro_end_' + folderKey.
+  static const introEndPrefix = 'intro_end_';
 }
 
 /// Download priority values.

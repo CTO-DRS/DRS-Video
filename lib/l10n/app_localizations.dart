@@ -2996,6 +2996,168 @@ abstract class AppLocalizations {
   /// **'تخطي تلقائي للإعلانات وإخفاؤها داخل المشغّل وصفحات البحث والرئيسية'**
   String get browserYtAdKillSub;
 
+  /// No description provided for @ghTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'جيثب والتحديثات'**
+  String get ghTitle;
+
+  /// No description provided for @ghUpdateSection.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديث التطبيق'**
+  String get ghUpdateSection;
+
+  /// No description provided for @ghCurrentVersion.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإصدار الحالي: {v}'**
+  String ghCurrentVersion(String v);
+
+  /// No description provided for @ghUpdateAvailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'يتوفر تحديث جديد: {tag}'**
+  String ghUpdateAvailable(String tag);
+
+  /// No description provided for @ghCheckUpdate.
+  ///
+  /// In ar, this message translates to:
+  /// **'فحص الآن'**
+  String get ghCheckUpdate;
+
+  /// No description provided for @ghDownloading.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ التحميل…'**
+  String get ghDownloading;
+
+  /// No description provided for @ghDownloadingPct.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ التحميل… {p}%'**
+  String ghDownloadingPct(int p);
+
+  /// No description provided for @ghInstalling.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التحميل — جارٍ فتح المثبّت…'**
+  String get ghInstalling;
+
+  /// No description provided for @ghInstall.
+  ///
+  /// In ar, this message translates to:
+  /// **'تثبيت التحديث'**
+  String get ghInstall;
+
+  /// No description provided for @ghInstallFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر بدء التثبيت (تحقق من إذن تثبيت التطبيقات)'**
+  String get ghInstallFailed;
+
+  /// No description provided for @ghAutoCheck.
+  ///
+  /// In ar, this message translates to:
+  /// **'فحص التحديثات تلقائيًا'**
+  String get ghAutoCheck;
+
+  /// No description provided for @ghAutoCheckDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'عند تشغيل التطبيق يُفحص جيثب بصمت'**
+  String get ghAutoCheckDesc;
+
+  /// No description provided for @ghReleasesSection.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإصدارات السابقة'**
+  String get ghReleasesSection;
+
+  /// No description provided for @ghNoReleases.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد إصدارات — تحقق من الاتصال'**
+  String get ghNoReleases;
+
+  /// No description provided for @ghNoNotes.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد ملاحظات إصدار'**
+  String get ghNoNotes;
+
+  /// No description provided for @ghOpenRepo.
+  ///
+  /// In ar, this message translates to:
+  /// **'مستودع المشروع'**
+  String get ghOpenRepo;
+
+  /// No description provided for @ghOpenReleases.
+  ///
+  /// In ar, this message translates to:
+  /// **'صفحة الإصدارات'**
+  String get ghOpenReleases;
+
+  /// No description provided for @ghOpenDeveloper.
+  ///
+  /// In ar, this message translates to:
+  /// **'حساب المطوّر'**
+  String get ghOpenDeveloper;
+
+  /// No description provided for @ghOpen.
+  ///
+  /// In ar, this message translates to:
+  /// **'فتح'**
+  String get ghOpen;
+
+  /// No description provided for @playerBookmarks.
+  ///
+  /// In ar, this message translates to:
+  /// **'العلامات المرجعية'**
+  String get playerBookmarks;
+
+  /// No description provided for @playerBookmarkEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا علامات بعد — أضف علامة عند اللحظة الحالية'**
+  String get playerBookmarkEmpty;
+
+  /// No description provided for @playerBookmarkAdd.
+  ///
+  /// In ar, this message translates to:
+  /// **'علامة هنا'**
+  String get playerBookmarkAdd;
+
+  /// No description provided for @playerCapture.
+  ///
+  /// In ar, this message translates to:
+  /// **'التقاط صورة من الفيديو'**
+  String get playerCapture;
+
+  /// No description provided for @playerCaptureOk.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حفظ الصورة في مجلد صور التطبيق'**
+  String get playerCaptureOk;
+
+  /// No description provided for @playerCaptureFail.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر التقاط الصورة'**
+  String get playerCaptureFail;
+
+  /// No description provided for @playerIntroEnd.
+  ///
+  /// In ar, this message translates to:
+  /// **'نهاية المقدمة هنا'**
+  String get playerIntroEnd;
+
+  /// No description provided for @playerIntroEndSet.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيبدأ المقطع القادم في هذا المجلد من الثانية {s}'**
+  String playerIntroEndSet(int s);
+
   /// No description provided for @protectionHonestNote.
   ///
   /// In ar, this message translates to:

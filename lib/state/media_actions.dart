@@ -11,6 +11,10 @@ import '../services/network/stream_detector.dart';
 import '../services/network/tiktok_resolver.dart';
 import '../services/network/youtube_resolver.dart';
 import '../services/player/player_service.dart';
+import '../services/smart/intel_v2.dart';
+import '../services/subtitles/auto_subtitles.dart';
+import '../services/platform/native_channel.dart';
+import '../core/storage/preferences_service.dart';
 
 /// Bridges user intents (open URL, open file, play item) to the player,
 /// creating library entries on first play.
@@ -19,13 +23,16 @@ class MediaActions extends ChangeNotifier {
     required LibraryRepository library,
     required PlayerService player,
     required SourceRegistry registry,
+    required PreferencesService prefs,
   })  : _library = library,
         _player = player,
-        _registry = registry;
+        _registry = registry,
+        _prefs = prefs;
 
   final LibraryRepository _library;
   final PlayerService _player;
   final SourceRegistry _registry;
+  final PreferencesService _prefs;
 
   bool _resolving = false;
   AppException? _lastError;
@@ -96,15 +103,17 @@ class MediaActions extends ChangeNotifier {
       final item = existing ??
           MediaItem(
             id: 'ml_${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}',
-            title: Validators.cleanTitle(path.split('/').last
-                .replaceAll(RegExp(r'\.[a-z0-9]+$', caseSensitive: false), '')),
+            // v1.12.0: release-style file names get real titles
+            // ("The.Matrix.1999.1080p.BluRay.x264" → "The Matrix").
+            title: Validators.cleanTitle(FilenameMeta.displayTitle(path)),
             uri: path,
             type: MediaItemType.local,
             sourceId: 'local',
             sizeBytes: File(path).statSync().size,
           );
       if (existing == null) await _library.upsert(item);
-      await _player.open(item);
+      final subPath = await _autoSubtitlePath(item);
+      await _player.open(item, autoSubtitlePath: subPath);
       return item;
     } catch (e, s) {
       _lastError = mapException(e, stack: s);
@@ -120,6 +129,7 @@ class MediaActions extends ChangeNotifier {
   /// mini player — gets a fresh per-session stream URL.
   Future<void> playItem(MediaItem item, {List<MediaItem>? queue}) async {
     final audioUrl = await _resolveSessionStream(item);
+    final subPath = await _autoSubtitlePath(item);
     final list = queue ?? [item];
     final index = list.indexWhere((m) => m.id == item.id);
     await _player.open(
@@ -127,7 +137,53 @@ class MediaActions extends ChangeNotifier {
       queue: list,
       startIndex: index < 0 ? 0 : index,
       audioFileUrl: audioUrl,
+      autoSubtitlePath: subPath,
     );
+    // Battery saver (v1.12.0): low battery + unplugged → audio-only for
+    // THIS session (never touches the persisted default).
+    try {
+      if (_prefs.batterySaver && !item.liveHint) {
+        final b = await NativeChannel.instance.batteryState();
+        if (BatterySaver.shouldAutoAudioOnly(
+          enabled: true,
+          levelPercent: (b['level'] as int?) ?? -1,
+          plugged: (b['plugged'] as bool?) ?? false,
+        )) {
+          await _player.applyAudioOnlySession(true);
+        }
+      }
+    } catch (_) {}
+  }
+
+  /// v1.12.0: subtitle auto-attach decided in ONE place.
+  ///  - YouTube items → captions (Arabic → English → first) when the
+  ///    auto-subtitles pref is on;
+  ///  - local files → best same-folder subtitle when the sibling pref
+  ///    is on. Never throws; null simply means "no auto subtitle".
+  Future<String?> _autoSubtitlePath(MediaItem item) async {
+    try {
+      if (YouTubeResolver.isYouTubeUrl(item.uri)) {
+        if (!_prefs.autoSubtitles || item.liveHint) return null;
+        final id = YouTubeResolver.extractVideoId(item.uri);
+        if (id == null) return null;
+        return await YouTubeCaptions.instance
+            .fetchSrt(id)
+            .timeout(const Duration(seconds: 14));
+      }
+      if (item.type == MediaItemType.local && _prefs.autoSiblingSubs) {
+        final uri = item.uri;
+        if (!uri.startsWith('/')) return null;
+        final f = File(uri);
+        if (!f.existsSync()) return null;
+        final dir = f.parent;
+        final entries = dir.listSync().whereType<File>().map((e) => e.path).toList();
+        return SiblingSubtitles.find(uri, entries);
+      }
+    } catch (e, s) {
+      AppLogger.instance.warning('actions', 'auto subtitle failed: $e');
+      AppLogger.instance.error('actions', 'auto subtitle error', e, s);
+    }
+    return null;
   }
 
   /// Resolves a per-session play URL for platform items that need it

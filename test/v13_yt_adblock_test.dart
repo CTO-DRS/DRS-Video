@@ -155,7 +155,7 @@ void main() {
 
   group('v1.11.0 version bump', () {
     test('app version is 1.11.0', () {
-      expect(AppConstants.appVersion, '1.11.0');
+      expect(AppConstants.appVersion, '1.12.0');
     });
   });
 }

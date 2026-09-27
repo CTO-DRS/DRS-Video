@@ -612,6 +612,33 @@
   "protectionBlocklistInfo": "قائمة الحظر من مشروع StevenBlack مفتوح المصدر (رخصة MIT) وتُحدّث مع كل إصدار. لا يتم تجاوز أنظمة حماية المحتوى (DRM) لأي منصة.",
   "browserYtAdKillTitle": "حماية يوتيوب من الإعلانات",
   "browserYtAdKillSub": "تخطي تلقائي للإعلانات وإخفاؤها داخل المشغّل وصفحات البحث والرئيسية",
+  "ghTitle": "جيثب والتحديثات",
+  "ghUpdateSection": "تحديث التطبيق",
+  "ghCurrentVersion": "الإصدار الحالي: {v}",
+  "ghUpdateAvailable": "يتوفر تحديث جديد: {tag}",
+  "ghCheckUpdate": "فحص الآن",
+  "ghDownloading": "جارٍ التحميل…",
+  "ghDownloadingPct": "جارٍ التحميل… {p}%",
+  "ghInstalling": "تم التحميل — جارٍ فتح المثبّت…",
+  "ghInstall": "تثبيت التحديث",
+  "ghInstallFailed": "تعذر بدء التثبيت (تحقق من إذن تثبيت التطبيقات)",
+  "ghAutoCheck": "فحص التحديثات تلقائيًا",
+  "ghAutoCheckDesc": "عند تشغيل التطبيق يُفحص جيثب بصمت",
+  "ghReleasesSection": "الإصدارات السابقة",
+  "ghNoReleases": "لا توجد إصدارات — تحقق من الاتصال",
+  "ghNoNotes": "لا توجد ملاحظات إصدار",
+  "ghOpenRepo": "مستودع المشروع",
+  "ghOpenReleases": "صفحة الإصدارات",
+  "ghOpenDeveloper": "حساب المطوّر",
+  "ghOpen": "فتح",
+  "playerBookmarks": "العلامات المرجعية",
+  "playerBookmarkEmpty": "لا علامات بعد — أضف علامة عند اللحظة الحالية",
+  "playerBookmarkAdd": "علامة هنا",
+  "playerCapture": "التقاط صورة من الفيديو",
+  "playerCaptureOk": "تم حفظ الصورة في مجلد صور التطبيق",
+  "playerCaptureFail": "تعذر التقاط الصورة",
+  "playerIntroEnd": "نهاية المقدمة هنا",
+  "playerIntroEndSet": "سيبدأ المقطع القادم في هذا المجلد من الثانية {s}",
   "protectionHonestNote": "ملاحظة صادقة: حظر الإعلانات يعمل داخل المتصفح المدمج. بعض المنصات (مثل يوتيوب) تُدمج إعلاناتها مع محتوى الفيديو نفسه فلا يمكن حجبها دون تعطيل التشغيل. يعمل VPN عبر OpenVPN فقط على أجهزة Android.",
   "vpnTitle": "VPN مجاني (OpenVPN)",
   "vpnStateConnected": "متصل",
@@ -1033,5 +1060,33 @@
   "audioOnlyHint": "إيقاف فك ترميز الفيديو — يوفر البطارية والبيانات",
   "audioOnlyNote": "يستمر تشغيل الصوت بينما تعرض الشاشة هذه الصفحة. يُحفظ اختيارك للمقاطع التالية.",
   "audioOnlyActive": "وضع الصوت فقط مُفعّل — تم إيقاف فك ترميز الفيديو لتوفير البطارية والبيانات.",
-  "audioOnlyRestoreVideo": "استعادة الفيديو"
+  "audioOnlyRestoreVideo": "استعادة الفيديو",
+  "@ghCurrentVersion": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "@ghUpdateAvailable": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "@ghDownloadingPct": {
+    "placeholders": {
+      "p": {
+        "type": "int"
+      }
+    }
+  },
+  "@playerIntroEndSet": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  }
 }

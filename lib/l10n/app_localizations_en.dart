@@ -1543,6 +1543,97 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ads are auto-skipped and hidden in the player, search and home pages';
 
   @override
+  String get ghTitle => 'GitHub & updates';
+
+  @override
+  String get ghUpdateSection => 'App update';
+
+  @override
+  String ghCurrentVersion(String v) {
+    return 'Current version: $v';
+  }
+
+  @override
+  String ghUpdateAvailable(String tag) {
+    return 'New update available: $tag';
+  }
+
+  @override
+  String get ghCheckUpdate => 'Check now';
+
+  @override
+  String get ghDownloading => 'Downloading…';
+
+  @override
+  String ghDownloadingPct(int p) {
+    return 'Downloading… $p%';
+  }
+
+  @override
+  String get ghInstalling => 'Downloaded — opening installer…';
+
+  @override
+  String get ghInstall => 'Install update';
+
+  @override
+  String get ghInstallFailed =>
+      'Could not start the installer (check install-permission)';
+
+  @override
+  String get ghAutoCheck => 'Check for updates automatically';
+
+  @override
+  String get ghAutoCheckDesc => 'Silently checks GitHub when the app starts';
+
+  @override
+  String get ghReleasesSection => 'Recent releases';
+
+  @override
+  String get ghNoReleases => 'No releases found — check connectivity';
+
+  @override
+  String get ghNoNotes => 'No release notes';
+
+  @override
+  String get ghOpenRepo => 'Project repository';
+
+  @override
+  String get ghOpenReleases => 'Releases page';
+
+  @override
+  String get ghOpenDeveloper => 'Developer account';
+
+  @override
+  String get ghOpen => 'Open';
+
+  @override
+  String get playerBookmarks => 'Bookmarks';
+
+  @override
+  String get playerBookmarkEmpty =>
+      'No bookmarks yet — add one at the current moment';
+
+  @override
+  String get playerBookmarkAdd => 'Bookmark here';
+
+  @override
+  String get playerCapture => 'Capture frame';
+
+  @override
+  String get playerCaptureOk => 'Frame saved to the app Pictures folder';
+
+  @override
+  String get playerCaptureFail => 'Capture failed';
+
+  @override
+  String get playerIntroEnd => 'Intro ends here';
+
+  @override
+  String playerIntroEndSet(int s) {
+    return 'The next video in this folder will start at $s s';
+  }
+
+  @override
   String get protectionHonestNote =>
       'Honest note: ad blocking works inside the built-in browser. Some platforms (e.g. YouTube) bake ads into the video stream itself, which cannot be blocked without breaking playback. The VPN uses OpenVPN on Android devices only.';
 

@@ -184,6 +184,42 @@ class PreferencesService {
   bool get audioOnlyDefault => _prefs.getBool(PrefKeys.audioOnlyDefault) ?? false;
   set audioOnlyDefault(bool v) => _prefs.setBool(PrefKeys.audioOnlyDefault, v);
 
+  // ---- updates + GitHub + smart playback (v1.12.0) -------------------------
+
+  /// Auto-check GitHub Releases on startup.
+  bool get updateAutoCheck => _prefs.getBool(PrefKeys.updateAutoCheck) ?? true;
+  set updateAutoCheck(bool v) => _prefs.setBool(PrefKeys.updateAutoCheck, v);
+
+  /// Attach YouTube captions automatically when available.
+  bool get autoSubtitles => _prefs.getBool(PrefKeys.autoSubtitles) ?? true;
+  set autoSubtitles(bool v) => _prefs.setBool(PrefKeys.autoSubtitles, v);
+
+  /// Auto-load a same-folder subtitle file for local videos.
+  bool get autoSiblingSubs => _prefs.getBool(PrefKeys.autoSiblingSubs) ?? true;
+  set autoSiblingSubs(bool v) => _prefs.setBool(PrefKeys.autoSiblingSubs, v);
+
+  /// Auto audio-only when battery is low and unplugged.
+  bool get batterySaver => _prefs.getBool(PrefKeys.batterySaver) ?? false;
+  set batterySaver(bool v) => _prefs.setBool(PrefKeys.batterySaver, v);
+
+  /// Cap stream quality to reduce data usage.
+  bool get dataSaver => _prefs.getBool(PrefKeys.dataSaver) ?? false;
+  set dataSaver(bool v) => _prefs.setBool(PrefKeys.dataSaver, v);
+
+  /// Per-item bookmarks (JSON list of {ms,label}).
+  String? bookmarksRawFor(String itemId) =>
+      _prefs.getString('${PrefKeys.bookmarkPrefix}$itemId');
+  Future<void> setBookmarksRawFor(String itemId, String raw) =>
+      _prefs.setString('${PrefKeys.bookmarkPrefix}$itemId', raw);
+
+  /// Per-folder intro end marker (ms). null = not set.
+  int? introEndFor(String folderKey) =>
+      _prefs.getInt('${PrefKeys.introEndPrefix}$folderKey');
+  Future<void> setIntroEndFor(String folderKey, int ms) =>
+      _prefs.setInt('${PrefKeys.introEndPrefix}$folderKey', ms);
+  Future<void> clearIntroEndFor(String folderKey) =>
+      _prefs.remove('${PrefKeys.introEndPrefix}$folderKey');
+
   Future<void> clearAll() => _prefs.clear();
 
   // ---- backup snapshot (v1.7.0) ------------------------------------------

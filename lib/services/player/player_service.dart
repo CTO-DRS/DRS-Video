@@ -15,6 +15,7 @@ import '../../data/models/media_item.dart';
 import '../../data/repositories/history_repository.dart';
 import '../../data/repositories/library_repository.dart';
 import '../recommendations/playback_optimizer.dart';
+import '../smart/intel_v2.dart';
 import 'ab_repeat.dart';
 import 'audio_enhancer.dart';
 import 'audio_handler.dart';
@@ -280,6 +281,7 @@ class PlayerService extends ChangeNotifier {
     List<MediaItem>? queue,
     int startIndex = 0,
     String? audioFileUrl,
+    String? autoSubtitlePath,
   }) async {
     _lastError = null;
     _current = item;
@@ -322,7 +324,10 @@ class PlayerService extends ChangeNotifier {
         play: true,
       );
       await _engine.setRate(_prefs.defaultSpeed);
-      final cap = _hlsBitrateCap;
+      final cap = DataSaver.effectiveHlsCap(
+        _hlsBitrateCap,
+        saverOn: _prefs.dataSaver,
+      );
       if (cap != null) {
         await _applyHlsBitrate(cap);
       }
@@ -336,6 +341,11 @@ class PlayerService extends ChangeNotifier {
       await _applyAudioOnly();
       // Restore persisted A-B markers per media (keyed to the item id).
       _loadAbLoopFor(item.id);
+      // v1.12.0: auto-attached subtitle (YouTube captions / sibling file)
+      // — loaded through the same normalization pipeline as manual loads.
+      if (autoSubtitlePath != null) {
+        await addExternalSubtitle(autoSubtitlePath, 'DRS');
+      }
     } catch (e, s) {
       // Media()/open()/setRate() must never escape as an unhandled error:
       // classify and surface a real error state instead of crashing.
@@ -375,12 +385,29 @@ class PlayerService extends ChangeNotifier {
     if (item.liveHint) return null;
     if (!_prefs.historyEnabled) return null;
     final p = await _history.progressFor(item.id);
-    if (p == null || p.completed || p.positionMs < AppConstants.minResumablePositionMs) {
-      return null;
+    final resume = (p == null || p.completed ||
+            p.positionMs < AppConstants.minResumablePositionMs)
+        ? null
+        : p.positionMs;
+    final total = p?.durationMs ?? 0;
+    if (resume != null && total > 0 && resume >= total * 0.95) return null;
+
+    // v1.12.0 intro-skip memory: when the folder's intro end is known and
+    // the user has NOT already watched past it, jump straight past it.
+    // A saved resume position always wins when it lies beyond the intro.
+    if (resume == null) {
+      final introEnd = _prefs.introEndFor(IntroSkip.folderKeyOf(item.uri));
+      final skip = IntroSkip.startMs(
+        introEndMs: introEnd,
+        resumePositionMs: resume,
+      );
+      if (skip != null) {
+        _pendingResume = null;
+        return Duration(milliseconds: skip);
+      }
     }
-    final total = p.durationMs ?? 0;
-    if (total > 0 && p.positionMs >= total * 0.95) return null;
-    _pendingResume = Duration(milliseconds: p.positionMs);
+    if (resume == null) return null;
+    _pendingResume = Duration(milliseconds: resume);
     return _pendingResume;
   }
 
@@ -900,6 +927,105 @@ class PlayerService extends ChangeNotifier {
       AppLogger.instance.warning('player', 'setHlsBitrate failed: $e');
     }
     _notify();
+  }
+
+  // ---- v1.12.0: bookmarks + frame capture + session audio-only ----------
+
+  /// Bookmarks of [itemId], ascending. Empty when none.
+  List<VideoBookmark> bookmarksFor(String itemId) {
+    final raw = _prefs.bookmarksRawFor(itemId);
+    return raw == null ? const [] : BookmarkCodec.decode(raw);
+  }
+
+  /// Adds a bookmark at [positionMs] (idempotent at the same second).
+  Future<List<VideoBookmark>> addBookmark(String itemId, int positionMs,
+      {String? label}) async {
+    final list = List.of(bookmarksFor(itemId));
+    final ms = positionMs < 0 ? 0 : positionMs;
+    if (!list.any((b) => (b.positionMs - ms).abs() < 1000)) {
+      list.add(VideoBookmark(positionMs: ms, label: label));
+      await _prefs.setBookmarksRawFor(itemId, BookmarkCodec.encode(list));
+    }
+    _notify();
+    return bookmarksFor(itemId);
+  }
+
+  /// Removes the bookmark nearest within ±1500 ms of [positionMs].
+  Future<List<VideoBookmark>> removeBookmark(String itemId, int positionMs) async {
+    final list = List.of(bookmarksFor(itemId));
+    VideoBookmark? victim;
+    int bestDelta = 1 << 62;
+    for (final b in list) {
+      final d = (b.positionMs - positionMs).abs();
+      if (d < bestDelta) {
+        bestDelta = d;
+        victim = b;
+      }
+    }
+    if (victim != null && bestDelta <= 1500) {
+      list.remove(victim);
+      if (list.isEmpty) {
+        await _prefs.setBookmarksRawFor(itemId, '');
+      } else {
+        await _prefs.setBookmarksRawFor(itemId, BookmarkCodec.encode(list));
+      }
+    }
+    _notify();
+    return bookmarksFor(itemId);
+  }
+
+  /// Marks "intro ends here" for the folder containing [uri]; the next
+  /// fresh open in that folder starts past the intro. Returns the marker.
+  Future<int> setFolderIntroEnd(String uri, int positionMs) async {
+    final ms = positionMs.clamp(1000, 10 * 60 * 1000); // 1s..10min sane band
+    await _prefs.setIntroEndFor(IntroSkip.folderKeyOf(uri), ms);
+    return ms;
+  }
+
+  Future<void> clearFolderIntroEnd(String uri) =>
+      _prefs.clearIntroEndFor(IntroSkip.folderKeyOf(uri));
+
+  /// Session-scoped audio-only (battery saver): does NOT touch the
+  /// persisted default — the next open re-applies the user's real choice.
+  Future<void> applyAudioOnlySession(bool on) async {
+    _audioOnly = on;
+    final player = _player;
+    if (player != null) {
+      try {
+        await player.setVideoTrack(on ? VideoTrack.no() : VideoTrack.auto());
+      } catch (e) {
+        AppLogger.instance.warning('player', 'session audio-only failed: $e');
+      }
+    }
+    _notify();
+  }
+
+  bool get isAudioOnly => _audioOnly;
+
+  /// Captures the current frame into the app's Pictures directory via
+  /// mpv `screenshot-to-file`. Returns the file path, or null on failure.
+  Future<String?> captureFrame() async {
+    final player = _player;
+    if (player == null) return null;
+    try {
+      final base = await getApplicationDocumentsDirectory();
+      final dir = Directory('${base.path}/Pictures');
+      if (!dir.existsSync()) dir.createSync(recursive: true);
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final path = '${dir.path}/frame_$ts.jpg';
+      final platform = player.platform;
+      if (platform is NativePlayer) {
+        await platform.command(['screenshot-to-file', path]);
+      } else {
+        return null;
+      }
+      if (!File(path).existsSync()) return null;
+      AppLogger.instance.info('player', 'frame captured: $path');
+      return path;
+    } catch (e, s) {
+      AppLogger.instance.error('player', 'captureFrame failed', e, s);
+      return null;
+    }
   }
 
   @override

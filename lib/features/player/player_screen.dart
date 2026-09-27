@@ -13,6 +13,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/platform/native_channel.dart';
 import '../../services/player/player_service.dart';
 import '../../services/security/secure_flag.dart';
+import '../../services/smart/intel_v2.dart';
 import '../../state/floating_player_controller.dart';
 import '../../state/media_actions.dart';
 import '../../widgets/common/error_view.dart';
@@ -333,7 +334,9 @@ class _PlayerScreenState extends State<PlayerScreen>
 
   void _onDoubleTap(BuildContext context, Offset pos) {
     final width = MediaQuery.of(context).size.width;
-    final step = AppConstants.seekStepMs;
+    // v1.12.0 adaptive step: long videos get bigger jumps.
+    final step = AdaptiveSeek.stepMs(
+        _player.duration?.inMilliseconds ?? 0);
     if (pos.dx < width / 3) {
       _player.seekBy(-step);
       _flashIndicator(label: '-${step ~/ 1000}s', value: null);
@@ -576,6 +579,36 @@ class _PlayerScreenState extends State<PlayerScreen>
                     );
                   },
                 ),
+                // v1.12.0: video bookmarks (timestamp markers).
+                IconButton(
+                  tooltip: l.playerBookmarks,
+                  onPressed: () => _showBookmarksSheet(context),
+                  icon: AnimatedBuilder(
+                    animation: _player,
+                    builder: (context, _) => Icon(
+                      Icons.bookmarks_outlined,
+                      color: _player.bookmarksFor(widget.item.id).isNotEmpty
+                          ? Colors.amber
+                          : Colors.white,
+                    ),
+                  ),
+                ),
+                // v1.12.0: capture the current frame as a JPG.
+                IconButton(
+                  tooltip: l.playerCapture,
+                  onPressed: () async {
+                    final path = await _player.captureFrame();
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(path == null
+                          ? l.playerCaptureFail
+                          : l.playerCaptureOk),
+                      duration: const Duration(seconds: 2),
+                    ));
+                  },
+                  icon: const Icon(Icons.photo_camera_outlined,
+                      color: Colors.white),
+                ),
                 IconButton(
                   tooltip: l.playerSleepTimer,
                   onPressed: () => showSleepSheet(context),
@@ -624,6 +657,24 @@ class _PlayerScreenState extends State<PlayerScreen>
                     ),
                   ),
                 ),
+                // v1.12.0: mark "intro ends here" for this folder — the
+                // next episode in the same folder starts past the intro.
+                IconButton(
+                  tooltip: l.playerIntroEnd,
+                  onPressed: () async {
+                    final ms = await _player.setFolderIntroEnd(
+                      widget.item.uri,
+                      _player.position.inMilliseconds,
+                    );
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(l.playerIntroEndSet(ms ~/ 1000)),
+                      duration: const Duration(seconds: 2),
+                    ));
+                  },
+                  icon: const Icon(Icons.skip_next_outlined,
+                      color: Colors.white),
+                ),
                 IconButton(
                   tooltip: l.playerLock,
                   onPressed: () => setState(() => _locked = true),
@@ -633,6 +684,88 @@ class _PlayerScreenState extends State<PlayerScreen>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// v1.12.0: bookmark manager — jump to / delete / add-at-position.
+  void _showBookmarksSheet(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => StatefulBuilder(
+        builder: (sheetCtx, setSheetState) {
+          final marks = _player.bookmarksFor(widget.item.id);
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l.playerBookmarks,
+                      style: Theme.of(sheet).textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  if (marks.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(l.playerBookmarkEmpty,
+                          style: Theme.of(sheet).textTheme.bodySmall),
+                    )
+                  else
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 320),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: marks.length,
+                        itemBuilder: (_, i) {
+                          final b = marks[i];
+                          final secs = b.positionMs ~/ 1000;
+                          final stamp =
+                              '${(secs ~/ 3600).toString().padLeft(2, '0')}:'
+                              '${((secs % 3600) ~/ 60).toString().padLeft(2, '0')}:'
+                              '${(secs % 60).toString().padLeft(2, '0')}';
+                          return ListTile(
+                            dense: true,
+                            leading: const Icon(Icons.bookmark,
+                                color: Colors.amber),
+                            title: Text(stamp),
+                            subtitle: b.label == null || b.label!.isEmpty
+                                ? null
+                                : Text(b.label!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis),
+                            onTap: () {
+                              Navigator.of(sheet).pop();
+                              _player.seekTo(Duration(milliseconds: b.positionMs));
+                            },
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline, size: 20),
+                              onPressed: () async {
+                                await _player.removeBookmark(
+                                    widget.item.id, b.positionMs);
+                                setSheetState(() {});
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                  FilledButton.tonalIcon(
+                    onPressed: () async {
+                      await _player.addBookmark(
+                          widget.item.id, _player.position.inMilliseconds);
+                      setSheetState(() {});
+                    },
+                    icon: const Icon(Icons.bookmark_add_outlined),
+                    label: Text(l.playerBookmarkAdd),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -17,6 +17,7 @@ import 'features/library/library_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/playlists/playlists_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/settings/github_screen.dart';
 import 'features/security/lock_screen.dart';
 import 'features/splash/boot_screen.dart';
 import 'features/splash/splash_screen.dart';
@@ -28,6 +29,7 @@ import 'l10n/app_localizations.dart';
 import 'services/downloader/download_service.dart';
 import 'services/files/file_manager_service.dart';
 import 'services/player/player_service.dart';
+import 'services/update/update_service.dart';
 import 'services/platform/native_channel.dart';
 import 'services/security/pin_lock.dart';
 import 'services/security/vault_controller.dart';
@@ -217,6 +219,7 @@ class _DrsAppState extends State<DrsApp> {
           library: services.library,
           player: services.player,
           registry: services.registry,
+          prefs: services.prefs,
         )),
         // Floating video window (v1.3.0): hides itself automatically when
         // playback ends or a new item replaces the current one.
@@ -389,7 +392,37 @@ class _RootShellState extends State<RootShell> {
       context.read<search_ctrl.LibrarySearchController>().init();
       // Share/view intents (v1.3.0): register listener + pull cold-start.
       context.read<IncomingShareController>().init();
+      // v1.12.0: silent GitHub update check (once per session, only
+      // when the user keeps auto-check enabled).
+      unawaited(_autoUpdateCheck());
     });
+  }
+
+  static bool _updateCheckedThisSession = false;
+
+  Future<void> _autoUpdateCheck() async {
+    if (_updateCheckedThisSession) return;
+    _updateCheckedThisSession = true;
+    try {
+      final prefs = context.read<PreferencesService>();
+      if (!prefs.updateAutoCheck) return;
+      final update = await UpdateService.instance
+          .checkForUpdate()
+          .timeout(const Duration(seconds: 20));
+      if (update == null || !mounted) return;
+      final l = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l.ghUpdateAvailable(update.tagName)),
+        duration: const Duration(seconds: 6),
+        action: SnackBarAction(
+          label: l.ghOpen,
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const GitHubScreen())),
+        ),
+      ));
+    } catch (_) {
+      // Updates are a bonus — a failed background check stays silent.
+    }
   }
 
   /// Shows the incoming-link dialog once per URL, after the current

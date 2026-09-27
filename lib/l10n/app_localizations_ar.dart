@@ -1535,6 +1535,97 @@ class AppLocalizationsAr extends AppLocalizations {
       'تخطي تلقائي للإعلانات وإخفاؤها داخل المشغّل وصفحات البحث والرئيسية';
 
   @override
+  String get ghTitle => 'جيثب والتحديثات';
+
+  @override
+  String get ghUpdateSection => 'تحديث التطبيق';
+
+  @override
+  String ghCurrentVersion(String v) {
+    return 'الإصدار الحالي: $v';
+  }
+
+  @override
+  String ghUpdateAvailable(String tag) {
+    return 'يتوفر تحديث جديد: $tag';
+  }
+
+  @override
+  String get ghCheckUpdate => 'فحص الآن';
+
+  @override
+  String get ghDownloading => 'جارٍ التحميل…';
+
+  @override
+  String ghDownloadingPct(int p) {
+    return 'جارٍ التحميل… $p%';
+  }
+
+  @override
+  String get ghInstalling => 'تم التحميل — جارٍ فتح المثبّت…';
+
+  @override
+  String get ghInstall => 'تثبيت التحديث';
+
+  @override
+  String get ghInstallFailed =>
+      'تعذر بدء التثبيت (تحقق من إذن تثبيت التطبيقات)';
+
+  @override
+  String get ghAutoCheck => 'فحص التحديثات تلقائيًا';
+
+  @override
+  String get ghAutoCheckDesc => 'عند تشغيل التطبيق يُفحص جيثب بصمت';
+
+  @override
+  String get ghReleasesSection => 'الإصدارات السابقة';
+
+  @override
+  String get ghNoReleases => 'لا توجد إصدارات — تحقق من الاتصال';
+
+  @override
+  String get ghNoNotes => 'لا توجد ملاحظات إصدار';
+
+  @override
+  String get ghOpenRepo => 'مستودع المشروع';
+
+  @override
+  String get ghOpenReleases => 'صفحة الإصدارات';
+
+  @override
+  String get ghOpenDeveloper => 'حساب المطوّر';
+
+  @override
+  String get ghOpen => 'فتح';
+
+  @override
+  String get playerBookmarks => 'العلامات المرجعية';
+
+  @override
+  String get playerBookmarkEmpty =>
+      'لا علامات بعد — أضف علامة عند اللحظة الحالية';
+
+  @override
+  String get playerBookmarkAdd => 'علامة هنا';
+
+  @override
+  String get playerCapture => 'التقاط صورة من الفيديو';
+
+  @override
+  String get playerCaptureOk => 'تم حفظ الصورة في مجلد صور التطبيق';
+
+  @override
+  String get playerCaptureFail => 'تعذر التقاط الصورة';
+
+  @override
+  String get playerIntroEnd => 'نهاية المقدمة هنا';
+
+  @override
+  String playerIntroEndSet(int s) {
+    return 'سيبدأ المقطع القادم في هذا المجلد من الثانية $s';
+  }
+
+  @override
   String get protectionHonestNote =>
       'ملاحظة صادقة: حظر الإعلانات يعمل داخل المتصفح المدمج. بعض المنصات (مثل يوتيوب) تُدمج إعلاناتها مع محتوى الفيديو نفسه فلا يمكن حجبها دون تعطيل التشغيل. يعمل VPN عبر OpenVPN فقط على أجهزة Android.';
 
