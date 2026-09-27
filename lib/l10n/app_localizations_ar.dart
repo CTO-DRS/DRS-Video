@@ -1528,6 +1528,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'قائمة الحظر من مشروع StevenBlack مفتوح المصدر (رخصة MIT) وتُحدّث مع كل إصدار. لا يتم تجاوز أنظمة حماية المحتوى (DRM) لأي منصة.';
 
   @override
+  String get browserYtAdKillTitle => 'حماية يوتيوب من الإعلانات';
+
+  @override
+  String get browserYtAdKillSub =>
+      'تخطي تلقائي للإعلانات وإخفاؤها داخل المشغّل وصفحات البحث والرئيسية';
+
+  @override
   String get protectionHonestNote =>
       'ملاحظة صادقة: حظر الإعلانات يعمل داخل المتصفح المدمج. بعض المنصات (مثل يوتيوب) تُدمج إعلاناتها مع محتوى الفيديو نفسه فلا يمكن حجبها دون تعطيل التشغيل. يعمل VPN عبر OpenVPN فقط على أجهزة Android.';
 

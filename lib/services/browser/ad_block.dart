@@ -71,6 +71,84 @@ class AdBlockList {
     await ensureLoaded();
     return matches(_domains ?? const {}, host);
   }
+
+  // ---- v1.11.0: URL-pattern layer (YouTube ad endpoints) ----
+  //
+  // YouTube serves its ads and ad-telemetry from the very same hosts as
+  // the content (youtube.com / googlevideo.com), so a HOST blocklist can
+  // never catch them. This layer inspects the full request URL instead:
+  //   - YouTube-scoped fragments are only applied to known YouTube /
+  //     Google-video hosts and NEVER match real playback URLs
+  //     (googlevideo `/videoplayback` carries none of these fragments);
+  //   - global fragments are unambiguous ad endpoints valid on any site.
+
+  /// Hosts the YouTube-scoped patterns apply to.
+  static const List<String> ytHosts = [
+    'youtube.com',
+    'youtube-nocookie.com',
+    'googlevideo.com',
+    'ytimg.com',
+    'youtu.be',
+  ];
+
+  /// Path/param fragments that only occur in YouTube ad or ad-telemetry
+  /// requests.
+  static const List<String> ytAdUrlPatterns = [
+    '/api/stats/ads',
+    '/api/stats/atr',
+    '/pagead/',
+    '/ptracking',
+    '/player_204',
+    '/videogoodput',
+    '/get_midroll_info',
+    '/get_video_ads',
+    'adformat=',
+    'ad_type=',
+    '&ctier=',
+    '?ctier=',
+  ];
+
+  /// Unambiguous ad endpoints, blocked on ANY host.
+  static const List<String> globalAdUrlPatterns = [
+    '&adurl=',
+    '?adurl=',
+    '/pagead/adfetch',
+  ];
+
+  static bool _isYouTubeishHost(String host) {
+    for (final d in ytHosts) {
+      // Exact domain or subdomain — "evilyoutube.com" must NOT match.
+      if (host == d || host.endsWith('.$d')) return true;
+    }
+    return false;
+  }
+
+  /// Pure: true when the full URL is a known ad/telemetry endpoint.
+  static bool matchesAdUrlPattern(String url) {
+    final u = url.toLowerCase();
+    if (u.isEmpty || !u.startsWith('http')) return false;
+    for (final p in globalAdUrlPatterns) {
+      if (u.contains(p)) return true;
+    }
+    if (_isYouTubeishHost(BrowserUtils.hostOf(url))) {
+      for (final p in ytAdUrlPatterns) {
+        if (u.contains(p)) return true;
+      }
+    }
+    return false;
+  }
+
+  /// Combined decision for one request URL: the pattern layer first
+  /// (catches same-domain ad endpoints), then the domain blocklist.
+  /// Pure + asset-free when the pattern layer already fires, so unit
+  /// tests do not need the bundled blocklist.
+  Future<bool> shouldBlockUrl(String url) async {
+    if (matchesAdUrlPattern(url)) return true;
+    final host = BrowserUtils.hostOf(url);
+    if (host.isEmpty) return false;
+    await ensureLoaded();
+    return matches(_domains ?? const {}, host);
+  }
 }
 
 /// Pure URL/UA helpers for the built-in browser (unit-tested).

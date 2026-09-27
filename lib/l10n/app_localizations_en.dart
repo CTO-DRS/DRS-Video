@@ -1536,6 +1536,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'The blocklist comes from the open-source StevenBlack project (MIT license) and ships with every release. No DRM system of any platform is circumvented.';
 
   @override
+  String get browserYtAdKillTitle => 'YouTube ad protection';
+
+  @override
+  String get browserYtAdKillSub =>
+      'Ads are auto-skipped and hidden in the player, search and home pages';
+
+  @override
   String get protectionHonestNote =>
       'Honest note: ad blocking works inside the built-in browser. Some platforms (e.g. YouTube) bake ads into the video stream itself, which cannot be blocked without breaking playback. The VPN uses OpenVPN on Android devices only.';
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import '../../core/storage/preferences_service.dart';
 import '../../data/repositories/browser_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/browser/ad_block.dart';
+import '../../services/browser/yt_ad_killer.dart';
 import '../../services/platform/native_channel.dart';
 import '../../features/player/player_screen.dart';
 import '../../state/media_actions.dart';
@@ -151,6 +153,11 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
       _loadFailed = false;
     });
     _refreshBookmarkState();
+    // v1.11.0: belt & suspenders — (re)install the in-page ad killer
+    // after every navigation (self-guards against double install).
+    if (protection.adBlockEnabled) {
+      unawaited(c.evaluateJavascript(source: YtAdKiller.js));
+    }
     // History recording (respects incognito + the global history switch).
     if (!_incognito && prefs.historyEnabled && pageUrl.startsWith('http')) {
       unawaited(repo.addHistory(pageUrl, title ?? ''));
@@ -158,16 +165,26 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
     unawaited(protection.flush());
   }
 
-  // ---- protection: block ad/tracker hosts at network level ----
+  /// Keeps the in-page ad killer in sync with the shield toggle:
+  /// ON  → (re)install the user-script (self-guarded),
+  /// OFF → pause it (the tick loop early-returns; the network layer
+  ///       re-allows everything immediately).
+  Future<void> _syncAdKillRuntime(bool on) async {
+    try {
+      await _controller?.evaluateJavascript(
+        source: on ? YtAdKiller.js : 'window.__drsAdKill = false;',
+      );
+    } catch (_) {}
+  }
+
+  // ---- protection: block ad/tracker hosts + ad URL patterns ----
   Future<WebResourceResponse?> _shouldIntercept(
       InAppWebViewController c, WebResourceRequest request) async {
     final protection = context.read<ProtectionController>();
     if (!protection.adBlockEnabled) return null;
     final url = request.url.toString();
     if (!url.startsWith('http')) return null;
-    final host = BrowserUtils.hostOf(url);
-    if (host.isEmpty) return null;
-    if (await AdBlockList.instance.shouldBlock(host)) {
+    if (await AdBlockList.instance.shouldBlockUrl(url)) {
       _sessionBlocked++;
       protection.registerBlocked(1);
       return WebResourceResponse(
@@ -413,6 +430,17 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
                 transparentBackground: false,
                 supportZoom: true,
               ),
+              // v1.11.0: in-page ad killer injected into EVERY frame at
+              // document-start (skips/hides YouTube ads the network
+              // layer cannot see). Only attached when the shield is on.
+              initialUserScripts: UnmodifiableListView<UserScript>([
+                if (_adBlockOn)
+                  UserScript(
+                    source: YtAdKiller.js,
+                    injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
+                    forMainFrameOnly: false,
+                  ),
+              ]),
               onWebViewCreated: (c) => _controller = c,
               onLoadStart: (c, url) {
                 if (mounted) setState(() => _navigating = true);
@@ -428,12 +456,12 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
                 if (mounted) setState(() => _pageTitle = t);
               },
               shouldOverrideUrlLoading: (c, action) async {
-                // Fast path: navigation-level blocking of known bad hosts.
+                // Fast path: navigation-level blocking of known bad
+                // hosts and ad endpoints (pattern layer included).
                 final protection = context.read<ProtectionController>();
                 if (protection.adBlockEnabled) {
-                  final host = BrowserUtils.hostOf(action.request.url.toString());
-                  if (host.isNotEmpty &&
-                      await AdBlockList.instance.shouldBlock(host)) {
+                  final url = action.request.url.toString();
+                  if (await AdBlockList.instance.shouldBlockUrl(url)) {
                     protection.registerBlocked(1);
                     return NavigationActionPolicy.CANCEL;
                   }
@@ -533,6 +561,7 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
                     value: protection.adBlockEnabled,
                     onChanged: (v) {
                       protection.setAdBlock(v);
+                      unawaited(_syncAdKillRuntime(v));
                       setSheetState(() {});
                     },
                   ),
@@ -546,6 +575,19 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
                     },
                   ),
                 ]),
+              ),
+              const SizedBox(height: 4),
+              // v1.11.0: YouTube in-page protection status.
+              ListTile(
+                dense: true,
+                leading: Icon(
+                  Icons.ondemand_video_outlined,
+                  color: protection.adBlockEnabled
+                      ? Theme.of(sheet).colorScheme.primary
+                      : Theme.of(sheet).disabledColor,
+                ),
+                title: Text(l.browserYtAdKillTitle),
+                subtitle: Text(l.browserYtAdKillSub),
               ),
               const SizedBox(height: 8),
               Text(

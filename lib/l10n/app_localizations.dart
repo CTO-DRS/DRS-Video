@@ -2984,6 +2984,18 @@ abstract class AppLocalizations {
   /// **'قائمة الحظر من مشروع StevenBlack مفتوح المصدر (رخصة MIT) وتُحدّث مع كل إصدار. لا يتم تجاوز أنظمة حماية المحتوى (DRM) لأي منصة.'**
   String get protectionBlocklistInfo;
 
+  /// No description provided for @browserYtAdKillTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حماية يوتيوب من الإعلانات'**
+  String get browserYtAdKillTitle;
+
+  /// No description provided for @browserYtAdKillSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'تخطي تلقائي للإعلانات وإخفاؤها داخل المشغّل وصفحات البحث والرئيسية'**
+  String get browserYtAdKillSub;
+
   /// No description provided for @protectionHonestNote.
   ///
   /// In ar, this message translates to:

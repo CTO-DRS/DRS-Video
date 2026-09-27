@@ -610,6 +610,8 @@
   },
   "protectionResetCounter": "تصفير",
   "protectionBlocklistInfo": "قائمة الحظر من مشروع StevenBlack مفتوح المصدر (رخصة MIT) وتُحدّث مع كل إصدار. لا يتم تجاوز أنظمة حماية المحتوى (DRM) لأي منصة.",
+  "browserYtAdKillTitle": "حماية يوتيوب من الإعلانات",
+  "browserYtAdKillSub": "تخطي تلقائي للإعلانات وإخفاؤها داخل المشغّل وصفحات البحث والرئيسية",
   "protectionHonestNote": "ملاحظة صادقة: حظر الإعلانات يعمل داخل المتصفح المدمج. بعض المنصات (مثل يوتيوب) تُدمج إعلاناتها مع محتوى الفيديو نفسه فلا يمكن حجبها دون تعطيل التشغيل. يعمل VPN عبر OpenVPN فقط على أجهزة Android.",
   "vpnTitle": "VPN مجاني (OpenVPN)",
   "vpnStateConnected": "متصل",
