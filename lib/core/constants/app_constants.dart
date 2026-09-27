@@ -5,7 +5,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.14.2';
+  static const String appVersion = '1.14.3';
 
   static const String dbName = 'drs_video.db';
   static const int dbVersion = 7;

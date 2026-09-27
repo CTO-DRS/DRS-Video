@@ -311,7 +311,7 @@ void main() {
   // Version
   // ------------------------------------------------------------------
   test('v1.14.0 version + self-update constants intact', () {
-    expect(AppConstants.appVersion, '1.14.2');
+    expect(AppConstants.appVersion, '1.14.3');
     expect(AppConstants.githubRepo, contains('/'));
   });
 }

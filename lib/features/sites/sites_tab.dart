@@ -5,6 +5,7 @@ import '../../data/repositories/browser_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/browser/sites_catalog.dart';
 import 'platform_browser_screen.dart';
+import 'youtube_search_screen.dart';
 
 /// "المواقع" sub-tab (v1.4.0): the bundled real-platforms catalog
 /// (YouTube, TikTok, Shahid, Netflix, …) + user-added sites + bookmarks.
@@ -45,6 +46,15 @@ class _SitesTabState extends State<SitesTab> {
   }
 
   void _open(String url, [String? title]) {
+    // v1.14.3: YouTube gets the NATIVE experience — fast search with no
+    // ads and real per-result play/download, instead of the slow WebView
+    // site. The browser stays reachable from the search screen's app bar.
+    if (YouTubeSearchScreen.isYouTubeSite(url)) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => const YouTubeSearchScreen(),
+      ));
+      return;
+    }
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => PlatformBrowserScreen(
         initialUrl: url,

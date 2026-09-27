@@ -2543,6 +2543,23 @@ class AppLocalizationsAr extends AppLocalizations {
       'هذا الرابط صفحة ويب وليس ملف وسائط مباشرًا — انسخ رابط الفيديو عبر زر المشاركة في التطبيق ثم أعد المحاولة، أو افتح الصفحة في المتصفح المدمج';
 
   @override
+  String get ytSearchTitle => 'بحث YouTube';
+
+  @override
+  String get ytSearchHint => 'ابحث عن فيديو أو قناة…';
+
+  @override
+  String get ytSearchEmpty => 'لا توجد نتائج';
+
+  @override
+  String get ytSearchFailed =>
+      'تعذر إتمام العملية — تحقق من الاتصال وحاول مجددًا';
+
+  @override
+  String get ytSearchExtractFailed =>
+      'تعذر تنزيل هذا الفيديو حاليًا — قد يكون بثًا مباشرًا أو محجوبًا';
+
+  @override
   String get dlAddNotFound => 'الرابط غير موجود (404)';
 
   @override

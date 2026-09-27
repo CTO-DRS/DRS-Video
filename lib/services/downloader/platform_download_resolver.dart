@@ -1,5 +1,6 @@
 import '../network/social_resolver.dart';
 import '../network/tiktok_resolver.dart';
+import '../network/youtube_resolver.dart';
 import '../smart/intel_v4.dart';
 
 /// A platform share link (TikTok / X / Facebook) resolved into the real
@@ -45,9 +46,33 @@ class PlatformDownloadResolver {
       PlatformDownloadResolver._();
 
   /// Pure: true when [url] is a platform page link we know how to resolve.
+  /// v1.14.3: YouTube watch/shorts/youtu.be links included — they were the
+  /// last big class of pasted links that could NEVER download (the probe
+  /// saw youtube.com's HTML page and the guard rejected it).
   /// (Instagram/reddit etc. intentionally excluded — no working resolver.)
   static bool needsResolution(String url) =>
-      TikTokResolver.isTikTokUrl(url) || SocialResolver.isSocialUrl(url);
+      TikTokResolver.isTikTokUrl(url) ||
+      SocialResolver.isSocialUrl(url) ||
+      YouTubeResolver.isYouTubeUrl(url);
+
+  /// v1.14.3 pure download policy for a resolved YouTube video: a
+  /// downloadable task needs a single progressive (muxed) file. Live
+  /// streams are HLS manifests and DASH-only videos have no muxed stream —
+  /// both are honest failures, never garbage downloads.
+  static ResolvedPlatformMedia? mediaFromYouTube({
+    required bool isLive,
+    required String? muxedUrl,
+    required String title,
+  }) {
+    if (isLive || muxedUrl == null || muxedUrl.isEmpty) return null;
+    final t = title.trim();
+    return ResolvedPlatformMedia(
+      directUrl: muxedUrl,
+      headers: const {},
+      title: t.isEmpty ? null : t,
+      platform: 'youtube',
+    );
+  }
 
   /// Pure: page-like MIME types that must never be saved as downloaded
   /// media. These responses mean "this URL is a web page" — either
@@ -84,6 +109,27 @@ class PlatformDownloadResolver {
   /// (callers abort with a clear error instead of saving garbage).
   Future<ResolvedPlatformMedia?> resolve(String url) async {
     if (!needsResolution(url)) return null;
+
+    // v1.14.3: YouTube watch/shorts/youtu.be links resolve through
+    // youtube_explode (same engine playback uses). We download the best
+    // MUXED (audio+video in one file) stream — a single real MP4 the
+    // native engine can fetch. Video-only/audio-only pairs would need
+    // ffmpeg muxing we don't ship; live streams are HLS manifests —
+    // neither becomes a fake/corrupt download.
+    if (YouTubeResolver.isYouTubeUrl(url)) {
+      try {
+        final r = await YouTubeResolver.instance.resolve(url,
+            timeout: const Duration(seconds: 20));
+        if (r == null) return null;
+        return mediaFromYouTube(
+          isLive: r.isLive,
+          muxedUrl: r.muxedUrl,
+          title: r.title,
+        );
+      } catch (_) {
+        return null; // resolvers never throw into the download path
+      }
+    }
 
     if (TikTokResolver.isTikTokUrl(url)) {
       try {

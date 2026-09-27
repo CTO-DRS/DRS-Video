@@ -4809,6 +4809,36 @@ abstract class AppLocalizations {
   /// **'هذا الرابط صفحة ويب وليس ملف وسائط مباشرًا — انسخ رابط الفيديو عبر زر المشاركة في التطبيق ثم أعد المحاولة، أو افتح الصفحة في المتصفح المدمج'**
   String get dlAddPageNotMedia;
 
+  /// No description provided for @ytSearchTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'بحث YouTube'**
+  String get ytSearchTitle;
+
+  /// No description provided for @ytSearchHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث عن فيديو أو قناة…'**
+  String get ytSearchHint;
+
+  /// No description provided for @ytSearchEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد نتائج'**
+  String get ytSearchEmpty;
+
+  /// No description provided for @ytSearchFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر إتمام العملية — تحقق من الاتصال وحاول مجددًا'**
+  String get ytSearchFailed;
+
+  /// No description provided for @ytSearchExtractFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر تنزيل هذا الفيديو حاليًا — قد يكون بثًا مباشرًا أو محجوبًا'**
+  String get ytSearchExtractFailed;
+
   /// No description provided for @dlAddNotFound.
   ///
   /// In ar, this message translates to:

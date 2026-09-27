@@ -2554,6 +2554,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'This link is a web page, not a direct media file — copy the video link via the app\'s share button and try again, or open the page in the built-in browser';
 
   @override
+  String get ytSearchTitle => 'YouTube search';
+
+  @override
+  String get ytSearchHint => 'Search for a video or channel…';
+
+  @override
+  String get ytSearchEmpty => 'No results';
+
+  @override
+  String get ytSearchFailed =>
+      'The operation failed — check your connection and try again';
+
+  @override
+  String get ytSearchExtractFailed =>
+      'Could not download this video right now — it may be a live stream or blocked';
+
+  @override
   String get dlAddNotFound => 'Link not found (404)';
 
   @override
