@@ -15,6 +15,8 @@ import '../../state/floating_player_controller.dart';
 import '../../state/media_actions.dart';
 import '../../widgets/common/error_view.dart';
 import '../sites/platform_browser_screen.dart';
+import 'widgets/ab_sheet.dart';
+import 'widgets/audio_sheet.dart';
 import 'widgets/track_sheets.dart';
 
 /// True when [url] is an HTML *page* rather than direct media — playback
@@ -505,6 +507,46 @@ class _PlayerScreenState extends State<PlayerScreen>
                     color: _player.sleepTimer.isActive ? Colors.amber : Colors.white,
                   ),
                 ),
+                // A-B loop status chip (v1.9.0) — visible while active.
+                AnimatedBuilder(
+                  animation: _player,
+                  builder: (context, _) {
+                    if (!_player.abActive) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.tealAccent.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.repeat,
+                                size: 14, color: Colors.tealAccent),
+                            SizedBox(width: 4),
+                            Text('A-B',
+                                style: TextStyle(
+                                    color: Colors.tealAccent, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  tooltip: l.playerAbRepeat,
+                  onPressed: () => showAbRepeatSheet(context),
+                  icon: AnimatedBuilder(
+                    animation: _player,
+                    builder: (context, _) => Icon(
+                      Icons.repeat,
+                      color: _player.abActive ? Colors.tealAccent : Colors.white,
+                    ),
+                  ),
+                ),
                 IconButton(
                   tooltip: l.playerLock,
                   onPressed: () => setState(() => _locked = true),
@@ -641,52 +683,94 @@ class _PlayerScreenState extends State<PlayerScreen>
                     ],
                   ),
                 ),
-                // Bottom actions
+                // Bottom actions — labels auto-hide on narrow screens to
+                // guarantee no overflow in portrait (adaptive density).
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                  child: Row(
-                    children: [
-                      TextButton.icon(
-                        onPressed: () => showSpeedSheet(context),
-                        icon: const Icon(Icons.speed, color: Colors.white, size: 18),
-                        label: Text(
-                          '${player.rate}x',
-                          style: const TextStyle(color: Colors.white),
+                  child: LayoutBuilder(builder: (context, box) {
+                    final wide = box.maxWidth >= 520;
+                    Widget action({
+                      required IconData icon,
+                      required String tooltip,
+                      required VoidCallback onPressed,
+                      Color? iconColor,
+                      String? label,
+                      bool animated = false,
+                    }) {
+                      final effectiveIcon = () {
+                        if (animated) {
+                          return AnimatedBuilder(
+                            animation: _player,
+                            builder: (context, _) => Icon(
+                              icon,
+                              color: iconColor ?? Colors.white,
+                              size: 18,
+                            ),
+                          );
+                        }
+                        return Icon(icon, color: iconColor ?? Colors.white, size: 18);
+                      }();
+                      if (!wide || label == null) {
+                        return IconButton(
+                          tooltip: tooltip,
+                          onPressed: onPressed,
+                          icon: effectiveIcon,
+                        );
+                      }
+                      return TextButton.icon(
+                        onPressed: onPressed,
+                        icon: effectiveIcon,
+                        label: Text(label,
+                            style: const TextStyle(color: Colors.white)),
+                      );
+                    }
+
+                    return Row(
+                      children: [
+                        action(
+                          icon: Icons.speed,
+                          tooltip: l.playerSpeed,
+                          label: '${player.rate}x',
+                          onPressed: () => showSpeedSheet(context),
                         ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () => showTracksSheet(context),
-                        icon: const Icon(Icons.subtitles_outlined,
-                            color: Colors.white, size: 18),
-                        label: Text(
-                          l.playerSubtitleTrack,
-                          style: const TextStyle(color: Colors.white),
+                        action(
+                          icon: Icons.subtitles_outlined,
+                          tooltip: l.playerSubtitleTrack,
+                          label: l.playerSubtitleTrack,
+                          onPressed: () => showTracksSheet(context),
                         ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () => showQualitySheet(context),
-                        icon: const Icon(Icons.high_quality_outlined,
-                            color: Colors.white, size: 18),
-                        label: Text(
-                          l.playerQuality,
-                          style: const TextStyle(color: Colors.white),
+                        action(
+                          icon: Icons.equalizer,
+                          tooltip: l.playerAudio,
+                          label: l.playerAudio,
+                          animated: true,
+                          iconColor: _player.audioEnhanceActive
+                              ? Colors.tealAccent
+                              : Colors.white,
+                          onPressed: () => showAudioSheet(context),
                         ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        tooltip: l.playerFrameStepHint,
-                        color: Colors.white,
-                        onPressed: () => _player.frameStep(1),
-                        icon: const Icon(Icons.skip_next, size: 18),
-                      ),
-                      IconButton(
-                        tooltip: l.playerFullscreen,
-                        color: Colors.white,
-                        onPressed: _toggleOrientation,
-                        icon: const Icon(Icons.fullscreen),
-                      ),
-                    ],
-                  ),
+                        action(
+                          icon: Icons.high_quality_outlined,
+                          tooltip: l.playerQuality,
+                          label: l.playerQuality,
+                          onPressed: () => showQualitySheet(context),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          tooltip: l.playerFrameStepHint,
+                          color: Colors.white,
+                          onPressed: () => _player.frameStep(1),
+                          icon: const Icon(Icons.skip_next, size: 18),
+                        ),
+                        IconButton(
+                          tooltip: l.playerFullscreen,
+                          color: Colors.white,
+                          onPressed: _toggleOrientation,
+                          icon: const Icon(Icons.fullscreen),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
               ],
             ),

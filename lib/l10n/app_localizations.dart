@@ -3752,6 +3752,282 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'لا توجد نسخ على الخادم بعد'**
   String get cloudListEmpty;
+
+  /// No description provided for @appLock.
+  ///
+  /// In ar, this message translates to:
+  /// **'قفل التطبيق'**
+  String get appLock;
+
+  /// No description provided for @appLockIntro.
+  ///
+  /// In ar, this message translates to:
+  /// **'احمِ تطبيقك برمز سري. يُطلب الرمز عند فتح التطبيق بعد مغادرته، ولا يُخزَّن الرمز نفسه على الجهاز إطلاقًا — فقط بصمة مشفّرة منه.'**
+  String get appLockIntro;
+
+  /// No description provided for @appLockCreatePin.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنشاء رمز سري'**
+  String get appLockCreatePin;
+
+  /// No description provided for @appLockChangePin.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير الرمز'**
+  String get appLockChangePin;
+
+  /// No description provided for @appLockRemovePin.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة القفل'**
+  String get appLockRemovePin;
+
+  /// No description provided for @appLockEnabledTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'القفل مُفعّل'**
+  String get appLockEnabledTitle;
+
+  /// No description provided for @appLockEnabledDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُطلب الرمز السري عند العودة إلى التطبيق حسب المدة التي تختارها.'**
+  String get appLockEnabledDesc;
+
+  /// No description provided for @appLockEnterCurrent.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل الرمز الحالي'**
+  String get appLockEnterCurrent;
+
+  /// No description provided for @appLockChoosePin.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر رمزًا سريًا (4 أرقام)'**
+  String get appLockChoosePin;
+
+  /// No description provided for @appLockConfirmPin.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعد إدخال الرمز للتأكيد'**
+  String get appLockConfirmPin;
+
+  /// No description provided for @appLockPinMismatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمزان غير متطابقين — حاول مجددًا'**
+  String get appLockPinMismatch;
+
+  /// No description provided for @appLockSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حفظ الرمز السري'**
+  String get appLockSaved;
+
+  /// No description provided for @appLockRemoved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت إزالة قفل التطبيق'**
+  String get appLockRemoved;
+
+  /// No description provided for @appLockAutoLock.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة القفل بعد المغادرة'**
+  String get appLockAutoLock;
+
+  /// No description provided for @appLockImmediate.
+  ///
+  /// In ar, this message translates to:
+  /// **'فورًا'**
+  String get appLockImmediate;
+
+  /// No description provided for @appLockAfter1m.
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد دقيقة'**
+  String get appLockAfter1m;
+
+  /// No description provided for @appLockAfter5m.
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد 5 دقائق'**
+  String get appLockAfter5m;
+
+  /// No description provided for @lockTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'التطبيق مقفل'**
+  String get lockTitle;
+
+  /// No description provided for @lockSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل الرمز السري للمتابعة'**
+  String get lockSubtitle;
+
+  /// No description provided for @lockWrongPin.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز خاطئ — حاول مجددًا'**
+  String get lockWrongPin;
+
+  /// No description provided for @lockLockedOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'محاولات كثيرة جدًا. انتظر {seconds} ثانية'**
+  String lockLockedOut(int seconds);
+
+  /// No description provided for @lockPrivacyNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز محفوظ بصمة مشفّرة (SHA-256 مملّح) داخل الجهاز فقط. إذا نسيت الرمز فستحتاج إلى مسح بيانات التطبيق.'**
+  String get lockPrivacyNote;
+
+  /// No description provided for @playerAbRepeat.
+  ///
+  /// In ar, this message translates to:
+  /// **'تكرار المقطع (أ-ب)'**
+  String get playerAbRepeat;
+
+  /// No description provided for @playerAbInactive.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُحدَّد مقطع للتكرار بعد'**
+  String get playerAbInactive;
+
+  /// No description provided for @playerAbSetStart.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعيين البداية (أ)'**
+  String get playerAbSetStart;
+
+  /// No description provided for @playerAbSetStartHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'من موضع التشغيل الحالي'**
+  String get playerAbSetStartHint;
+
+  /// No description provided for @playerAbSetEnd.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعيين النهاية (ب)'**
+  String get playerAbSetEnd;
+
+  /// No description provided for @playerAbSetEndHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'من موضع التشغيل الحالي'**
+  String get playerAbSetEndHint;
+
+  /// No description provided for @playerAbTooShort.
+  ///
+  /// In ar, this message translates to:
+  /// **'المقطع قصير جدًا — حرّك موضع التشغيل ثم أعد التعيين'**
+  String get playerAbTooShort;
+
+  /// No description provided for @playerAbClear.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء التكرار'**
+  String get playerAbClear;
+
+  /// No description provided for @playerAbNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'مثالي لحفظ القرآن وتعلم اللغات: يعود التشغيل تلقائيًا إلى نقطة البداية عند بلوغ النهاية، حتى لو انتقلت يدويًا بعد نقطة النهاية. لإيقاف التكرار استخدم زر إلغاء التكرار.'**
+  String get playerAbNote;
+
+  /// No description provided for @playerAudio.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصوت'**
+  String get playerAudio;
+
+  /// No description provided for @audioSheetTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحسين الصوت'**
+  String get audioSheetTitle;
+
+  /// No description provided for @audioPresetFlat.
+  ///
+  /// In ar, this message translates to:
+  /// **'بدون معادل'**
+  String get audioPresetFlat;
+
+  /// No description provided for @audioPresetFlatDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصوت الأصلي كما هو'**
+  String get audioPresetFlatDesc;
+
+  /// No description provided for @audioPresetBass.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعزيز الباس'**
+  String get audioPresetBass;
+
+  /// No description provided for @audioPresetBassDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعمق للموسيقى والأفلام على سماعة الهاتف'**
+  String get audioPresetBassDesc;
+
+  /// No description provided for @audioPresetVocal.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعزيز الحوار'**
+  String get audioPresetVocal;
+
+  /// No description provided for @audioPresetVocalDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'أوضح للأخبار والمحاضرات والمسلسلات'**
+  String get audioPresetVocalDesc;
+
+  /// No description provided for @audioPresetNight.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوضع الليلي'**
+  String get audioPresetNight;
+
+  /// No description provided for @audioPresetNightDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'يخفض الدويّ ويرفع وضوح الكلام للسماعات المنخفضة'**
+  String get audioPresetNightDesc;
+
+  /// No description provided for @audioPresetMovie.
+  ///
+  /// In ar, this message translates to:
+  /// **'سينمائي'**
+  String get audioPresetMovie;
+
+  /// No description provided for @audioPresetMovieDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'منحنى واسع يمنح إحساس قاعة العرض'**
+  String get audioPresetMovieDesc;
+
+  /// No description provided for @audioBoost.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعزيز مستوى الصوت'**
+  String get audioBoost;
+
+  /// No description provided for @audioBoostWarning.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعزيز عالٍ: قد يظهر تشويش في مقاطع مرتفعة الصوت أصلًا'**
+  String get audioBoostWarning;
+
+  /// No description provided for @audioEnhanceNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'تُطبَّق الإعدادات فورًا وتُحفظ كافتراض لكل مقطع تفتحه.'**
+  String get audioEnhanceNote;
 }
 
 class _AppLocalizationsDelegate

@@ -1979,4 +1979,151 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cloudListEmpty => 'No backups on the server yet';
+
+  @override
+  String get appLock => 'App lock';
+
+  @override
+  String get appLockIntro =>
+      'Protect the app with a PIN. It is asked when you return after leaving the app; the PIN itself is never stored on the device — only a cryptographic fingerprint of it.';
+
+  @override
+  String get appLockCreatePin => 'Create PIN';
+
+  @override
+  String get appLockChangePin => 'Change PIN';
+
+  @override
+  String get appLockRemovePin => 'Remove lock';
+
+  @override
+  String get appLockEnabledTitle => 'Lock enabled';
+
+  @override
+  String get appLockEnabledDesc =>
+      'The PIN will be asked when you return to the app, based on the delay you choose.';
+
+  @override
+  String get appLockEnterCurrent => 'Enter the current PIN';
+
+  @override
+  String get appLockChoosePin => 'Choose a PIN (4 digits)';
+
+  @override
+  String get appLockConfirmPin => 'Re-enter the PIN to confirm';
+
+  @override
+  String get appLockPinMismatch => 'PINs do not match — try again';
+
+  @override
+  String get appLockSaved => 'PIN saved';
+
+  @override
+  String get appLockRemoved => 'App lock removed';
+
+  @override
+  String get appLockAutoLock => 'Re-lock after leaving';
+
+  @override
+  String get appLockImmediate => 'Immediately';
+
+  @override
+  String get appLockAfter1m => 'After 1 minute';
+
+  @override
+  String get appLockAfter5m => 'After 5 minutes';
+
+  @override
+  String get lockTitle => 'App locked';
+
+  @override
+  String get lockSubtitle => 'Enter your PIN to continue';
+
+  @override
+  String get lockWrongPin => 'Wrong PIN — try again';
+
+  @override
+  String lockLockedOut(int seconds) {
+    return 'Too many attempts. Wait $seconds seconds';
+  }
+
+  @override
+  String get lockPrivacyNote =>
+      'The PIN is stored only as a salted SHA-256 fingerprint on this device. If you forget it, clearing the app\'s data is required.';
+
+  @override
+  String get playerAbRepeat => 'A-B segment loop';
+
+  @override
+  String get playerAbInactive => 'No segment marked for looping yet';
+
+  @override
+  String get playerAbSetStart => 'Set start (A)';
+
+  @override
+  String get playerAbSetStartHint => 'At the current position';
+
+  @override
+  String get playerAbSetEnd => 'Set end (B)';
+
+  @override
+  String get playerAbSetEndHint => 'At the current position';
+
+  @override
+  String get playerAbTooShort =>
+      'Segment too short — move the position and retry';
+
+  @override
+  String get playerAbClear => 'Stop looping';
+
+  @override
+  String get playerAbNote =>
+      'Great for Quran memorization and language learning: playback jumps back to A whenever it reaches B — even after a manual seek past the end. Use Stop looping to end it.';
+
+  @override
+  String get playerAudio => 'Audio';
+
+  @override
+  String get audioSheetTitle => 'Audio enhancement';
+
+  @override
+  String get audioPresetFlat => 'No EQ';
+
+  @override
+  String get audioPresetFlatDesc => 'Original sound, untouched';
+
+  @override
+  String get audioPresetBass => 'Bass boost';
+
+  @override
+  String get audioPresetBassDesc => 'Deeper music and movies on phone speakers';
+
+  @override
+  String get audioPresetVocal => 'Dialog boost';
+
+  @override
+  String get audioPresetVocalDesc => 'Clearer news, lectures and series';
+
+  @override
+  String get audioPresetNight => 'Night mode';
+
+  @override
+  String get audioPresetNightDesc =>
+      'Cuts rumble, lifts speech clarity at low volume';
+
+  @override
+  String get audioPresetMovie => 'Cinema';
+
+  @override
+  String get audioPresetMovieDesc => 'Wide curve with a theater feel';
+
+  @override
+  String get audioBoost => 'Volume boost';
+
+  @override
+  String get audioBoostWarning => 'High boost: loud sources may distort';
+
+  @override
+  String get audioEnhanceNote =>
+      'Applied live and saved as the default for every video you open.';
 }

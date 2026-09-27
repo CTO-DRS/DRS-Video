@@ -5,7 +5,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.8.0';
+  static const String appVersion = '1.9.0';
 
   static const String dbName = 'drs_video.db';
   static const int dbVersion = 4;
@@ -27,6 +27,9 @@ class AppConstants {
 
   /// Minimum watched position before it is stored as resumable.
   static const int minResumablePositionMs = 5000;
+
+  /// Maximum software audio boost (dB) surfaced in the player sheet.
+  static const double maxAudioBoostDb = 15;
 
   /// Speed presets offered in the player.
   static const List<double> speedPresets = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 3.0, 4.0];
@@ -201,6 +204,17 @@ class PrefKeys {
   static const cloudBackupConfig = 'cloud_backup_config';
   static const cloudBackupEnabled = 'cloud_backup_enabled';
   static const cloudBackupLastAt = 'cloud_backup_last_at';
+
+  /// App lock (v1.9.0): salted PIN hash `<salt>:<hash>` and the re-lock
+  /// delay id. The PIN itself is never stored.
+  static const appLockHash = 'app_lock_hash';
+  static const appLockDelay = 'app_lock_delay';
+
+  /// Player power tools (v1.9.0): persisted A-B loop markers and audio
+  /// enhancement defaults (preset id + boost dB).
+  static const playerAbLoop = 'player_ab_loop';
+  static const audioPreset = 'audio_preset';
+  static const audioBoostDb = 'audio_boost_db';
 }
 
 /// Download priority values.

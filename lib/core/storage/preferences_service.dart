@@ -124,6 +124,40 @@ class PreferencesService {
   set vpnLastServer(String? v) =>
       v == null ? _prefs.remove(PrefKeys.vpnLastServer) : _prefs.setString(PrefKeys.vpnLastServer, v);
 
+  // ---- app lock (v1.9.0) ---------------------------------------------------
+
+  /// Salted PIN hash in the `<salt>:<hash>` form — the PIN itself is
+  /// never persisted. null = no lock configured.
+  String? get appLockHash => _prefs.getString(PrefKeys.appLockHash);
+  set appLockHash(String? v) => v == null
+      ? _prefs.remove(PrefKeys.appLockHash)
+      : _prefs.setString(PrefKeys.appLockHash, v);
+
+  /// Re-lock delay id ('immediate' | '1m' | '5m').
+  String? get appLockDelayId => _prefs.getString(PrefKeys.appLockDelay);
+  set appLockDelayId(String? v) => v == null
+      ? _prefs.remove(PrefKeys.appLockDelay)
+      : _prefs.setString(PrefKeys.appLockDelay, v);
+
+  // ---- player power tools (v1.9.0) -----------------------------------------
+
+  /// Persisted A-B loop markers as 'aMs:bMs' (empty when unset).
+  String? get playerAbLoop => _prefs.getString(PrefKeys.playerAbLoop);
+  set playerAbLoop(String? v) => v == null
+      ? _prefs.remove(PrefKeys.playerAbLoop)
+      : _prefs.setString(PrefKeys.playerAbLoop, v);
+
+  /// Default audio preset id (AudioPreset.name).
+  String? get audioPresetId => _prefs.getString(PrefKeys.audioPreset);
+  set audioPresetId(String? v) => v == null
+      ? _prefs.remove(PrefKeys.audioPreset)
+      : _prefs.setString(PrefKeys.audioPreset, v);
+
+  /// Default audio boost in dB (0..15).
+  double get audioBoostDb => _prefs.getDouble(PrefKeys.audioBoostDb) ?? 0.0;
+  set audioBoostDb(double v) => _prefs.setDouble(
+      PrefKeys.audioBoostDb, v.clamp(0.0, AppConstants.maxAudioBoostDb).toDouble());
+
   Future<void> clearAll() => _prefs.clear();
 
   // ---- backup snapshot (v1.7.0) ------------------------------------------

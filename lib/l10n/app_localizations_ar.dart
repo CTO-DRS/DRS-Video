@@ -1968,4 +1968,152 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cloudListEmpty => 'لا توجد نسخ على الخادم بعد';
+
+  @override
+  String get appLock => 'قفل التطبيق';
+
+  @override
+  String get appLockIntro =>
+      'احمِ تطبيقك برمز سري. يُطلب الرمز عند فتح التطبيق بعد مغادرته، ولا يُخزَّن الرمز نفسه على الجهاز إطلاقًا — فقط بصمة مشفّرة منه.';
+
+  @override
+  String get appLockCreatePin => 'إنشاء رمز سري';
+
+  @override
+  String get appLockChangePin => 'تغيير الرمز';
+
+  @override
+  String get appLockRemovePin => 'إزالة القفل';
+
+  @override
+  String get appLockEnabledTitle => 'القفل مُفعّل';
+
+  @override
+  String get appLockEnabledDesc =>
+      'سيُطلب الرمز السري عند العودة إلى التطبيق حسب المدة التي تختارها.';
+
+  @override
+  String get appLockEnterCurrent => 'أدخل الرمز الحالي';
+
+  @override
+  String get appLockChoosePin => 'اختر رمزًا سريًا (4 أرقام)';
+
+  @override
+  String get appLockConfirmPin => 'أعد إدخال الرمز للتأكيد';
+
+  @override
+  String get appLockPinMismatch => 'الرمزان غير متطابقين — حاول مجددًا';
+
+  @override
+  String get appLockSaved => 'تم حفظ الرمز السري';
+
+  @override
+  String get appLockRemoved => 'تمت إزالة قفل التطبيق';
+
+  @override
+  String get appLockAutoLock => 'إعادة القفل بعد المغادرة';
+
+  @override
+  String get appLockImmediate => 'فورًا';
+
+  @override
+  String get appLockAfter1m => 'بعد دقيقة';
+
+  @override
+  String get appLockAfter5m => 'بعد 5 دقائق';
+
+  @override
+  String get lockTitle => 'التطبيق مقفل';
+
+  @override
+  String get lockSubtitle => 'أدخل الرمز السري للمتابعة';
+
+  @override
+  String get lockWrongPin => 'رمز خاطئ — حاول مجددًا';
+
+  @override
+  String lockLockedOut(int seconds) {
+    return 'محاولات كثيرة جدًا. انتظر $seconds ثانية';
+  }
+
+  @override
+  String get lockPrivacyNote =>
+      'الرمز محفوظ بصمة مشفّرة (SHA-256 مملّح) داخل الجهاز فقط. إذا نسيت الرمز فستحتاج إلى مسح بيانات التطبيق.';
+
+  @override
+  String get playerAbRepeat => 'تكرار المقطع (أ-ب)';
+
+  @override
+  String get playerAbInactive => 'لم يُحدَّد مقطع للتكرار بعد';
+
+  @override
+  String get playerAbSetStart => 'تعيين البداية (أ)';
+
+  @override
+  String get playerAbSetStartHint => 'من موضع التشغيل الحالي';
+
+  @override
+  String get playerAbSetEnd => 'تعيين النهاية (ب)';
+
+  @override
+  String get playerAbSetEndHint => 'من موضع التشغيل الحالي';
+
+  @override
+  String get playerAbTooShort =>
+      'المقطع قصير جدًا — حرّك موضع التشغيل ثم أعد التعيين';
+
+  @override
+  String get playerAbClear => 'إلغاء التكرار';
+
+  @override
+  String get playerAbNote =>
+      'مثالي لحفظ القرآن وتعلم اللغات: يعود التشغيل تلقائيًا إلى نقطة البداية عند بلوغ النهاية، حتى لو انتقلت يدويًا بعد نقطة النهاية. لإيقاف التكرار استخدم زر إلغاء التكرار.';
+
+  @override
+  String get playerAudio => 'الصوت';
+
+  @override
+  String get audioSheetTitle => 'تحسين الصوت';
+
+  @override
+  String get audioPresetFlat => 'بدون معادل';
+
+  @override
+  String get audioPresetFlatDesc => 'الصوت الأصلي كما هو';
+
+  @override
+  String get audioPresetBass => 'تعزيز الباس';
+
+  @override
+  String get audioPresetBassDesc => 'أعمق للموسيقى والأفلام على سماعة الهاتف';
+
+  @override
+  String get audioPresetVocal => 'تعزيز الحوار';
+
+  @override
+  String get audioPresetVocalDesc => 'أوضح للأخبار والمحاضرات والمسلسلات';
+
+  @override
+  String get audioPresetNight => 'الوضع الليلي';
+
+  @override
+  String get audioPresetNightDesc =>
+      'يخفض الدويّ ويرفع وضوح الكلام للسماعات المنخفضة';
+
+  @override
+  String get audioPresetMovie => 'سينمائي';
+
+  @override
+  String get audioPresetMovieDesc => 'منحنى واسع يمنح إحساس قاعة العرض';
+
+  @override
+  String get audioBoost => 'تعزيز مستوى الصوت';
+
+  @override
+  String get audioBoostWarning =>
+      'تعزيز عالٍ: قد يظهر تشويش في مقاطع مرتفعة الصوت أصلًا';
+
+  @override
+  String get audioEnhanceNote =>
+      'تُطبَّق الإعدادات فورًا وتُحفظ كافتراض لكل مقطع تفتحه.';
 }

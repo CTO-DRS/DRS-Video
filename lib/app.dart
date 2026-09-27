@@ -17,6 +17,7 @@ import 'features/library/library_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/playlists/playlists_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/security/lock_screen.dart';
 import 'features/splash/boot_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'data/repositories/history_repository.dart';
@@ -28,6 +29,7 @@ import 'services/downloader/download_service.dart';
 import 'services/files/file_manager_service.dart';
 import 'services/player/player_service.dart';
 import 'services/platform/native_channel.dart';
+import 'services/security/pin_lock.dart';
 import 'services/sharing/share_service.dart';
 import 'services/storage/storage_analyzer.dart';
 import 'state/app_providers.dart';
@@ -66,6 +68,7 @@ class DrsApp extends StatefulWidget {
 class _DrsAppState extends State<DrsApp> {
   AppServices? _services;
   ThemeController? _theme;
+  AppLockController? _lock;
   String? _stage;
   Object? _bootError;
   StackTrace? _bootStack;
@@ -119,6 +122,7 @@ class _DrsAppState extends State<DrsApp> {
     setState(() {
       _services = null;
       _theme = null;
+      _lock = null;
       _stage = null;
       _bootError = null;
       _bootStack = null;
@@ -145,6 +149,11 @@ class _DrsAppState extends State<DrsApp> {
       setState(() {
         _services = services;
         _theme = ThemeController(services.prefs.raw);
+        // App lock (v1.9.0): cold start with a configured PIN boots locked.
+        _lock = AppLockController(
+          storedHash: services.prefs.appLockHash,
+          delay: AppLockDelayX.fromId(services.prefs.appLockDelayId),
+        );
       });
       unawaited(_clearCrashHistory());
     } catch (error, stack) {
@@ -162,9 +171,10 @@ class _DrsAppState extends State<DrsApp> {
   Widget build(BuildContext context) {
     final services = _services;
     final theme = _theme;
+    final lock = _lock;
 
     // Boot phase: loading or recoverable error — always a real UI.
-    if (services == null || theme == null) {
+    if (services == null || theme == null || lock == null) {
       return BootMaterialApp(
         stage: _stage,
         slow: _slow,
@@ -251,6 +261,9 @@ class _DrsAppState extends State<DrsApp> {
         // provider — opening ANY video crashed with
         // "Provider<PreferencesService> not found for PlayerScreen".
         Provider<PreferencesService>.value(value: services.prefs),
+        // App lock controller (v1.9.0) — shared by the gate and the
+        // settings screen.
+        ChangeNotifierProvider<AppLockController>.value(value: lock),
         ChangeNotifierProvider(
           create: (_) => PlatformsController(
             factory: services.streamFactory,
@@ -282,6 +295,12 @@ class _DrsAppState extends State<DrsApp> {
             localizationsDelegates: _l10nDelegates,
             localeResolutionCallback: _resolveLocale,
             supportedLocales: _supportedLocales,
+            // App lock (v1.9.0): the gate wraps the NAVIGATOR (via builder)
+            // so it covers every pushed route — including the player.
+            builder: (context, child) => AppLockGate(
+              controller: lock,
+              child: child ?? const SizedBox.shrink(),
+            ),
             home: FirstRunGate(services: services),
           ),
         ),

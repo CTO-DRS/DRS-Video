@@ -188,8 +188,8 @@ void main() {
       expect(prefs.enableFloatingPlayer, isFalse);
     });
 
-    test('app version constant bumped to 1.4.0', () {
-      expect(AppConstants.appVersion, '1.8.0');
+    test('app version constant bumped to 1.9.0', () {
+      expect(AppConstants.appVersion, '1.9.0');
     });
   });
 }

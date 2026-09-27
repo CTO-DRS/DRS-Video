@@ -909,5 +909,61 @@
   },
   "cloudRemoteList": "النسخ الموجودة على الخادم",
   "cloudListHint": "اضغط لجلب قائمة النسخ السحابية",
-  "cloudListEmpty": "لا توجد نسخ على الخادم بعد"
+  "cloudListEmpty": "لا توجد نسخ على الخادم بعد",
+
+  "appLock": "قفل التطبيق",
+  "appLockIntro": "احمِ تطبيقك برمز سري. يُطلب الرمز عند فتح التطبيق بعد مغادرته، ولا يُخزَّن الرمز نفسه على الجهاز إطلاقًا — فقط بصمة مشفّرة منه.",
+  "appLockCreatePin": "إنشاء رمز سري",
+  "appLockChangePin": "تغيير الرمز",
+  "appLockRemovePin": "إزالة القفل",
+  "appLockEnabledTitle": "القفل مُفعّل",
+  "appLockEnabledDesc": "سيُطلب الرمز السري عند العودة إلى التطبيق حسب المدة التي تختارها.",
+  "appLockEnterCurrent": "أدخل الرمز الحالي",
+  "appLockChoosePin": "اختر رمزًا سريًا (4 أرقام)",
+  "appLockConfirmPin": "أعد إدخال الرمز للتأكيد",
+  "appLockPinMismatch": "الرمزان غير متطابقين — حاول مجددًا",
+  "appLockSaved": "تم حفظ الرمز السري",
+  "appLockRemoved": "تمت إزالة قفل التطبيق",
+  "appLockAutoLock": "إعادة القفل بعد المغادرة",
+  "appLockImmediate": "فورًا",
+  "appLockAfter1m": "بعد دقيقة",
+  "appLockAfter5m": "بعد 5 دقائق",
+  "lockTitle": "التطبيق مقفل",
+  "lockSubtitle": "أدخل الرمز السري للمتابعة",
+  "lockWrongPin": "رمز خاطئ — حاول مجددًا",
+  "lockLockedOut": "محاولات كثيرة جدًا. انتظر {seconds} ثانية",
+  "@lockLockedOut": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "lockPrivacyNote": "الرمز محفوظ بصمة مشفّرة (SHA-256 مملّح) داخل الجهاز فقط. إذا نسيت الرمز فستحتاج إلى مسح بيانات التطبيق.",
+
+  "playerAbRepeat": "تكرار المقطع (أ-ب)",
+  "playerAbInactive": "لم يُحدَّد مقطع للتكرار بعد",
+  "playerAbSetStart": "تعيين البداية (أ)",
+  "playerAbSetStartHint": "من موضع التشغيل الحالي",
+  "playerAbSetEnd": "تعيين النهاية (ب)",
+  "playerAbSetEndHint": "من موضع التشغيل الحالي",
+  "playerAbTooShort": "المقطع قصير جدًا — حرّك موضع التشغيل ثم أعد التعيين",
+  "playerAbClear": "إلغاء التكرار",
+  "playerAbNote": "مثالي لحفظ القرآن وتعلم اللغات: يعود التشغيل تلقائيًا إلى نقطة البداية عند بلوغ النهاية، حتى لو انتقلت يدويًا بعد نقطة النهاية. لإيقاف التكرار استخدم زر إلغاء التكرار.",
+
+  "playerAudio": "الصوت",
+  "audioSheetTitle": "تحسين الصوت",
+  "audioPresetFlat": "بدون معادل",
+  "audioPresetFlatDesc": "الصوت الأصلي كما هو",
+  "audioPresetBass": "تعزيز الباس",
+  "audioPresetBassDesc": "أعمق للموسيقى والأفلام على سماعة الهاتف",
+  "audioPresetVocal": "تعزيز الحوار",
+  "audioPresetVocalDesc": "أوضح للأخبار والمحاضرات والمسلسلات",
+  "audioPresetNight": "الوضع الليلي",
+  "audioPresetNightDesc": "يخفض الدويّ ويرفع وضوح الكلام للسماعات المنخفضة",
+  "audioPresetMovie": "سينمائي",
+  "audioPresetMovieDesc": "منحنى واسع يمنح إحساس قاعة العرض",
+  "audioBoost": "تعزيز مستوى الصوت",
+  "audioBoostWarning": "تعزيز عالٍ: قد يظهر تشويش في مقاطع مرتفعة الصوت أصلًا",
+  "audioEnhanceNote": "تُطبَّق الإعدادات فورًا وتُحفظ كافتراض لكل مقطع تفتحه."
 }

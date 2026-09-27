@@ -14,6 +14,7 @@ import '../../state/settings_controller.dart';
 import 'backup_screen.dart';
 import 'diagnostics_screen.dart';
 import 'storage_screen.dart';
+import '../security/app_lock_settings_screen.dart';
 import '../vpn/protection_screen.dart';
 
 /// Settings Center: playback, downloads, appearance, storage, privacy,
@@ -54,6 +55,11 @@ class SettingsScreen extends StatelessWidget {
           _Section(l.protectionTitle, Icons.security_outlined, context, () {
             Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ProtectionScreen()));
+          }),
+          // v1.9.0: app lock (PIN gate over the whole app).
+          _Section(l.appLock, Icons.lock_person_outlined, context, () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const AppLockSettingsScreen()));
           }),
           _Section(l.setDiagnostics, Icons.troubleshoot_outlined, context, () {
             Navigator.of(context).push(

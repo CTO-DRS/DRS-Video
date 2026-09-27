@@ -3,6 +3,7 @@ import '../core/network/connectivity_service.dart';
 import '../core/storage/database_service.dart';
 import '../core/storage/preferences_service.dart';
 import '../services/permissions/permission_service.dart';
+import '../services/security/pin_lock.dart';
 
 /// Exposes runtime settings and data-clearing operations.
 class SettingsController extends ChangeNotifier {
@@ -46,6 +47,23 @@ class SettingsController extends ChangeNotifier {
 
   // Privacy
   bool get historyEnabled => _prefs.historyEnabled;
+
+  // App lock (v1.9.0)
+  bool get appLockEnabled => _prefs.appLockHash != null;
+  AppLockDelay get appLockDelay =>
+      AppLockDelayX.fromId(_prefs.appLockDelayId);
+
+  /// Persists the packed `<salt>:<hash>` record produced by the live
+  /// [AppLockController.setPin] — the PIN itself is never persisted.
+  void persistAppLockHash(String packed) =>
+      _set(() => _prefs.appLockHash = packed);
+
+  /// Clears the stored hash after the live controller verified the
+  /// current PIN.
+  void clearAppLockHash() => _set(() => _prefs.appLockHash = null);
+
+  void setAppLockDelay(AppLockDelay d) =>
+      _set(() => _prefs.appLockDelayId = d.id);
 
   void _set(void Function() setter) {
     setter();

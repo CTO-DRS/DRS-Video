@@ -857,5 +857,61 @@
   },
   "cloudRemoteList": "Backups on the server",
   "cloudListHint": "Tap to fetch the cloud backup list",
-  "cloudListEmpty": "No backups on the server yet"
+  "cloudListEmpty": "No backups on the server yet",
+
+  "appLock": "App lock",
+  "appLockIntro": "Protect the app with a PIN. It is asked when you return after leaving the app; the PIN itself is never stored on the device — only a cryptographic fingerprint of it.",
+  "appLockCreatePin": "Create PIN",
+  "appLockChangePin": "Change PIN",
+  "appLockRemovePin": "Remove lock",
+  "appLockEnabledTitle": "Lock enabled",
+  "appLockEnabledDesc": "The PIN will be asked when you return to the app, based on the delay you choose.",
+  "appLockEnterCurrent": "Enter the current PIN",
+  "appLockChoosePin": "Choose a PIN (4 digits)",
+  "appLockConfirmPin": "Re-enter the PIN to confirm",
+  "appLockPinMismatch": "PINs do not match — try again",
+  "appLockSaved": "PIN saved",
+  "appLockRemoved": "App lock removed",
+  "appLockAutoLock": "Re-lock after leaving",
+  "appLockImmediate": "Immediately",
+  "appLockAfter1m": "After 1 minute",
+  "appLockAfter5m": "After 5 minutes",
+  "lockTitle": "App locked",
+  "lockSubtitle": "Enter your PIN to continue",
+  "lockWrongPin": "Wrong PIN — try again",
+  "lockLockedOut": "Too many attempts. Wait {seconds} seconds",
+  "@lockLockedOut": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "lockPrivacyNote": "The PIN is stored only as a salted SHA-256 fingerprint on this device. If you forget it, clearing the app's data is required.",
+
+  "playerAbRepeat": "A-B segment loop",
+  "playerAbInactive": "No segment marked for looping yet",
+  "playerAbSetStart": "Set start (A)",
+  "playerAbSetStartHint": "At the current position",
+  "playerAbSetEnd": "Set end (B)",
+  "playerAbSetEndHint": "At the current position",
+  "playerAbTooShort": "Segment too short — move the position and retry",
+  "playerAbClear": "Stop looping",
+  "playerAbNote": "Great for Quran memorization and language learning: playback jumps back to A whenever it reaches B — even after a manual seek past the end. Use Stop looping to end it.",
+
+  "playerAudio": "Audio",
+  "audioSheetTitle": "Audio enhancement",
+  "audioPresetFlat": "No EQ",
+  "audioPresetFlatDesc": "Original sound, untouched",
+  "audioPresetBass": "Bass boost",
+  "audioPresetBassDesc": "Deeper music and movies on phone speakers",
+  "audioPresetVocal": "Dialog boost",
+  "audioPresetVocalDesc": "Clearer news, lectures and series",
+  "audioPresetNight": "Night mode",
+  "audioPresetNightDesc": "Cuts rumble, lifts speech clarity at low volume",
+  "audioPresetMovie": "Cinema",
+  "audioPresetMovieDesc": "Wide curve with a theater feel",
+  "audioBoost": "Volume boost",
+  "audioBoostWarning": "High boost: loud sources may distort",
+  "audioEnhanceNote": "Applied live and saved as the default for every video you open."
 }

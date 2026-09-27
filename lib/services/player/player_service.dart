@@ -12,6 +12,8 @@ import '../../data/models/media_item.dart';
 import '../../data/repositories/history_repository.dart';
 import '../../data/repositories/library_repository.dart';
 import '../recommendations/playback_optimizer.dart';
+import 'ab_repeat.dart';
+import 'audio_enhancer.dart';
 import 'audio_handler.dart';
 import 'sleep_timer.dart';
 
@@ -75,6 +77,7 @@ class PlayerService extends ChangeNotifier {
       _videoController = VideoController(p);
       _player = p;
       _attachStreams();
+      loadAudioEnhanceDefaults();
       AppLogger.instance.info('player', 'engine ready');
     } catch (e, s) {
       _player = null;
@@ -200,6 +203,16 @@ class PlayerService extends ChangeNotifier {
     p.stream.track.listen((_) => _notify());
     p.stream.rate.listen((_) => _notify());
     _posSub = p.stream.position.listen((_) {
+      // A-B segment loop (v1.9.0): rewind to A when playback crosses B.
+      // Checked BEFORE the notify to keep the loop tight.
+      if (_ab.isActive) {
+        final target = _ab.rewindTargetMs(p.state.position.inMilliseconds);
+        if (target != null) {
+          unawaited(p.seek(Duration(milliseconds: target)).catchError((Object e) {
+            AppLogger.instance.warning('player', 'ab-loop seek failed: $e');
+          }));
+        }
+      }
       // Rebuild only lightweight widgets that depend on position.
       notifyListeners();
     });
@@ -308,6 +321,11 @@ class PlayerService extends ChangeNotifier {
       if (cap != null) {
         await _applyHlsBitrate(cap);
       }
+      // Audio enhancement defaults (v1.9.0) — applied per media load
+      // because mpv resets the af chain on new files.
+      await _applyAudioEnhance();
+      // Restore persisted A-B markers per media (keyed to the item id).
+      _loadAbLoopFor(item.id);
     } catch (e, s) {
       // Media()/open()/setRate() must never escape as an unhandled error:
       // classify and surface a real error state instead of crashing.
@@ -571,6 +589,118 @@ class PlayerService extends ChangeNotifier {
       AppLogger.instance.warning('player', 'external subtitle failed: $e');
       return false;
     }
+  }
+
+  // ---- A-B segment loop (v1.9.0) ----
+
+  final AbRepeat _ab = AbRepeat();
+
+  /// Read-only view of the current A-B markers (null = unset).
+  ({int? aMs, int? bMs}) get abMarkers => (aMs: _ab.aMs, bMs: _ab.bMs);
+
+  bool get abActive => _ab.isActive;
+
+  /// Marks point A at the current position. Returns (aMs, bMs) after the
+  /// update so the UI can show exact markers.
+  ({int? aMs, int? bMs}) setLoopA() {
+    _ab.setA(position.inMilliseconds);
+    _persistAbLoop();
+    _notify();
+    return abMarkers;
+  }
+
+  /// Marks point B at the current position (A defaults to 0 when unset).
+  /// Returns false when the segment would be too short.
+  bool setLoopB() {
+    final ok = _ab.setB(position.inMilliseconds);
+    if (ok) _persistAbLoop();
+    _notify();
+    return ok;
+  }
+
+  /// Clears the A-B loop entirely.
+  void clearAbLoop() {
+    _ab.clear();
+    _persistAbLoop();
+    _notify();
+  }
+
+  /// Persists markers for the CURRENT media as `<itemId>|<aMs>|<bMs>`.
+  /// Restored only when the same media is reopened — markers for one
+  /// video never leak into another.
+  void _persistAbLoop() {
+    final item = _current;
+    final a = _ab.aMs;
+    final b = _ab.bMs;
+    if (item == null || a == null || b == null) {
+      _prefs.playerAbLoop = null;
+      return;
+    }
+    _prefs.playerAbLoop = '${item.id}|$a|$b';
+  }
+
+  /// Restores the persisted loop ONLY for [itemId]; anything else clears
+  /// the in-memory markers.
+  void _loadAbLoopFor(String itemId) {
+    var restored = false;
+    final raw = _prefs.playerAbLoop;
+    if (raw != null) {
+      final parts = raw.split('|');
+      if (parts.length == 3 && parts[0] == itemId) {
+        final a = int.tryParse(parts[1]);
+        final b = int.tryParse(parts[2]);
+        if (a != null && b != null && b > a + AbRepeat.minSegmentMs) {
+          _ab.aMs = a;
+          _ab.bMs = b;
+          restored = true;
+        }
+      }
+    }
+    if (!restored) _ab.clear();
+  }
+
+  // ---- audio enhancement (v1.9.0) ----
+
+  AudioPreset _audioPreset = AudioPreset.flat;
+  double _audioBoostDb = 0;
+
+  AudioPreset get audioPreset => _audioPreset;
+  double get audioBoostDb => _audioBoostDb;
+  bool get audioEnhanceActive =>
+      AudioEnhancer.isActive(_audioPreset, _audioBoostDb);
+
+  /// Loads persisted defaults (called from _createEngine and settings).
+  void loadAudioEnhanceDefaults() {
+    _audioPreset = AudioPresetX.fromId(_prefs.audioPresetId);
+    _audioBoostDb = _prefs.audioBoostDb;
+    _notify();
+  }
+
+  /// Applies the current preset + boost to the engine. Never throws.
+  Future<void> _applyAudioEnhance() async {
+    final platform = _player?.platform;
+    if (platform is! NativePlayer) return;
+    final af = AudioEnhancer.buildAf(_audioPreset, _audioBoostDb);
+    try {
+      await platform.setProperty('af', af);
+      if (af.isNotEmpty) {
+        AppLogger.instance.info('player', 'af applied: $af');
+      }
+    } catch (e) {
+      AppLogger.instance.warning('player', 'af set failed: $e');
+    }
+  }
+
+  /// Sets a new audio preset and/or boost, persists them and applies the
+  /// whole chain live.
+  Future<void> setAudioEnhance({AudioPreset? preset, double? boostDb}) async {
+    _audioPreset = preset ?? _audioPreset;
+    _audioBoostDb =
+        (boostDb ?? _audioBoostDb).clamp(0.0, AppConstants.maxAudioBoostDb).toDouble();
+    _prefs.audioPresetId = _audioPreset.id;
+    _prefs.audioBoostDb = _audioBoostDb;
+    await _applyAudioEnhance();
+    _notify();
   }
 
   // ---- HLS / stream quality (v1.2.x) ----
