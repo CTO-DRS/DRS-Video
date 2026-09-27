@@ -54,6 +54,26 @@ class DioClient {
       throw mapException(e);
     }
   }
+
+  /// v1.14.1: 1-byte range GET for servers that reject HEAD outright —
+  /// TikTok's CDN answers 503 to HEAD while serving GET normally. The
+  /// 206 response carries the authoritative Content-Range total size and
+  /// the real content-type. ResponseType.stream is used so a hostile
+  /// server that ignores Range and answers 200 never buffers a huge body
+  /// into memory — we read headers and close the stream.
+  Future<Response<dynamic>> rangeProbe(String url,
+      {Map<String, String>? headers}) async {
+    try {
+      return await _dio.get(url,
+          options: Options(
+            headers: {...?headers, 'Range': 'bytes=0-0'},
+            responseType: ResponseType.stream,
+            receiveTimeout: const Duration(seconds: 15),
+          ));
+    } catch (e) {
+      throw mapException(e);
+    }
+  }
 }
 
 /// Retries idempotent requests (GET/HEAD) up to [maxAttempts] with backoff.

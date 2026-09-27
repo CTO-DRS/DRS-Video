@@ -1,11 +1,14 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drs_video/data/models/download_task.dart';
 import 'package:drs_video/services/downloader/platform_download_resolver.dart';
 import 'package:drs_video/services/network/social_resolver.dart';
 import 'package:drs_video/services/network/tiktok_resolver.dart';
+import 'package:drs_video/services/downloader/url_probe_service.dart';
 import 'package:drs_video/services/smart/intel_v4.dart';
+import 'package:drs_video/core/errors/app_exception.dart';
 
 /// v1.14.1 regression tests — "TikTok download saves a .txt document".
 ///
@@ -182,6 +185,77 @@ void main() {
       expect(s.resolvedTitle, '#المصريه_الحساويه #نور');
       expect(s.kind, DownloadKind.video);
       expect(s.sizeBytes, 464203);
+    });
+
+    test('range-GET probe: content-range carries the real total', () {
+      // TikTok CDN: HEAD → 503, GET bytes=0-0 → 206 with content-range.
+      final s = ProbeSummary.fromResponse(
+        status: 206,
+        headers: const {
+          'content-type': ['video/mp4'],
+          'content-length': ['1'],
+          'content-range': ['bytes 0-0/542615'],
+        },
+        url: 'https://v16-notes.tiktokcdn-us.com/x',
+      );
+      expect(s.kind, DownloadKind.video);
+      expect(s.sizeBytes, 542615); // total from content-range, not the 1 byte
+      expect(s.resumable, isTrue); // 206 proves range support
+      expect(s.contentType, 'video/mp4');
+    });
+  });
+
+  group('UrlProbeService — HEAD-hostile fallback chain', () {
+    test('falls back to range-GET when HEAD fails, keeps resolved title',
+        () async {
+      final seen = <String>[];
+      final service = UrlProbeService(
+        fetcher: (url, headers) async {
+          seen.add('head');
+          throw const AppException(AppErrorType.network);
+        },
+        rangeFetcher: (url, headers) async {
+          seen.add('range');
+          return Response<List<int>>(
+            requestOptions: RequestOptions(path: url),
+            statusCode: 206,
+            headers: Headers.fromMap(const {
+              'content-type': ['video/mp4'],
+              'content-range': ['bytes 0-0/280000'],
+            }),
+          );
+        },
+      );
+      final s = await service.probe('https://v16.tiktokcdn-us.com/v/abc');
+      expect(seen, ['head', 'range']);
+      expect(s.kind, DownloadKind.video);
+      expect(s.sizeBytes, 280000);
+      expect(s.resumable, isTrue);
+    });
+
+    test('plain HEAD success never triggers the range fallback', () async {
+      final seen = <String>[];
+      final service = UrlProbeService(
+        fetcher: (url, headers) async {
+          seen.add('head');
+          return Response<List<int>>(
+            requestOptions: RequestOptions(path: url),
+            statusCode: 200,
+            headers: Headers.fromMap(const {
+              'content-type': ['video/mp4'],
+              'content-length': ['1000'],
+            }),
+          );
+        },
+        rangeFetcher: (url, headers) async {
+          seen.add('range');
+          throw StateError('must not be called');
+        },
+      );
+      final s = await service.probe('https://cdn.example.com/x.mp4');
+      expect(seen, ['head']);
+      expect(s.sizeBytes, 1000);
+      expect(s.resumable, isFalse);
     });
   });
 }

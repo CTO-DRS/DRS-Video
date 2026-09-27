@@ -216,6 +216,23 @@ class DownloadService extends ChangeNotifier {
     } on AppException catch (e) {
       if (e.type == AppErrorType.notFound || e.type == AppErrorType.forbidden) rethrow;
       AppLogger.instance.warning('dl', 'probe failed, continuing anyway: $e');
+      // v1.14.1: HEAD-hostile CDNs (TikTok answers 503 to HEAD while GET
+      // works) — a 1-byte range GET recovers mime/size/resume so the HTML
+      // guard and integrity check still see the truth.
+      try {
+        final r = await DioClient.instance.rangeProbe(url, headers: headers);
+        final cr = r.headers.value('content-range');
+        final m = RegExp(r'bytes\s+\d+-\d+/(\d+)').firstMatch(cr ?? '');
+        if (m != null) expectedSize = int.tryParse(m.group(1)!);
+        probedMime = r.headers.value(HttpHeaders.contentTypeHeader);
+        disposition = r.headers.value('content-disposition');
+        resumable = (r.statusCode ?? 0) == 206;
+        AppLogger.instance
+            .info('dl', 'range probe ok: size=$expectedSize mime=$probedMime');
+      } catch (e2) {
+        AppLogger.instance
+            .warning('dl', 'range probe failed too: $e2 (continuing)');
+      }
     }
 
     // --- v1.14.1: HTML guard -------------------------------------------

@@ -456,8 +456,11 @@ class ProbeSummary {
         resolvedTitle: title,
       );
 
-  /// Pure parser: [status] and [headers] from a HEAD request.
-  /// Throws FormatException on non-2xx so the caller can show an honest error.
+  /// Pure parser: [status] and [headers] from a HEAD request — or from a
+  /// 1-byte range GET (v1.14.1), where `content-range: bytes 0-0/<total>`
+  /// carries the authoritative total size and status 206 proves range
+  /// support. Throws FormatException on non-2xx so the caller can show an
+  /// honest error.
   static ProbeSummary fromResponse({
     required int status,
     required Map<String, List<String>> headers,
@@ -469,7 +472,8 @@ class ProbeSummary {
     String? contentType;
     String? disposition;
     int size = -1;
-    var resumable = false;
+    int? rangeTotal;
+    var resumable = status == 206;
     headers.forEach((k, v) {
       final key = k.toLowerCase();
       final val = v.isEmpty ? '' : v.first;
@@ -481,9 +485,14 @@ class ProbeSummary {
         case 'content-length':
           size = int.tryParse(val.trim()) ?? -1;
         case 'accept-ranges':
-          resumable = val.toLowerCase().contains('bytes');
+          resumable = resumable || val.toLowerCase().contains('bytes');
+        case 'content-range':
+          // "bytes 0-0/464203" → total 464203 (range-GET probes).
+          final m = RegExp(r'bytes\s+\d+-\d+/(\d+)').firstMatch(val);
+          if (m != null) rangeTotal = int.tryParse(m.group(1)!) ?? rangeTotal;
       }
     });
+    if (rangeTotal != null && rangeTotal! > 1) size = rangeTotal!;
     final name = FileNameSuggester.suggest(
       url: url,
       contentType: contentType,
