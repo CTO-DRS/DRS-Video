@@ -2483,4 +2483,221 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get smartDataSaverSub => 'Cap streaming quality to save mobile data';
+
+  @override
+  String get actionInfo => 'Info';
+
+  @override
+  String get dlAddStorage => 'Not enough storage space';
+
+  @override
+  String get dlAddTitle => 'Add download';
+
+  @override
+  String get dlAddUrlLabel => 'File URL';
+
+  @override
+  String get dlAddPaste => 'Paste';
+
+  @override
+  String get dlAddClipboardFound => 'A link is in your clipboard';
+
+  @override
+  String get dlAddProbe => 'Inspect link';
+
+  @override
+  String get dlAddProbing => 'Inspecting…';
+
+  @override
+  String get dlAddPreviewTitle => 'File details';
+
+  @override
+  String get dlAddName => 'File name';
+
+  @override
+  String get dlAddKind => 'Type';
+
+  @override
+  String get dlAddSize => 'Size';
+
+  @override
+  String get dlAddResumableQ => 'Resume';
+
+  @override
+  String get dlAddResumableYes => 'Supported';
+
+  @override
+  String get dlAddResumableNo => 'Not supported';
+
+  @override
+  String get dlAddOptions => 'Download options';
+
+  @override
+  String get dlAddStart => 'Start download';
+
+  @override
+  String get dlAddStarted => 'Download started';
+
+  @override
+  String get dlAddInvalidUrl =>
+      'Enter a valid link starting with http or https';
+
+  @override
+  String get dlAddProbeFailed =>
+      'Could not inspect the link — retry or start the download anyway';
+
+  @override
+  String get dlAddNotFound => 'Link not found (404)';
+
+  @override
+  String get dlAddForbidden => 'The server blocks access to this link';
+
+  @override
+  String get dlAddUnknownSize => 'Unknown';
+
+  @override
+  String get kindVideo => 'Video';
+
+  @override
+  String get kindAudio => 'Audio';
+
+  @override
+  String get kindImage => 'Image';
+
+  @override
+  String get kindArchive => 'Archive';
+
+  @override
+  String get kindDocument => 'Document';
+
+  @override
+  String get kindApp => 'App';
+
+  @override
+  String get kindOther => 'Other file';
+
+  @override
+  String get studioTitle => 'Studios';
+
+  @override
+  String get studioOpenAll => 'View all';
+
+  @override
+  String get studioVideo => 'Video studio';
+
+  @override
+  String studioVideoSub(int count) {
+    return '$count video files';
+  }
+
+  @override
+  String get studioAudio => 'Audio studio';
+
+  @override
+  String studioAudioSub(int count) {
+    return '$count audio files';
+  }
+
+  @override
+  String get studioImages => 'Images studio';
+
+  @override
+  String studioImagesSub(int count) {
+    return '$count images';
+  }
+
+  @override
+  String get studioEdit => 'Edit studio';
+
+  @override
+  String get studioEditSub => 'Rotate, filters, brightness and contrast';
+
+  @override
+  String get studioEmptyVideo => 'No videos';
+
+  @override
+  String get studioEmptyVideoBody =>
+      'Download a video from a link or copy files into the downloads folder';
+
+  @override
+  String get studioEmptyAudio => 'No audio files';
+
+  @override
+  String get studioEmptyAudioBody =>
+      'Audio files (mp3, m4a and more) from accessible device folders appear here';
+
+  @override
+  String get studioEmptyImages => 'No images';
+
+  @override
+  String get studioEmptyImagesBody =>
+      'Images (jpg, png and more) from accessible device folders appear here';
+
+  @override
+  String get studioRename => 'Rename';
+
+  @override
+  String get studioRenameFailed => 'Rename failed (name taken?)';
+
+  @override
+  String studioDeleteConfirm(String name) {
+    return 'Permanently delete \"$name\"?';
+  }
+
+  @override
+  String get studioInfoSize => 'Size';
+
+  @override
+  String get studioInfoDate => 'Last modified';
+
+  @override
+  String get studioInfoPath => 'Path';
+
+  @override
+  String get editPickHint =>
+      'Pick an image to edit (rotate, flip, grayscale, brightness, contrast), or an audio/video file to manage it';
+
+  @override
+  String get editPickButton => 'Choose file';
+
+  @override
+  String get editPickAnother => 'Choose another file';
+
+  @override
+  String get editRotate => 'Rotate';
+
+  @override
+  String get editFlipH => 'Flip horizontal';
+
+  @override
+  String get editFlipV => 'Flip vertical';
+
+  @override
+  String get editGrayscale => 'Grayscale';
+
+  @override
+  String get editInvert => 'Invert colors';
+
+  @override
+  String get editBrightness => 'Brightness';
+
+  @override
+  String get editContrast => 'Contrast';
+
+  @override
+  String get editGamma => 'Gamma';
+
+  @override
+  String get editReset => 'Reset';
+
+  @override
+  String get editSave => 'Save copy';
+
+  @override
+  String get editSavedCopy =>
+      'Edited copy saved as a new file — the original is untouched';
+
+  @override
+  String get editNotImage =>
+      'Visual editing is available for images today. For this file, rename and share are available; visual trimming is in development.';
 }

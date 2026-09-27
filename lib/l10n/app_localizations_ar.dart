@@ -2473,4 +2473,219 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get smartDataSaverSub => 'تحديد جودة البث لتوفير بيانات الإنترنت';
+
+  @override
+  String get actionInfo => 'معلومات';
+
+  @override
+  String get dlAddStorage => 'لا توجد مساحة تخزين كافية';
+
+  @override
+  String get dlAddTitle => 'إضافة تنزيل';
+
+  @override
+  String get dlAddUrlLabel => 'رابط الملف';
+
+  @override
+  String get dlAddPaste => 'لصق';
+
+  @override
+  String get dlAddClipboardFound => 'يوجد رابط في الحافظة';
+
+  @override
+  String get dlAddProbe => 'فحص الرابط';
+
+  @override
+  String get dlAddProbing => 'جارٍ الفحص…';
+
+  @override
+  String get dlAddPreviewTitle => 'تفاصيل الملف';
+
+  @override
+  String get dlAddName => 'اسم الملف';
+
+  @override
+  String get dlAddKind => 'النوع';
+
+  @override
+  String get dlAddSize => 'الحجم';
+
+  @override
+  String get dlAddResumableQ => 'الاستئناف';
+
+  @override
+  String get dlAddResumableYes => 'مدعوم';
+
+  @override
+  String get dlAddResumableNo => 'غير مدعوم';
+
+  @override
+  String get dlAddOptions => 'خيارات التحميل';
+
+  @override
+  String get dlAddStart => 'ابدأ التحميل';
+
+  @override
+  String get dlAddStarted => 'بدأ التحميل';
+
+  @override
+  String get dlAddInvalidUrl => 'أدخل رابطًا صحيحًا يبدأ بـ http أو https';
+
+  @override
+  String get dlAddProbeFailed =>
+      'تعذر فحص الرابط، يمكنك المحاولة مرة أخرى أو بدء التحميل مباشرة';
+
+  @override
+  String get dlAddNotFound => 'الرابط غير موجود (404)';
+
+  @override
+  String get dlAddForbidden => 'الخادم يمنع الوصول لهذا الرابط';
+
+  @override
+  String get dlAddUnknownSize => 'غير معروف';
+
+  @override
+  String get kindVideo => 'فيديو';
+
+  @override
+  String get kindAudio => 'صوت';
+
+  @override
+  String get kindImage => 'صورة';
+
+  @override
+  String get kindArchive => 'أرشيف مضغوط';
+
+  @override
+  String get kindDocument => 'مستند';
+
+  @override
+  String get kindApp => 'تطبيق';
+
+  @override
+  String get kindOther => 'ملف آخر';
+
+  @override
+  String get studioTitle => 'الاستوديوهات';
+
+  @override
+  String get studioOpenAll => 'عرض الكل';
+
+  @override
+  String get studioVideo => 'استوديو الفيديو';
+
+  @override
+  String studioVideoSub(int count) {
+    return '$count ملف فيديو';
+  }
+
+  @override
+  String get studioAudio => 'استوديو الصوتيات';
+
+  @override
+  String studioAudioSub(int count) {
+    return '$count ملف صوتي';
+  }
+
+  @override
+  String get studioImages => 'استوديو الصور';
+
+  @override
+  String studioImagesSub(int count) {
+    return '$count صورة';
+  }
+
+  @override
+  String get studioEdit => 'استوديو التعديل';
+
+  @override
+  String get studioEditSub => 'تدوير، فلاتر، سطوع وتباين';
+
+  @override
+  String get studioEmptyVideo => 'لا توجد فيديوهات';
+
+  @override
+  String get studioEmptyVideoBody =>
+      'حمّل فيديو من رابط أو انسخ ملفاتك إلى مجلد التنزيلات';
+
+  @override
+  String get studioEmptyAudio => 'لا توجد ملفات صوتية';
+
+  @override
+  String get studioEmptyAudioBody =>
+      'ستظهر هنا الملفات الصوتية (mp3 وm4a وغيرها) من مجلدات الجهاز المتاحة';
+
+  @override
+  String get studioEmptyImages => 'لا توجد صور';
+
+  @override
+  String get studioEmptyImagesBody =>
+      'ستظهر هنا الصور (jpg وpng وغيرها) من مجلدات الجهاز المتاحة';
+
+  @override
+  String get studioRename => 'إعادة تسمية';
+
+  @override
+  String get studioRenameFailed => 'تعذرت إعادة التسمية (الاسم مستخدم؟)';
+
+  @override
+  String studioDeleteConfirm(String name) {
+    return 'حذف \"$name\" نهائيًا؟';
+  }
+
+  @override
+  String get studioInfoSize => 'الحجم';
+
+  @override
+  String get studioInfoDate => 'آخر تعديل';
+
+  @override
+  String get studioInfoPath => 'المسار';
+
+  @override
+  String get editPickHint =>
+      'اختر صورة لتحريرها (تدوير، قلب، أبيض وأسود، سطوع، تباين)، أو ملفًا صوتيًا/فيديو لإدارة خياراته';
+
+  @override
+  String get editPickButton => 'اختيار ملف';
+
+  @override
+  String get editPickAnother => 'اختيار ملف آخر';
+
+  @override
+  String get editRotate => 'تدوير';
+
+  @override
+  String get editFlipH => 'قلب أفقي';
+
+  @override
+  String get editFlipV => 'قلب رأسي';
+
+  @override
+  String get editGrayscale => 'أبيض وأسود';
+
+  @override
+  String get editInvert => 'عكس الألوان';
+
+  @override
+  String get editBrightness => 'السطوع';
+
+  @override
+  String get editContrast => 'التباين';
+
+  @override
+  String get editGamma => 'الجاما';
+
+  @override
+  String get editReset => 'استعادة الأصل';
+
+  @override
+  String get editSave => 'حفظ نسخة';
+
+  @override
+  String get editSavedCopy => 'حُفظت النسخة المعدّلة كملف جديد — الأصل لم يُمس';
+
+  @override
+  String get editNotImage =>
+      'التحرير المرئي متاح للصور حاليًا. لهذا الملف متاحة إعادة التسمية والمشاركة، والقص المرئي قيد التطوير.';
 }

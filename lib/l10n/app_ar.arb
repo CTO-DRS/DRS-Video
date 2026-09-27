@@ -1123,5 +1123,103 @@
   "smartBatterySaverTitle": "موفر البطارية",
   "smartBatterySaverSub": "التحويل إلى الصوت فقط عند انخفاض البطارية عن 20% بدون شاحن",
   "smartDataSaverTitle": "موفر البيانات",
-  "smartDataSaverSub": "تحديد جودة البث لتوفير بيانات الإنترنت"
+  "smartDataSaverSub": "تحديد جودة البث لتوفير بيانات الإنترنت",
+
+"actionInfo": "معلومات",
+  "dlAddStorage": "لا توجد مساحة تخزين كافية",
+  "dlAddTitle": "إضافة تنزيل",
+  "dlAddUrlLabel": "رابط الملف",
+  "dlAddPaste": "لصق",
+  "dlAddClipboardFound": "يوجد رابط في الحافظة",
+  "dlAddProbe": "فحص الرابط",
+  "dlAddProbing": "جارٍ الفحص…",
+  "dlAddPreviewTitle": "تفاصيل الملف",
+  "dlAddName": "اسم الملف",
+  "dlAddKind": "النوع",
+  "dlAddSize": "الحجم",
+  "dlAddResumableQ": "الاستئناف",
+  "dlAddResumableYes": "مدعوم",
+  "dlAddResumableNo": "غير مدعوم",
+  "dlAddOptions": "خيارات التحميل",
+  "dlAddStart": "ابدأ التحميل",
+  "dlAddStarted": "بدأ التحميل",
+  "dlAddInvalidUrl": "أدخل رابطًا صحيحًا يبدأ بـ http أو https",
+  "dlAddProbeFailed": "تعذر فحص الرابط، يمكنك المحاولة مرة أخرى أو بدء التحميل مباشرة",
+  "dlAddNotFound": "الرابط غير موجود (404)",
+  "dlAddForbidden": "الخادم يمنع الوصول لهذا الرابط",
+  "dlAddUnknownSize": "غير معروف",
+  "kindVideo": "فيديو",
+  "kindAudio": "صوت",
+  "kindImage": "صورة",
+  "kindArchive": "أرشيف مضغوط",
+  "kindDocument": "مستند",
+  "kindApp": "تطبيق",
+  "kindOther": "ملف آخر",
+
+  "studioTitle": "الاستوديوهات",
+  "studioOpenAll": "عرض الكل",
+  "studioVideo": "استوديو الفيديو",
+  "studioVideoSub": "{count} ملف فيديو",
+  "@studioVideoSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioAudio": "استوديو الصوتيات",
+  "studioAudioSub": "{count} ملف صوتي",
+  "@studioAudioSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioImages": "استوديو الصور",
+  "studioImagesSub": "{count} صورة",
+  "@studioImagesSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioEdit": "استوديو التعديل",
+  "studioEditSub": "تدوير، فلاتر، سطوع وتباين",
+  "studioEmptyVideo": "لا توجد فيديوهات",
+  "studioEmptyVideoBody": "حمّل فيديو من رابط أو انسخ ملفاتك إلى مجلد التنزيلات",
+  "studioEmptyAudio": "لا توجد ملفات صوتية",
+  "studioEmptyAudioBody": "ستظهر هنا الملفات الصوتية (mp3 وm4a وغيرها) من مجلدات الجهاز المتاحة",
+  "studioEmptyImages": "لا توجد صور",
+  "studioEmptyImagesBody": "ستظهر هنا الصور (jpg وpng وغيرها) من مجلدات الجهاز المتاحة",
+  "studioRename": "إعادة تسمية",
+  "studioRenameFailed": "تعذرت إعادة التسمية (الاسم مستخدم؟)",
+  "studioDeleteConfirm": "حذف \"{name}\" نهائيًا؟",
+  "@studioDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studioInfoSize": "الحجم",
+  "studioInfoDate": "آخر تعديل",
+  "studioInfoPath": "المسار",
+
+  "editPickHint": "اختر صورة لتحريرها (تدوير، قلب، أبيض وأسود، سطوع، تباين)، أو ملفًا صوتيًا/فيديو لإدارة خياراته",
+  "editPickButton": "اختيار ملف",
+  "editPickAnother": "اختيار ملف آخر",
+  "editRotate": "تدوير",
+  "editFlipH": "قلب أفقي",
+  "editFlipV": "قلب رأسي",
+  "editGrayscale": "أبيض وأسود",
+  "editInvert": "عكس الألوان",
+  "editBrightness": "السطوع",
+  "editContrast": "التباين",
+  "editGamma": "الجاما",
+  "editReset": "استعادة الأصل",
+  "editSave": "حفظ نسخة",
+  "editSavedCopy": "حُفظت النسخة المعدّلة كملف جديد — الأصل لم يُمس",
+  "editNotImage": "التحرير المرئي متاح للصور حاليًا. لهذا الملف متاحة إعادة التسمية والمشاركة، والقص المرئي قيد التطوير."
 }

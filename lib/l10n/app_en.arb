@@ -1071,5 +1071,103 @@
   "smartBatterySaverTitle": "Battery saver",
   "smartBatterySaverSub": "Switch to audio-only below 20% battery while unplugged",
   "smartDataSaverTitle": "Data saver",
-  "smartDataSaverSub": "Cap streaming quality to save mobile data"
+  "smartDataSaverSub": "Cap streaming quality to save mobile data",
+
+"actionInfo": "Info",
+  "dlAddStorage": "Not enough storage space",
+  "dlAddTitle": "Add download",
+  "dlAddUrlLabel": "File URL",
+  "dlAddPaste": "Paste",
+  "dlAddClipboardFound": "A link is in your clipboard",
+  "dlAddProbe": "Inspect link",
+  "dlAddProbing": "Inspecting…",
+  "dlAddPreviewTitle": "File details",
+  "dlAddName": "File name",
+  "dlAddKind": "Type",
+  "dlAddSize": "Size",
+  "dlAddResumableQ": "Resume",
+  "dlAddResumableYes": "Supported",
+  "dlAddResumableNo": "Not supported",
+  "dlAddOptions": "Download options",
+  "dlAddStart": "Start download",
+  "dlAddStarted": "Download started",
+  "dlAddInvalidUrl": "Enter a valid link starting with http or https",
+  "dlAddProbeFailed": "Could not inspect the link — retry or start the download anyway",
+  "dlAddNotFound": "Link not found (404)",
+  "dlAddForbidden": "The server blocks access to this link",
+  "dlAddUnknownSize": "Unknown",
+  "kindVideo": "Video",
+  "kindAudio": "Audio",
+  "kindImage": "Image",
+  "kindArchive": "Archive",
+  "kindDocument": "Document",
+  "kindApp": "App",
+  "kindOther": "Other file",
+
+  "studioTitle": "Studios",
+  "studioOpenAll": "View all",
+  "studioVideo": "Video studio",
+  "studioVideoSub": "{count} video files",
+  "@studioVideoSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioAudio": "Audio studio",
+  "studioAudioSub": "{count} audio files",
+  "@studioAudioSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioImages": "Images studio",
+  "studioImagesSub": "{count} images",
+  "@studioImagesSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studioEdit": "Edit studio",
+  "studioEditSub": "Rotate, filters, brightness and contrast",
+  "studioEmptyVideo": "No videos",
+  "studioEmptyVideoBody": "Download a video from a link or copy files into the downloads folder",
+  "studioEmptyAudio": "No audio files",
+  "studioEmptyAudioBody": "Audio files (mp3, m4a and more) from accessible device folders appear here",
+  "studioEmptyImages": "No images",
+  "studioEmptyImagesBody": "Images (jpg, png and more) from accessible device folders appear here",
+  "studioRename": "Rename",
+  "studioRenameFailed": "Rename failed (name taken?)",
+  "studioDeleteConfirm": "Permanently delete \"{name}\"?",
+  "@studioDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studioInfoSize": "Size",
+  "studioInfoDate": "Last modified",
+  "studioInfoPath": "Path",
+
+  "editPickHint": "Pick an image to edit (rotate, flip, grayscale, brightness, contrast), or an audio/video file to manage it",
+  "editPickButton": "Choose file",
+  "editPickAnother": "Choose another file",
+  "editRotate": "Rotate",
+  "editFlipH": "Flip horizontal",
+  "editFlipV": "Flip vertical",
+  "editGrayscale": "Grayscale",
+  "editInvert": "Invert colors",
+  "editBrightness": "Brightness",
+  "editContrast": "Contrast",
+  "editGamma": "Gamma",
+  "editReset": "Reset",
+  "editSave": "Save copy",
+  "editSavedCopy": "Edited copy saved as a new file — the original is untouched",
+  "editNotImage": "Visual editing is available for images today. For this file, rename and share are available; visual trimming is in development."
 }

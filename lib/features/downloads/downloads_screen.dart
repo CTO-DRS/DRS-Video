@@ -8,9 +8,13 @@ import '../../data/repositories/library_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/downloader/download_service.dart';
 import '../../services/sharing/share_service.dart';
+import '../../services/smart/intel_v4.dart';
 import '../../state/downloads_controller.dart';
+import '../../state/media_studio_controller.dart';
 import '../../widgets/common/empty_state.dart';
 import '../player/play_helpers.dart';
+import 'add_download_sheet.dart';
+import 'studios/studios_hub_screen.dart';
 
 /// Download manager UI: active, queued, completed, failed with full controls.
 class DownloadsScreen extends StatefulWidget {
@@ -25,9 +29,16 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<DownloadsController>().refresh();
+      if (!mounted) return;
+      context.read<DownloadsController>().refresh();
+      // v1.14.0: refresh studio bucket counts when the tab opens.
+      context.read<MediaStudioController>().load();
     });
   }
+
+  /// Live per-bucket file lists for the studios strip.
+  Map<MediaBucket, List<StudioFile>> _bucketCounts(BuildContext context) =>
+      context.watch<MediaStudioController>().bucketsSnapshot;
 
   @override
   Widget build(BuildContext context) {
@@ -80,10 +91,21 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     if (controller.tasks.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text(l.navDownloads)),
-        body: EmptyState(
-          icon: Icons.download_outlined,
-          title: l.emptyDownloadsTitle,
-          body: l.emptyDownloadsBody,
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => AddDownloadSheet.show(context),
+          icon: const Icon(Icons.add_link),
+          label: Text(l.dlAddTitle),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.only(bottom: 88),
+          children: [
+            _StudiosStrip(counts: _bucketCounts(context)),
+            EmptyState(
+              icon: Icons.download_outlined,
+              title: l.emptyDownloadsTitle,
+              body: l.emptyDownloadsBody,
+            ),
+          ],
         ),
       );
     }
@@ -117,9 +139,15 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => AddDownloadSheet.show(context),
+        icon: const Icon(Icons.add_link),
+        label: Text(l.dlAddTitle),
+      ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: 88),
         children: [
+          _StudiosStrip(counts: _bucketCounts(context)),
           FutureBuilder<int>(
             future: controller.freeSpace(),
             builder: (context, snap) {
@@ -167,6 +195,78 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
           style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
               color: theme.colorScheme.primary)),
+    );
+  }
+}
+
+/// v1.14.0: quick entry strip to the four media studios (video / audio /
+/// images / edit) with live bucket counts from the shared scanner.
+class _StudiosStrip extends StatelessWidget {
+  const _StudiosStrip({required this.counts});
+
+  final Map<MediaBucket, List<StudioFile>> counts;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+          child: Column(children: [
+            Row(children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text(l.studioTitle,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700)),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => StudiosHubScreen(counts: counts))),
+                child: Text(l.studioOpenAll),
+              ),
+            ]),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+              _studioButton(context, Icons.movie_creation_outlined,
+                  l.studioVideo, MediaBucket.video),
+              _studioButton(context, Icons.audiotrack,
+                  l.studioAudio, MediaBucket.audio),
+              _studioButton(context, Icons.photo_library_outlined,
+                  l.studioImages, MediaBucket.image),
+              _studioButton(context, Icons.tune,
+                  l.studioEdit, MediaBucket.other, countHidden: true),
+            ]),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget _studioButton(BuildContext context, IconData icon, String label,
+      MediaBucket bucket,
+      {bool countHidden = false}) {
+    final theme = Theme.of(context);
+    final count = countHidden ? null : counts[bucket]?.length ?? 0;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => StudiosHubScreen(counts: counts))),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, color: theme.colorScheme.primary),
+          const SizedBox(height: 4),
+          Text(label, style: theme.textTheme.bodySmall),
+          if (count != null)
+            Text('$count',
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant)),
+        ]),
+      ),
     );
   }
 }

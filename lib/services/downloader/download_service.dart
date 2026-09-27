@@ -12,6 +12,7 @@ import '../../core/utils/logger.dart';
 import '../../data/models/download_task.dart';
 import '../../data/models/media_item.dart';
 import '../../data/repositories/download_repository.dart';
+import '../smart/intel_v4.dart';
 import '../../data/repositories/library_repository.dart';
 import '../notifications/notification_service.dart';
 import '../platform/native_channel.dart';
@@ -172,12 +173,16 @@ class DownloadService extends ChangeNotifier {
     // Pre-flight: probe size/resume support (real HEAD request).
     int? expectedSize;
     var resumable = false;
+    String? probedMime;
+    String? disposition;
     try {
       final res = await DioClient.instance.head(url, headers: headers);
       final len = res.headers.value(HttpHeaders.contentLengthHeader);
       expectedSize = len == null ? null : int.tryParse(len.trim());
       final range = res.headers.value(HttpHeaders.acceptRangesHeader) ?? '';
       resumable = range.toLowerCase() == 'bytes';
+      probedMime = res.headers.value(HttpHeaders.contentTypeHeader);
+      disposition = res.headers.value('content-disposition');
       AppLogger.instance.info('dl', 'probe ok: size=$expectedSize resumable=$resumable');
     } on AppException catch (e) {
       if (e.type == AppErrorType.notFound || e.type == AppErrorType.forbidden) rethrow;
@@ -192,9 +197,20 @@ class DownloadService extends ChangeNotifier {
       }
     }
 
-    // Unique, sanitized file name (path traversal safe).
-    final ext = _extOf(url, 'mp4');
-    var name = desiredFileName ?? title;
+    // Unique, sanitized file name (path traversal safe). v1.14.0: the
+    // fallback extension now follows the probed content-type so ANY kind of
+    // file downloads with the right extension (video/audio/image/archive…).
+    final urlExt = _extOf(url, '');
+    final fallbackExt = DownloadClassifier.extensionFor(
+        url: url, contentType: probedMime);
+    final ext = urlExt.isNotEmpty ? urlExt : fallbackExt;
+    var name = desiredFileName ??
+        FileNameSuggester.suggest(
+          url: url,
+          contentType: probedMime,
+          disposition: disposition,
+          fallback: title,
+        );
     if (!name.toLowerCase().endsWith('.$ext')) name = '$name.$ext';
     name = _uniqueName(dir, name);
 

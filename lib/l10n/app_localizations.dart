@@ -4676,6 +4676,408 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تحديد جودة البث لتوفير بيانات الإنترنت'**
   String get smartDataSaverSub;
+
+  /// No description provided for @actionInfo.
+  ///
+  /// In ar, this message translates to:
+  /// **'معلومات'**
+  String get actionInfo;
+
+  /// No description provided for @dlAddStorage.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مساحة تخزين كافية'**
+  String get dlAddStorage;
+
+  /// No description provided for @dlAddTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة تنزيل'**
+  String get dlAddTitle;
+
+  /// No description provided for @dlAddUrlLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'رابط الملف'**
+  String get dlAddUrlLabel;
+
+  /// No description provided for @dlAddPaste.
+  ///
+  /// In ar, this message translates to:
+  /// **'لصق'**
+  String get dlAddPaste;
+
+  /// No description provided for @dlAddClipboardFound.
+  ///
+  /// In ar, this message translates to:
+  /// **'يوجد رابط في الحافظة'**
+  String get dlAddClipboardFound;
+
+  /// No description provided for @dlAddProbe.
+  ///
+  /// In ar, this message translates to:
+  /// **'فحص الرابط'**
+  String get dlAddProbe;
+
+  /// No description provided for @dlAddProbing.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ الفحص…'**
+  String get dlAddProbing;
+
+  /// No description provided for @dlAddPreviewTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفاصيل الملف'**
+  String get dlAddPreviewTitle;
+
+  /// No description provided for @dlAddName.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم الملف'**
+  String get dlAddName;
+
+  /// No description provided for @dlAddKind.
+  ///
+  /// In ar, this message translates to:
+  /// **'النوع'**
+  String get dlAddKind;
+
+  /// No description provided for @dlAddSize.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحجم'**
+  String get dlAddSize;
+
+  /// No description provided for @dlAddResumableQ.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاستئناف'**
+  String get dlAddResumableQ;
+
+  /// No description provided for @dlAddResumableYes.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدعوم'**
+  String get dlAddResumableYes;
+
+  /// No description provided for @dlAddResumableNo.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير مدعوم'**
+  String get dlAddResumableNo;
+
+  /// No description provided for @dlAddOptions.
+  ///
+  /// In ar, this message translates to:
+  /// **'خيارات التحميل'**
+  String get dlAddOptions;
+
+  /// No description provided for @dlAddStart.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ التحميل'**
+  String get dlAddStart;
+
+  /// No description provided for @dlAddStarted.
+  ///
+  /// In ar, this message translates to:
+  /// **'بدأ التحميل'**
+  String get dlAddStarted;
+
+  /// No description provided for @dlAddInvalidUrl.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رابطًا صحيحًا يبدأ بـ http أو https'**
+  String get dlAddInvalidUrl;
+
+  /// No description provided for @dlAddProbeFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر فحص الرابط، يمكنك المحاولة مرة أخرى أو بدء التحميل مباشرة'**
+  String get dlAddProbeFailed;
+
+  /// No description provided for @dlAddNotFound.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرابط غير موجود (404)'**
+  String get dlAddNotFound;
+
+  /// No description provided for @dlAddForbidden.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخادم يمنع الوصول لهذا الرابط'**
+  String get dlAddForbidden;
+
+  /// No description provided for @dlAddUnknownSize.
+  ///
+  /// In ar, this message translates to:
+  /// **'غير معروف'**
+  String get dlAddUnknownSize;
+
+  /// No description provided for @kindVideo.
+  ///
+  /// In ar, this message translates to:
+  /// **'فيديو'**
+  String get kindVideo;
+
+  /// No description provided for @kindAudio.
+  ///
+  /// In ar, this message translates to:
+  /// **'صوت'**
+  String get kindAudio;
+
+  /// No description provided for @kindImage.
+  ///
+  /// In ar, this message translates to:
+  /// **'صورة'**
+  String get kindImage;
+
+  /// No description provided for @kindArchive.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرشيف مضغوط'**
+  String get kindArchive;
+
+  /// No description provided for @kindDocument.
+  ///
+  /// In ar, this message translates to:
+  /// **'مستند'**
+  String get kindDocument;
+
+  /// No description provided for @kindApp.
+  ///
+  /// In ar, this message translates to:
+  /// **'تطبيق'**
+  String get kindApp;
+
+  /// No description provided for @kindOther.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملف آخر'**
+  String get kindOther;
+
+  /// No description provided for @studioTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاستوديوهات'**
+  String get studioTitle;
+
+  /// No description provided for @studioOpenAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض الكل'**
+  String get studioOpenAll;
+
+  /// No description provided for @studioVideo.
+  ///
+  /// In ar, this message translates to:
+  /// **'استوديو الفيديو'**
+  String get studioVideo;
+
+  /// No description provided for @studioVideoSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} ملف فيديو'**
+  String studioVideoSub(int count);
+
+  /// No description provided for @studioAudio.
+  ///
+  /// In ar, this message translates to:
+  /// **'استوديو الصوتيات'**
+  String get studioAudio;
+
+  /// No description provided for @studioAudioSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} ملف صوتي'**
+  String studioAudioSub(int count);
+
+  /// No description provided for @studioImages.
+  ///
+  /// In ar, this message translates to:
+  /// **'استوديو الصور'**
+  String get studioImages;
+
+  /// No description provided for @studioImagesSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} صورة'**
+  String studioImagesSub(int count);
+
+  /// No description provided for @studioEdit.
+  ///
+  /// In ar, this message translates to:
+  /// **'استوديو التعديل'**
+  String get studioEdit;
+
+  /// No description provided for @studioEditSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'تدوير، فلاتر، سطوع وتباين'**
+  String get studioEditSub;
+
+  /// No description provided for @studioEmptyVideo.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد فيديوهات'**
+  String get studioEmptyVideo;
+
+  /// No description provided for @studioEmptyVideoBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'حمّل فيديو من رابط أو انسخ ملفاتك إلى مجلد التنزيلات'**
+  String get studioEmptyVideoBody;
+
+  /// No description provided for @studioEmptyAudio.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد ملفات صوتية'**
+  String get studioEmptyAudio;
+
+  /// No description provided for @studioEmptyAudioBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'ستظهر هنا الملفات الصوتية (mp3 وm4a وغيرها) من مجلدات الجهاز المتاحة'**
+  String get studioEmptyAudioBody;
+
+  /// No description provided for @studioEmptyImages.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد صور'**
+  String get studioEmptyImages;
+
+  /// No description provided for @studioEmptyImagesBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'ستظهر هنا الصور (jpg وpng وغيرها) من مجلدات الجهاز المتاحة'**
+  String get studioEmptyImagesBody;
+
+  /// No description provided for @studioRename.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة تسمية'**
+  String get studioRename;
+
+  /// No description provided for @studioRenameFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذرت إعادة التسمية (الاسم مستخدم؟)'**
+  String get studioRenameFailed;
+
+  /// No description provided for @studioDeleteConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف \"{name}\" نهائيًا؟'**
+  String studioDeleteConfirm(String name);
+
+  /// No description provided for @studioInfoSize.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحجم'**
+  String get studioInfoSize;
+
+  /// No description provided for @studioInfoDate.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر تعديل'**
+  String get studioInfoDate;
+
+  /// No description provided for @studioInfoPath.
+  ///
+  /// In ar, this message translates to:
+  /// **'المسار'**
+  String get studioInfoPath;
+
+  /// No description provided for @editPickHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر صورة لتحريرها (تدوير، قلب، أبيض وأسود، سطوع، تباين)، أو ملفًا صوتيًا/فيديو لإدارة خياراته'**
+  String get editPickHint;
+
+  /// No description provided for @editPickButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختيار ملف'**
+  String get editPickButton;
+
+  /// No description provided for @editPickAnother.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختيار ملف آخر'**
+  String get editPickAnother;
+
+  /// No description provided for @editRotate.
+  ///
+  /// In ar, this message translates to:
+  /// **'تدوير'**
+  String get editRotate;
+
+  /// No description provided for @editFlipH.
+  ///
+  /// In ar, this message translates to:
+  /// **'قلب أفقي'**
+  String get editFlipH;
+
+  /// No description provided for @editFlipV.
+  ///
+  /// In ar, this message translates to:
+  /// **'قلب رأسي'**
+  String get editFlipV;
+
+  /// No description provided for @editGrayscale.
+  ///
+  /// In ar, this message translates to:
+  /// **'أبيض وأسود'**
+  String get editGrayscale;
+
+  /// No description provided for @editInvert.
+  ///
+  /// In ar, this message translates to:
+  /// **'عكس الألوان'**
+  String get editInvert;
+
+  /// No description provided for @editBrightness.
+  ///
+  /// In ar, this message translates to:
+  /// **'السطوع'**
+  String get editBrightness;
+
+  /// No description provided for @editContrast.
+  ///
+  /// In ar, this message translates to:
+  /// **'التباين'**
+  String get editContrast;
+
+  /// No description provided for @editGamma.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجاما'**
+  String get editGamma;
+
+  /// No description provided for @editReset.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة الأصل'**
+  String get editReset;
+
+  /// No description provided for @editSave.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ نسخة'**
+  String get editSave;
+
+  /// No description provided for @editSavedCopy.
+  ///
+  /// In ar, this message translates to:
+  /// **'حُفظت النسخة المعدّلة كملف جديد — الأصل لم يُمس'**
+  String get editSavedCopy;
+
+  /// No description provided for @editNotImage.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحرير المرئي متاح للصور حاليًا. لهذا الملف متاحة إعادة التسمية والمشاركة، والقص المرئي قيد التطوير.'**
+  String get editNotImage;
 }
 
 class _AppLocalizationsDelegate

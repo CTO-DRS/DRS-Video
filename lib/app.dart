@@ -37,6 +37,7 @@ import 'services/sharing/share_service.dart';
 import 'services/storage/storage_analyzer.dart';
 import 'state/app_providers.dart';
 import 'state/downloads_controller.dart';
+import 'state/media_studio_controller.dart';
 import 'state/floating_player_controller.dart';
 import 'state/home_controller.dart';
 import 'state/incoming_share.dart';
@@ -255,6 +256,8 @@ class _DrsAppState extends State<DrsApp> {
           service: services.downloader,
           connectivity: services.connectivity,
         )),
+        // v1.14.0: media studios (video/audio/images/edit) shared scanner.
+        ChangeNotifierProvider(create: (_) => MediaStudioController()),
         ChangeNotifierProvider(create: (_) => search_ctrl.LibrarySearchController(
           library: services.library,
           history: services.history,

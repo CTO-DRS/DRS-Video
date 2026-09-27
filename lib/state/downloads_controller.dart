@@ -61,6 +61,23 @@ class DownloadsController extends ChangeNotifier {
     );
   }
 
+  /// v1.14.0: starts a raw-URL download from the add-download sheet
+  /// (paste-link flow). The service picks the extension/classification.
+  Future<DownloadTaskModel> startFromUrl({
+    required String url,
+    required String title,
+    DownloadPriority priority = DownloadPriority.normal,
+  }) async {
+    if (!isOnline) {
+      throw const AppException(AppErrorType.network);
+    }
+    return _service.start(
+      url: url,
+      title: title,
+      priority: priority,
+    );
+  }
+
   Future<void> pause(String id) => _guarded(() => _service.pause(id));
   Future<void> resume(String id) => _guarded(() => _service.resume(id));
   Future<void> cancel(String id) => _guarded(() => _service.cancel(id));

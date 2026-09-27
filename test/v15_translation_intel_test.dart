@@ -12,7 +12,7 @@ void main() {
   // ------------------------------------------------------------------
   // TranslationBatcher
   // ------------------------------------------------------------------
-  group('v1.13.0 TranslationBatcher', () {
+  group('v1.14.0 TranslationBatcher', () {
     test('splits by char budget and preserves cue order', () {
       final texts = List.generate(40, (i) => 'cue number ${i * 17}');
       final batches = TranslationBatcher.batch(texts, charBudget: 200);
@@ -46,7 +46,7 @@ void main() {
   // ------------------------------------------------------------------
   // GtxResponse parsing
   // ------------------------------------------------------------------
-  group('v1.13.0 GtxResponse', () {
+  group('v1.14.0 GtxResponse', () {
     test('parses the real gtx shape and joins chunks', () {
       const body =
           '[[["مرحبا","hello",null,null,10],["بالعالم","world",null,null,1]],null,"en",'
@@ -74,7 +74,7 @@ void main() {
   // ------------------------------------------------------------------
   // SrtTextOps + cache keys
   // ------------------------------------------------------------------
-  group('v1.13.0 SrtTextOps', () {
+  group('v1.14.0 SrtTextOps', () {
     const srt = '1\n00:00:01,000 --> 00:00:02,000\nhello world\n\n'
         '2\n00:00:03,000 --> 00:00:04,500\nsecond line one\nsecond line two\n\n'
         '3\n00:00:05,000 --> 00:00:06,000\nbye\n';
@@ -114,7 +114,7 @@ void main() {
   // ------------------------------------------------------------------
   // Zoom / rotation / boost / bookmark nav / video eq
   // ------------------------------------------------------------------
-  group('v1.13.0 gesture + picture algorithms', () {
+  group('v1.14.0 gesture + picture algorithms', () {
     test('ZoomPanMath clamps zoom and pan to the zoom surplus', () {
       final fit = ZoomPanMath.clampAll(zoom: 0, panX: 0.5, panY: -0.5);
       expect(fit.zoom, 0);
@@ -194,7 +194,7 @@ void main() {
   // ------------------------------------------------------------------
   // SubtitleTranslator (mock fetcher — no network)
   // ------------------------------------------------------------------
-  group('v1.13.0 SubtitleTranslator', () {
+  group('v1.14.0 SubtitleTranslator', () {
     const inputSrt = '1\n00:00:01,000 --> 00:00:02,000\nhello world\n\n'
         '2\n00:00:03,000 --> 00:00:04,000\nsecond cue\n';
 
@@ -310,8 +310,8 @@ void main() {
   // ------------------------------------------------------------------
   // Version
   // ------------------------------------------------------------------
-  test('v1.13.0 version + self-update constants intact', () {
-    expect(AppConstants.appVersion, '1.13.0');
+  test('v1.14.0 version + self-update constants intact', () {
+    expect(AppConstants.appVersion, '1.14.0');
     expect(AppConstants.githubRepo, contains('/'));
   });
 }

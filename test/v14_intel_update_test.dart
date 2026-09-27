@@ -13,14 +13,14 @@ import 'package:drs_video/services/update/update_service.dart';
 void main() {
   group('v1.12.0 VersionCompare (self-update)', () {
     test('strictly-newer semantics', () {
-      expect(VersionCompare.isNewer('1.13.0', '1.12.0'), isTrue);
+      expect(VersionCompare.isNewer('1.14.0', '1.12.0'), isTrue);
       expect(VersionCompare.isNewer('1.12.1', '1.12.0'), isTrue);
       expect(VersionCompare.isNewer('2.0.0', '1.99.99'), isTrue);
       expect(VersionCompare.isNewer('1.12.0', '1.12.0'), isFalse);
       expect(VersionCompare.isNewer('1.11.9', '1.12.0'), isFalse);
       // Tags / build suffixes tolerated.
-      expect(VersionCompare.isNewer('v1.13.0', '1.12.0'), isTrue);
-      expect(VersionCompare.isNewer('1.13.0+21', '1.12.0+20'), isTrue);
+      expect(VersionCompare.isNewer('v1.14.0', '1.12.0'), isTrue);
+      expect(VersionCompare.isNewer('1.14.0+21', '1.12.0+20'), isTrue);
       expect(VersionCompare.isNewer('1.12.0-beta', '1.12.0'), isFalse);
       // Two-part versions normalize.
       expect(VersionCompare.isNewer('1.13', '1.12.0'), isTrue);
@@ -288,7 +288,7 @@ void main() {
 
   group('v1.12.0 version bump', () {
     test('app version is 1.12.0', () {
-      expect(AppConstants.appVersion, '1.13.0');
+      expect(AppConstants.appVersion, '1.14.0');
       expect(AppConstants.githubRepo, 'CTO-DRS/DRS-Video');
     });
   });
