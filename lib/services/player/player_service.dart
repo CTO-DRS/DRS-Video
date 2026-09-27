@@ -16,6 +16,8 @@ import '../../data/repositories/history_repository.dart';
 import '../../data/repositories/library_repository.dart';
 import '../recommendations/playback_optimizer.dart';
 import '../smart/intel_v2.dart';
+import '../smart/intel_v3.dart';
+import '../subtitles/subtitle_translator.dart';
 import 'ab_repeat.dart';
 import 'audio_enhancer.dart';
 import 'audio_handler.dart';
@@ -285,6 +287,7 @@ class PlayerService extends ChangeNotifier {
   }) async {
     _lastError = null;
     _current = item;
+    _currentSubtitlePath = null; // fresh media → fresh subtitle state
     if (queue != null && queue.isNotEmpty) {
       _queue = List.of(queue);
       _queueIndex = startIndex.clamp(0, queue.length - 1);
@@ -336,6 +339,10 @@ class PlayerService extends ChangeNotifier {
       await _applyAudioEnhance();
       // Subtitle delay (v1.10.0): mpv resets sub-delay per file too.
       await _applySubtitleDelay();
+      // v1.13.0: picture calibration + rotation defaults — re-applied per
+      // media load (mpv resets eq/rotate per file, same as af/sub-delay).
+      await _applyVideoEq();
+      await _applyVideoRotate();
       // Audio-only default (v1.10.0): re-applied per media for the same
       // reason — vid resets to auto on every new load.
       await _applyAudioOnly();
@@ -345,6 +352,11 @@ class PlayerService extends ChangeNotifier {
       // — loaded through the same normalization pipeline as manual loads.
       if (autoSubtitlePath != null) {
         await addExternalSubtitle(autoSubtitlePath, 'DRS');
+        // v1.13.0: optionally auto-translate the attached captions in the
+        // background (skipped silently when already in the target lang).
+        if (_prefs.autoTranslateSubs) {
+          unawaited(_backgroundAutoTranslate(item.id));
+        }
       }
     } catch (e, s) {
       // Media()/open()/setRate() must never escape as an unhandled error:
@@ -518,6 +530,19 @@ class PlayerService extends ChangeNotifier {
   }
 
   Future<void> frameStep(int direction) async {
+    // v1.13.0: real frame stepping through mpv's frame-step commands when
+    // the native engine is up (exact frame advance); the seek fallback
+    // covers the degenerate/missing-engine cases.
+    final platform = _player?.platform;
+    if (platform is NativePlayer && direction != 0) {
+      try {
+        await platform.command([direction > 0 ? 'frame-step' : 'frame-back-step']);
+        _notify();
+        return;
+      } catch (e) {
+        AppLogger.instance.warning('player', 'frame-step failed: $e');
+      }
+    }
     await seekBy(direction * AppConstants.frameStepMs);
   }
 
@@ -629,6 +654,7 @@ class PlayerService extends ChangeNotifier {
       }
       if (_player == null) return false;
       await _engine.setSubtitleTrack(SubtitleTrack.uri(loadPath, title: title));
+      _currentSubtitlePath = loadPath; // v1.13.0: translation source
       _notify();
       return true;
     } catch (e) {
@@ -652,6 +678,7 @@ class PlayerService extends ChangeNotifier {
       await _engine.setSubtitleTrack(
         SubtitleTrack.uri(normalized ?? '', title: title),
       );
+      if (normalized != null) _currentSubtitlePath = normalized;
       _notify();
       return normalized != null;
     } catch (e) {
@@ -1037,4 +1064,301 @@ class PlayerService extends ChangeNotifier {
     _player?.dispose();
     super.dispose();
   }
+
+  // =========================================================================
+  // v1.13.0: picture calibration + rotation + pinch zoom/pan + rate boost
+  // + bookmark navigation + subtitle translation glue.
+  // =========================================================================
+
+  // ---- picture calibration (mpv eq properties, persisted) ---------------
+
+  VideoEq _videoEq = const VideoEq();
+
+  VideoEq get videoEq => _videoEq;
+
+  /// Sets one or all eq channels, persists them and applies live. Works
+  /// while the engine is cold: the value is stored and re-applied per open
+  /// (mpv resets eq per file just like af/sub-delay).
+  Future<void> setVideoEq({String? channel, double? value}) async {
+    if (channel != null && value != null) {
+      _videoEq = _videoEq.withChannel(channel, value);
+    } else if (channel == null && value == null) {
+      _videoEq = const VideoEq(); // full reset
+    }
+    await _prefs.setVideoEq(_videoEq.encode());
+    await _applyVideoEq();
+    _notify();
+  }
+
+  Future<void> _applyVideoEq() async {
+    // Reload from prefs (setVideoEq persists immediately, so the stored
+    // value always mirrors the live one).
+    final raw = _prefs.videoEqRaw;
+    _videoEq = raw == null ? const VideoEq() : VideoEq.decode(raw);
+    final platform = _player?.platform;
+    if (platform is! NativePlayer) return;
+    final eq = _videoEq;
+    final props = <String, double>{
+      'brightness': eq.brightness,
+      'contrast': eq.contrast,
+      'saturation': eq.saturation,
+      'gamma': eq.gamma,
+      'hue': eq.hue,
+    };
+    for (final entry in props.entries) {
+      if (entry.value == 0) continue;
+      try {
+        await platform.setProperty(entry.key, entry.value.toStringAsFixed(1));
+      } catch (e) {
+        AppLogger.instance.warning('player', '${entry.key} failed: $e');
+      }
+    }
+  }
+
+  Future<void> resetVideoEq() async {
+    _videoEq = const VideoEq();
+    await _prefs.setVideoEq(_videoEq.encode());
+    final platform = _player?.platform;
+    if (platform is NativePlayer) {
+      for (final k in VideoEq.mpvProperty.keys) {
+        try {
+          await platform.setProperty(k, '0');
+        } catch (_) {}
+      }
+    }
+    _notify();
+  }
+
+  // ---- rotation (persisted) ---------------------------------------------
+
+  int _videoRotate = 0;
+
+  int get videoRotate => _videoRotate;
+
+  /// Rotates the video by [deg] (0/90/180/270) via mpv `video-rotate` and
+  /// persists the choice.
+  Future<void> setVideoRotate(int deg) async {
+    _videoRotate = RotationCycle.clamp(deg);
+    await _prefs.setVideoRotate(_videoRotate);
+    final platform = _player?.platform;
+    if (platform is NativePlayer) {
+      try {
+        await platform.setProperty('video-rotate', '$_videoRotate');
+      } catch (e) {
+        AppLogger.instance.warning('player', 'video-rotate failed: $e');
+      }
+    }
+    _notify();
+  }
+
+  Future<void> _applyVideoRotate() async {
+    _videoRotate = _prefs.videoRotate;
+    final platform = _player?.platform;
+    if ((platform is NativePlayer) && _videoRotate != 0) {
+      try {
+        await platform.setProperty('video-rotate', '$_videoRotate');
+      } catch (e) {
+        AppLogger.instance.warning('player', 'video-rotate restore failed: $e');
+      }
+    }
+  }
+
+  /// Cycles 0 → 90 → 180 → 270 → 0.
+  Future<void> cycleVideoRotate() => setVideoRotate(RotationCycle.next(_videoRotate));
+
+  // ---- pinch zoom / pan (session-scoped, gesture-driven) ----------------
+
+  double _videoZoom = 0;
+  double _videoPanX = 0;
+  double _videoPanY = 0;
+
+  ({double zoom, double panX, double panY}) get videoZoomPan =>
+      (zoom: _videoZoom, panX: _videoPanX, panY: _videoPanY);
+
+  /// Applies clamped zoom/pan from the pinch gesture (log-zoom units).
+  /// Session-scoped on purpose: zoom never persists across sessions.
+  Future<void> setVideoZoomPan({double? zoom, double? panX, double? panY}) async {
+    final next = ZoomPanMath.clampAll(
+      zoom: zoom ?? _videoZoom,
+      panX: panX ?? _videoPanX,
+      panY: panY ?? _videoPanY,
+    );
+    _videoZoom = next.zoom;
+    _videoPanX = next.panX;
+    _videoPanY = next.panY;
+    final platform = _player?.platform;
+    if (platform is NativePlayer) {
+      try {
+        await platform.setProperty('video-zoom', next.zoom.toStringAsFixed(3));
+        await platform.setProperty('video-pan-x', next.panX.toStringAsFixed(4));
+        await platform.setProperty('video-pan-y', next.panY.toStringAsFixed(4));
+      } catch (e) {
+        AppLogger.instance.warning('player', 'zoom/pan failed: $e');
+      }
+    }
+    _notify();
+  }
+
+  Future<void> resetVideoZoomPan() => setVideoZoomPan(zoom: 0, panX: 0, panY: 0);
+
+  // ---- long-press 2x rate boost (YouTube-style) ---------------------------
+
+  final LongPressBoost _boost = LongPressBoost();
+  double? _preBoostRate;
+
+  bool get rateBoostActive => _boost.isEngaged;
+
+  /// Called when the user starts holding; polls the engage delay. Returns
+  /// true exactly when the boost engages (UI badge + rate change).
+  bool beginRateBoost() {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (!_boost.isHolding) _boost.start(now);
+    if (_boost.tick(now)) {
+      _preBoostRate = rate;
+      _applyBoostRate(longPressBoostRate);
+      return true;
+    }
+    return false;
+  }
+
+  /// Releases the hold; restores the previous rate when the boost was
+  /// actually engaged.
+  Future<void> endRateBoost() async {
+    if (_boost.end() && _preBoostRate != null) {
+      await _applyBoostRate(_preBoostRate!);
+    }
+    _preBoostRate = null;
+    _notify();
+  }
+
+  Future<void> _applyBoostRate(double r) async {
+    final player = _player;
+    if (player == null) return;
+    try {
+      await player.setRate(r.clamp(0.25, 4.0));
+    } catch (e) {
+      AppLogger.instance.warning('player', 'boost rate failed: $e');
+    }
+  }
+
+  // ---- bookmark navigation ----------------------------------------------
+
+  /// Jumps to the nearest next (or previous) bookmark of the current
+  /// media. Returns the target position, null when none exists.
+  Future<int?> jumpToBookmark({required bool next}) async {
+    final item = _current;
+    if (item == null) return null;
+    final marks = bookmarksFor(item.id).map((b) => b.positionMs).toList();
+    final posMs = position.inMilliseconds;
+    final target = next
+        ? BookmarkNav.next(marks, posMs)
+        : BookmarkNav.previous(marks, posMs);
+    if (target == null) return null;
+    await seekTo(Duration(milliseconds: target));
+    return target;
+  }
+
+  // ---- subtitle translation glue -----------------------------------------
+
+  SubtitleTranslator? _translator;
+  String? _currentSubtitlePath;
+
+  /// File backing the current external subtitle track (null = none or an
+  /// embedded track).
+  String? get currentSubtitlePath => _currentSubtitlePath;
+
+  /// Translates the current external subtitle into [targetLang] and swaps
+  /// the player track to the translated file. Progress is reported 0..1.
+  /// Returns a record describing the outcome for honest UI feedback.
+  Future<TranslationOutcome> translateCurrentSubtitle({
+    required String targetLang,
+    void Function(double progress)? onProgress,
+  }) async {
+    final path = _currentSubtitlePath;
+    if (path == null || path.isEmpty) {
+      return const TranslationOutcome.none();
+    }
+    final translator = _translator ??= SubtitleTranslator();
+    try {
+      // Cached? Same text + target → instant swap, zero network.
+      final bytes = await File(path).readAsBytes();
+      final text = SubtitleCharset.decode(bytes);
+      final cached = await translator.cachedTranslation(text, targetLang);
+      if (cached != null) {
+        await _swapSubtitle(cached, translated: true);
+        return const TranslationOutcome(
+            done: true, cached: true, partial: false);
+      }
+      final out = await translator.translateFile(
+        path,
+        targetLang: targetLang,
+        onProgress: onProgress,
+      );
+      if (out == null) return const TranslationOutcome.none();
+      if (out.alreadyTarget) {
+        return const TranslationOutcome(
+            done: false, cached: false, partial: false, alreadyTarget: true);
+      }
+      await _swapSubtitle(out.srtPath!, translated: true);
+      return TranslationOutcome(
+        done: true,
+        cached: false,
+        partial: out.partial,
+      );
+    } catch (e, s) {
+      AppLogger.instance.error('player', 'translateCurrentSubtitle failed', e, s);
+      return const TranslationOutcome(
+          done: false, cached: false, partial: false, error: 'exception');
+    }
+  }
+
+  Future<void> _swapSubtitle(String path, {required bool translated}) async {
+    if (_player == null) return;
+    await _engine.setSubtitleTrack(
+      SubtitleTrack.uri(path, title: translated ? 'DRS · TR' : 'DRS'),
+    );
+    _currentSubtitlePath = path;
+    _notify();
+  }
+
+  /// Silent background translation of the just-attached auto subtitle.
+  /// Never surfaces errors: translation is a bonus layer, not a critical
+  /// path. Abandons silently when the user moved to another media.
+  Future<void> _backgroundAutoTranslate(String itemId) async {
+    try {
+      await Future<void>.delayed(const Duration(seconds: 2));
+      if (_current?.id != itemId) return;
+      if (_currentSubtitlePath == null) return;
+      await translateCurrentSubtitle(targetLang: _prefs.translateTargetLang);
+    } catch (e) {
+      AppLogger.instance.warning('player', 'auto-translate failed: $e');
+    }
+  }
+}
+
+/// The long-press speed boost rate.
+const double longPressBoostRate = 2.0;
+
+/// Honest outcome of [PlayerService.translateCurrentSubtitle].
+class TranslationOutcome {
+  const TranslationOutcome({
+    required this.done,
+    required this.cached,
+    required this.partial,
+    this.alreadyTarget = false,
+    this.error,
+  });
+
+  const TranslationOutcome.none()
+      : done = false,
+        cached = false,
+        partial = false,
+        alreadyTarget = false,
+        error = null;
+
+  final bool done;
+  final bool cached;
+  final bool partial;
+  final bool alreadyTarget;
+  final String? error;
 }

@@ -74,6 +74,18 @@ class SettingsController extends ChangeNotifier {
   void setDefaultSpeed(double v) => _set(() => _prefs.defaultSpeed = v);
   void setAutoPlayNext(bool v) => _set(() => _prefs.autoPlayNext = v);
   void setAlwaysResume(bool v) => _set(() => _prefs.alwaysResume = v);
+  // v1.13.0: smart playback toggles (defaults kept in PreferencesService).
+  bool get autoSubtitles => _prefs.autoSubtitles;
+  void setAutoSubtitles(bool v) => _set(() => _prefs.autoSubtitles = v);
+  bool get autoSiblingSubs => _prefs.autoSiblingSubs;
+  void setAutoSiblingSubs(bool v) => _set(() => _prefs.autoSiblingSubs = v);
+  bool get autoTranslateSubs => _prefs.autoTranslateSubs;
+  void setAutoTranslateSubs(bool v) =>
+      _set(() => _prefs.autoTranslateSubs = v);
+  bool get batterySaver => _prefs.batterySaver;
+  void setBatterySaver(bool v) => _set(() => _prefs.batterySaver = v);
+  bool get dataSaver => _prefs.dataSaver;
+  void setDataSaver(bool v) => _set(() => _prefs.dataSaver = v);
   void setEnablePip(bool v) => _set(() => _prefs.enablePip = v);
   void setAutoPip(bool v) => _set(() => _prefs.autoPip = v);
   void setEnableFloatingPlayer(bool v) =>

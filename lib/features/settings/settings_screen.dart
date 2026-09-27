@@ -186,6 +186,37 @@ class SettingsScreen extends StatelessWidget {
             value: s.preferFullscreen,
             onChanged: s.setPreferFullscreen,
           ),
+          // ---- v1.13.0: smart playback (subs, translation, savers) ----
+          SwitchListTile(
+            title: Text(l.smartAutoSubsTitle),
+            subtitle: Text(l.smartAutoSubsSub),
+            value: s.autoSubtitles,
+            onChanged: s.setAutoSubtitles,
+          ),
+          SwitchListTile(
+            title: Text(l.smartAutoSiblingTitle),
+            subtitle: Text(l.smartAutoSiblingSub),
+            value: s.autoSiblingSubs,
+            onChanged: s.setAutoSiblingSubs,
+          ),
+          SwitchListTile(
+            title: Text(l.translateAutoPrefTitle),
+            subtitle: Text(l.translateAutoPrefSub),
+            value: s.autoTranslateSubs,
+            onChanged: s.setAutoTranslateSubs,
+          ),
+          SwitchListTile(
+            title: Text(l.smartBatterySaverTitle),
+            subtitle: Text(l.smartBatterySaverSub),
+            value: s.batterySaver,
+            onChanged: s.setBatterySaver,
+          ),
+          SwitchListTile(
+            title: Text(l.smartDataSaverTitle),
+            subtitle: Text(l.smartDataSaverSub),
+            value: s.dataSaver,
+            onChanged: s.setDataSaver,
+          ),
           const SizedBox(height: 24),
         ],
       ),

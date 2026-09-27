@@ -2374,4 +2374,103 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get audioOnlyRestoreVideo => 'استعادة الفيديو';
+
+  @override
+  String get playerBookmarkPrev => 'السابق';
+
+  @override
+  String get playerBookmarkNext => 'التالي';
+
+  @override
+  String get pictureTitle => 'معايرة الصورة';
+
+  @override
+  String get pictureBrightness => 'السطوع';
+
+  @override
+  String get pictureContrast => 'التباين';
+
+  @override
+  String get pictureSaturation => 'التشبّع';
+
+  @override
+  String get pictureGamma => 'الغاما';
+
+  @override
+  String get pictureHue => 'الدرجة اللونية';
+
+  @override
+  String get pictureReset => 'إعادة ضبط';
+
+  @override
+  String get pictureRotate => 'تدوير';
+
+  @override
+  String get pictureZoom => 'التكبير';
+
+  @override
+  String get pictureZoomReset => 'تصفير التكبير';
+
+  @override
+  String get pictureZoomHint =>
+      'استخدم إصبعين على الفيديو للتكبير والتحريك — الضغط المطوّل يسرّع التشغيل إلى 2×.';
+
+  @override
+  String get translateTitle => 'الترجمة التلقائية';
+
+  @override
+  String get translateHint =>
+      'تُترجم ملف الترجمة الحالي إلى اللغة المختارة عبر خدمة ترجمة مجانية (يتطلب اتصال إنترنت).';
+
+  @override
+  String get translateNoSubtitle =>
+      'لا يوجد ملف ترجمة خارجي حالي — حمّل ترجمة أولاً لترجمتها.';
+
+  @override
+  String get translateButton => 'ترجم الآن';
+
+  @override
+  String get translateDone => 'تمت الترجمة وتبديل المسار';
+
+  @override
+  String get translateDoneCached => 'تم تطبيق الترجمة المحفوظة';
+
+  @override
+  String get translateAlreadyTarget => 'الترجمة بالفعل بهذه اللغة';
+
+  @override
+  String get translateFailed => 'فشلت الترجمة — تحقق من الاتصال وحاول مجدداً';
+
+  @override
+  String get translateAutoPrefTitle => 'ترجمة تلقائية لترجمات يوتيوب';
+
+  @override
+  String get translateAutoPrefSub =>
+      'تبديل تلقائي إلى الترجمة المترجمة بعد تحميلها';
+
+  @override
+  String get smartAutoSubsTitle => 'ترجمات يوتيوب تلقائياً';
+
+  @override
+  String get smartAutoSubsSub => 'إرفاق الترجمة المتاحة من يوتيوب مع الفيديو';
+
+  @override
+  String get smartAutoSiblingTitle => 'ترجمة المجلد تلقائياً';
+
+  @override
+  String get smartAutoSiblingSub =>
+      'تحميل ملف ترجمة بنفس اسم الفيديو من نفس المجلد';
+
+  @override
+  String get smartBatterySaverTitle => 'موفر البطارية';
+
+  @override
+  String get smartBatterySaverSub =>
+      'التحويل إلى الصوت فقط عند انخفاض البطارية عن 20% بدون شاحن';
+
+  @override
+  String get smartDataSaverTitle => 'موفر البيانات';
+
+  @override
+  String get smartDataSaverSub => 'تحديد جودة البث لتوفير بيانات الإنترنت';
 }

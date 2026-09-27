@@ -2382,4 +2382,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get audioOnlyRestoreVideo => 'Restore video';
+
+  @override
+  String get playerBookmarkPrev => 'Previous';
+
+  @override
+  String get playerBookmarkNext => 'Next';
+
+  @override
+  String get pictureTitle => 'Picture calibration';
+
+  @override
+  String get pictureBrightness => 'Brightness';
+
+  @override
+  String get pictureContrast => 'Contrast';
+
+  @override
+  String get pictureSaturation => 'Saturation';
+
+  @override
+  String get pictureGamma => 'Gamma';
+
+  @override
+  String get pictureHue => 'Hue';
+
+  @override
+  String get pictureReset => 'Reset';
+
+  @override
+  String get pictureRotate => 'Rotate';
+
+  @override
+  String get pictureZoom => 'Zoom';
+
+  @override
+  String get pictureZoomReset => 'Reset zoom';
+
+  @override
+  String get pictureZoomHint =>
+      'Pinch with two fingers to zoom and pan — long-press boosts speed to 2×.';
+
+  @override
+  String get translateTitle => 'Auto-translation';
+
+  @override
+  String get translateHint =>
+      'Translates the current subtitle file into the chosen language via a free translation service (needs internet).';
+
+  @override
+  String get translateNoSubtitle =>
+      'No external subtitle loaded — load one first to translate it.';
+
+  @override
+  String get translateButton => 'Translate now';
+
+  @override
+  String get translateDone => 'Translated and track swapped';
+
+  @override
+  String get translateDoneCached => 'Cached translation applied';
+
+  @override
+  String get translateAlreadyTarget => 'Already in this language';
+
+  @override
+  String get translateFailed =>
+      'Translation failed — check your connection and retry';
+
+  @override
+  String get translateAutoPrefTitle => 'Auto-translate YouTube captions';
+
+  @override
+  String get translateAutoPrefSub =>
+      'Automatically swap to the translated track after download';
+
+  @override
+  String get smartAutoSubsTitle => 'YouTube captions automatically';
+
+  @override
+  String get smartAutoSubsSub =>
+      'Attach the available YouTube captions to the video';
+
+  @override
+  String get smartAutoSiblingTitle => 'Auto-load folder subtitle';
+
+  @override
+  String get smartAutoSiblingSub =>
+      'Pick a same-folder subtitle file matching the video name';
+
+  @override
+  String get smartBatterySaverTitle => 'Battery saver';
+
+  @override
+  String get smartBatterySaverSub =>
+      'Switch to audio-only below 20% battery while unplugged';
+
+  @override
+  String get smartDataSaverTitle => 'Data saver';
+
+  @override
+  String get smartDataSaverSub => 'Cap streaming quality to save mobile data';
 }

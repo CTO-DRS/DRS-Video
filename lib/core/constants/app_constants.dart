@@ -5,7 +5,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.12.0';
+  static const String appVersion = '1.13.0';
 
   static const String dbName = 'drs_video.db';
   static const int dbVersion = 5;
@@ -255,6 +255,20 @@ class PrefKeys {
 
   /// Per-folder intro end marker (ms): 'intro_end_' + folderKey.
   static const introEndPrefix = 'intro_end_';
+
+  // ---- v1.13.0: translation + picture calibration -------------------------
+
+  /// Target language for subtitle auto-translation (ISO code, default ar).
+  static const translateTargetLang = 'translate_target_lang';
+
+  /// Auto-translate YouTube captions after auto-attach (background swap).
+  static const autoTranslateSubs = 'auto_translate_subs';
+
+  /// Persisted video picture calibration (VideoEq JSON).
+  static const videoEq = 'video_eq';
+
+  /// Persisted video rotation in degrees (0/90/180/270).
+  static const videoRotate = 'video_rotate';
 }
 
 /// Download priority values.

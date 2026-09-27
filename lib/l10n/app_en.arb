@@ -1036,5 +1036,40 @@
         "type": "int"
       }
     }
-  }
+  },
+
+  "playerBookmarkPrev": "Previous",
+  "playerBookmarkNext": "Next",
+
+  "pictureTitle": "Picture calibration",
+  "pictureBrightness": "Brightness",
+  "pictureContrast": "Contrast",
+  "pictureSaturation": "Saturation",
+  "pictureGamma": "Gamma",
+  "pictureHue": "Hue",
+  "pictureReset": "Reset",
+  "pictureRotate": "Rotate",
+  "pictureZoom": "Zoom",
+  "pictureZoomReset": "Reset zoom",
+  "pictureZoomHint": "Pinch with two fingers to zoom and pan — long-press boosts speed to 2×.",
+
+  "translateTitle": "Auto-translation",
+  "translateHint": "Translates the current subtitle file into the chosen language via a free translation service (needs internet).",
+  "translateNoSubtitle": "No external subtitle loaded — load one first to translate it.",
+  "translateButton": "Translate now",
+  "translateDone": "Translated and track swapped",
+  "translateDoneCached": "Cached translation applied",
+  "translateAlreadyTarget": "Already in this language",
+  "translateFailed": "Translation failed — check your connection and retry",
+  "translateAutoPrefTitle": "Auto-translate YouTube captions",
+  "translateAutoPrefSub": "Automatically swap to the translated track after download",
+
+  "smartAutoSubsTitle": "YouTube captions automatically",
+  "smartAutoSubsSub": "Attach the available YouTube captions to the video",
+  "smartAutoSiblingTitle": "Auto-load folder subtitle",
+  "smartAutoSiblingSub": "Pick a same-folder subtitle file matching the video name",
+  "smartBatterySaverTitle": "Battery saver",
+  "smartBatterySaverSub": "Switch to audio-only below 20% battery while unplugged",
+  "smartDataSaverTitle": "Data saver",
+  "smartDataSaverSub": "Cap streaming quality to save mobile data"
 }

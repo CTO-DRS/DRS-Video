@@ -14,12 +14,14 @@ import '../../services/platform/native_channel.dart';
 import '../../services/player/player_service.dart';
 import '../../services/security/secure_flag.dart';
 import '../../services/smart/intel_v2.dart';
+import '../../services/smart/intel_v3.dart';
 import '../../state/floating_player_controller.dart';
 import '../../state/media_actions.dart';
 import '../../widgets/common/error_view.dart';
 import '../sites/platform_browser_screen.dart';
 import 'widgets/ab_sheet.dart';
 import 'widgets/audio_sheet.dart';
+import 'widgets/picture_sheet.dart';
 import 'widgets/track_sheets.dart';
 
 /// True when [url] is an HTML *page* rather than direct media — playback
@@ -63,6 +65,17 @@ class _PlayerScreenState extends State<PlayerScreen>
   double? _indicatorValue; // 0..1 for brightness/volume overlay
   String? _indicatorLabel;
   bool _brightnessMode = false;
+
+  // v1.13.0: pinch zoom/pan (manual multi-pointer tracking — keeps the
+  // existing drag recognizers conflict-free) + long-press 2x boost.
+  final Map<int, Offset> _pinchPointers = {};
+  double _pinchStartDist = 0;
+  double _pinchStartZoom = 0;
+  Offset _pinchStartFocal = Offset.zero;
+  ({double panX, double panY}) _pinchStartPan = (panX: 0, panY: 0);
+  bool _pinching = false;
+  Timer? _boostPoll;
+  bool _boostBadge = false;
 
   @override
   void initState() {
@@ -113,6 +126,7 @@ class _PlayerScreenState extends State<PlayerScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _hideTimer?.cancel();
+    _boostPoll?.cancel();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     unawaited(SecureFlagKeeper.release(
@@ -313,21 +327,34 @@ class _PlayerScreenState extends State<PlayerScreen>
   // ---- gesture layer ----
 
   Widget _buildGestureLayer(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: _toggleControls,
-      onDoubleTapDown: (d) => _onDoubleTap(context, d.localPosition),
-      onHorizontalDragStart: _onSeekDragStart,
-      onHorizontalDragUpdate: _onSeekDragUpdate,
-      onHorizontalDragEnd: _onSeekDragEnd,
-      onVerticalDragStart: _onVerticalDragStart,
-      onVerticalDragUpdate: _onVerticalDragUpdate,
-      onVerticalDragEnd: (_) => _clearIndicator(),
-      child: Stack(
-        children: [
-          if (_previewSeekMs != null) _buildSeekPreview(context),
-          if (_indicatorValue != null) _buildIndicator(context),
-        ],
+    return Listener(
+      // v1.13.0: raw multi-pointer tracking for pinch zoom + pan. Raw
+      // listeners never enter the gesture arena, so single-finger drags
+      // (seek/brightness/volume) keep working exactly as before.
+      onPointerDown: _onPinchDown,
+      onPointerMove: _onPinchMove,
+      onPointerUp: (_) => _onPinchEnd(),
+      onPointerCancel: (_) => _onPinchEnd(),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _toggleControls,
+        onDoubleTapDown: (d) => _onDoubleTap(context, d.localPosition),
+        onLongPressStart: _onBoostStart,
+        onLongPressEnd: (_) => _onBoostEnd(),
+        onLongPressCancel: _onBoostEnd,
+        onHorizontalDragStart: _onSeekDragStart,
+        onHorizontalDragUpdate: _onSeekDragUpdate,
+        onHorizontalDragEnd: _onSeekDragEnd,
+        onVerticalDragStart: _onVerticalDragStart,
+        onVerticalDragUpdate: _onVerticalDragUpdate,
+        onVerticalDragEnd: (_) => _clearIndicator(),
+        child: Stack(
+          children: [
+            if (_previewSeekMs != null) _buildSeekPreview(context),
+            if (_indicatorValue != null) _buildIndicator(context),
+            if (_boostBadge) _buildBoostBadge(context),
+          ],
+        ),
       ),
     );
   }
@@ -346,6 +373,112 @@ class _PlayerScreenState extends State<PlayerScreen>
     } else {
       _player.toggle();
     }
+  }
+
+  // ---- v1.13.0: pinch zoom/pan -------------------------------------------
+
+  void _onPinchDown(PointerEvent e) {
+    _pinchPointers[e.pointer] = e.localPosition;
+    if (_pinchPointers.length == 2 && !_pinching) {
+      final pts = _pinchPointers.values.toList();
+      _pinchStartDist = (pts[0] - pts[1]).distance;
+      _pinchStartZoom = _player.videoZoomPan.zoom;
+      _pinchStartPan = (
+        panX: _player.videoZoomPan.panX,
+        panY: _player.videoZoomPan.panY,
+      );
+      _pinchStartFocal = Offset(
+          (pts[0].dx + pts[1].dx) / 2, (pts[0].dy + pts[1].dy) / 2);
+      _pinching = true;
+    }
+  }
+
+  void _onPinchMove(PointerEvent e) {
+    if (!_pinching || !_pinchPointers.containsKey(e.pointer)) return;
+    _pinchPointers[e.pointer] = e.localPosition;
+    if (_pinchPointers.length < 2 || _pinchStartDist <= 0) return;
+    final pts = _pinchPointers.values.toList();
+    final dist = (pts[0] - pts[1]).distance;
+    final focal = Offset(
+        (pts[0].dx + pts[1].dx) / 2, (pts[0].dy + pts[1].dy) / 2);
+    final zoomDelta =
+        ((dist / _pinchStartDist) - 1) * ZoomPanMath.maxZoom;
+    final size = MediaQuery.of(context).size;
+    // Normalized focal movement → pan (y-flipped: drag down pans up).
+    final panX = _pinchStartPan.panX +
+        (focal.dx - _pinchStartFocal.dx) / size.width;
+    final panY = _pinchStartPan.panY -
+        (focal.dy - _pinchStartFocal.dy) / size.height;
+    _player.setVideoZoomPan(
+      zoom: _pinchStartZoom + zoomDelta,
+      panX: panX * _pinchPanScale(_pinchStartZoom + zoomDelta),
+      panY: panY * _pinchPanScale(_pinchStartZoom + zoomDelta),
+    );
+  }
+
+  /// The raw normalized pan is computed against the fit-size frame; mpv
+  /// pans in the zoomed frame's units, so scale by the zoom surplus.
+  double _pinchPanScale(double zoom) =>
+      zoom <= 0 ? 1.0 : (ZoomPanMath.panBoundExact(zoom) * 2).clamp(0.0, 1.5);
+
+  void _onPinchEnd() {
+    // Only finish the pinch when fewer than 2 pointers remain.
+    if (_pinchPointers.length <= 1) {
+      _pinching = false;
+      _pinchPointers.clear();
+      _pinchStartDist = 0;
+    }
+  }
+
+  // ---- v1.13.0: long-press 2x speed boost --------------------------------
+
+  void _onBoostStart(LongPressStartDetails d) {
+    if (_locked) return;
+    _boostPoll?.cancel();
+    _boostPoll = Timer.periodic(const Duration(milliseconds: 100), (_) {
+      if (_player.beginRateBoost()) {
+        setState(() => _boostBadge = true);
+      }
+    });
+  }
+
+  Future<void> _onBoostEnd() async {
+    _boostPoll?.cancel();
+    _boostPoll = null;
+    await _player.endRateBoost();
+    if (mounted) setState(() => _boostBadge = false);
+  }
+
+  /// "2x" badge shown while the long-press boost is engaged.
+  Widget _buildBoostBadge(BuildContext context) {
+    return PositionedDirectional(
+      top: 64,
+      end: 20,
+      child: IgnorePointer(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.55),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.fast_forward, size: 16, color: Colors.tealAccent),
+              SizedBox(width: 6),
+              Text(
+                '2x',
+                style: TextStyle(
+                  color: Colors.tealAccent,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _flashIndicator({required String label, double? value}) {
@@ -706,6 +839,37 @@ class _PlayerScreenState extends State<PlayerScreen>
                   Text(l.playerBookmarks,
                       style: Theme.of(sheet).textTheme.titleMedium),
                   const SizedBox(height: 8),
+                  // v1.13.0: nearest-bookmark navigation.
+                  if (marks.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            final t = await _player
+                                .jumpToBookmark(next: false);
+                            if (t != null && sheet.mounted) {
+                              Navigator.of(sheet).pop();
+                            }
+                          },
+                          icon: const Icon(Icons.skip_previous, size: 18),
+                          label: Text(l.playerBookmarkPrev),
+                        ),
+                        const SizedBox(width: 12),
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            final t = await _player
+                                .jumpToBookmark(next: true);
+                            if (t != null && sheet.mounted) {
+                              Navigator.of(sheet).pop();
+                            }
+                          },
+                          icon: const Icon(Icons.skip_next, size: 18),
+                          label: Text(l.playerBookmarkNext),
+                        ),
+                      ],
+                    ),
+                  const SizedBox(height: 8),
                   if (marks.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(16),
@@ -958,6 +1122,13 @@ class _PlayerScreenState extends State<PlayerScreen>
                               ? Colors.tealAccent
                               : Colors.white,
                           onPressed: () => showAudioSheet(context),
+                        ),
+                        // v1.13.0: picture calibration + rotation + zoom.
+                        action(
+                          icon: Icons.tune,
+                          tooltip: l.pictureTitle,
+                          label: l.pictureTitle,
+                          onPressed: () => showPictureSheet(context),
                         ),
                         action(
                           icon: Icons.high_quality_outlined,

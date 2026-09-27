@@ -7,6 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../services/player/player_service.dart';
 import '../../../services/player/subtitle_charset.dart';
 import '../../../services/sharing/share_service.dart';
+import '../../../services/subtitles/subtitle_translator.dart';
 
 /// Subtitle toolkit sheet (v1.10.0): per-media sync delay, legacy encoding
 /// conversion (Windows-1256 / ISO-8859-6 → UTF-8) and external subtitle
@@ -34,6 +35,11 @@ class _SubtitleSheetState extends State<_SubtitleSheet> {
   String? _preview;
 
   bool _working = false;
+
+  /// Translation state (v1.13.0).
+  String _targetLang = 'ar';
+  double _translateProgress = 0;
+  bool _translating = false;
 
   static const double _range = 10.0;
 
@@ -173,6 +179,67 @@ class _SubtitleSheetState extends State<_SubtitleSheet> {
                   label: Text(l.subtitleLoadExternal),
                 ),
               ),
+              const Divider(),
+              // ---- auto-translation (v1.13.0) --------------------------
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                child: Text(l.translateTitle,
+                    style: theme.textTheme.titleSmall),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  player.currentSubtitlePath == null
+                      ? l.translateNoSubtitle
+                      : l.translateHint,
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.translate, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButton<String>(
+                        value: _targetLang,
+                        isExpanded: true,
+                        underline: const SizedBox.shrink(),
+                        items: [
+                          for (final (code, name)
+                              in SubtitleTranslator.languages)
+                            DropdownMenuItem(
+                                value: code, child: Text(name)),
+                        ],
+                        onChanged: _translating
+                            ? null
+                            : (v) =>
+                                setState(() => _targetLang = v ?? 'ar'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (_translating)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: LinearProgressIndicator(
+                      value: _translateProgress <= 0
+                          ? null
+                          : _translateProgress.clamp(0.0, 1.0)),
+                ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: FilledButton.tonalIcon(
+                  onPressed: _translating || player.currentSubtitlePath == null
+                      ? null
+                      : () => _translate(context, player),
+                  icon: const Icon(Icons.auto_awesome),
+                  label: Text(l.translateButton),
+                ),
+              ),
             ],
           );
         },
@@ -228,5 +295,38 @@ class _SubtitleSheetState extends State<_SubtitleSheet> {
         content: Text(l.subtitleLoadFailed),
       ));
     }
+  }
+
+  /// v1.13.0: translates the current external subtitle and swaps the
+  /// player track. Honest feedback for every outcome branch.
+  Future<void> _translate(
+      BuildContext sheetContext, PlayerService player) async {
+    final l = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(sheetContext);
+    setState(() {
+      _translating = true;
+      _translateProgress = 0;
+    });
+    final outcome = await player.translateCurrentSubtitle(
+      targetLang: _targetLang,
+      onProgress: (p) {
+        if (mounted) setState(() => _translateProgress = p);
+      },
+    );
+    if (!mounted) return;
+    setState(() => _translating = false);
+    String msg;
+    if (outcome.done) {
+      msg = outcome.cached
+          ? l.translateDoneCached
+          : (outcome.partial ? l.translateFailed : l.translateDone);
+    } else if (outcome.alreadyTarget) {
+      msg = l.translateAlreadyTarget;
+    } else if (player.currentSubtitlePath == null) {
+      msg = l.translateNoSubtitle;
+    } else {
+      msg = l.translateFailed;
+    }
+    messenger.showSnackBar(SnackBar(content: Text(msg)));
   }
 }

@@ -1088,5 +1088,40 @@
         "type": "int"
       }
     }
-  }
+  },
+
+  "playerBookmarkPrev": "السابق",
+  "playerBookmarkNext": "التالي",
+
+  "pictureTitle": "معايرة الصورة",
+  "pictureBrightness": "السطوع",
+  "pictureContrast": "التباين",
+  "pictureSaturation": "التشبّع",
+  "pictureGamma": "الغاما",
+  "pictureHue": "الدرجة اللونية",
+  "pictureReset": "إعادة ضبط",
+  "pictureRotate": "تدوير",
+  "pictureZoom": "التكبير",
+  "pictureZoomReset": "تصفير التكبير",
+  "pictureZoomHint": "استخدم إصبعين على الفيديو للتكبير والتحريك — الضغط المطوّل يسرّع التشغيل إلى 2×.",
+
+  "translateTitle": "الترجمة التلقائية",
+  "translateHint": "تُترجم ملف الترجمة الحالي إلى اللغة المختارة عبر خدمة ترجمة مجانية (يتطلب اتصال إنترنت).",
+  "translateNoSubtitle": "لا يوجد ملف ترجمة خارجي حالي — حمّل ترجمة أولاً لترجمتها.",
+  "translateButton": "ترجم الآن",
+  "translateDone": "تمت الترجمة وتبديل المسار",
+  "translateDoneCached": "تم تطبيق الترجمة المحفوظة",
+  "translateAlreadyTarget": "الترجمة بالفعل بهذه اللغة",
+  "translateFailed": "فشلت الترجمة — تحقق من الاتصال وحاول مجدداً",
+  "translateAutoPrefTitle": "ترجمة تلقائية لترجمات يوتيوب",
+  "translateAutoPrefSub": "تبديل تلقائي إلى الترجمة المترجمة بعد تحميلها",
+
+  "smartAutoSubsTitle": "ترجمات يوتيوب تلقائياً",
+  "smartAutoSubsSub": "إرفاق الترجمة المتاحة من يوتيوب مع الفيديو",
+  "smartAutoSiblingTitle": "ترجمة المجلد تلقائياً",
+  "smartAutoSiblingSub": "تحميل ملف ترجمة بنفس اسم الفيديو من نفس المجلد",
+  "smartBatterySaverTitle": "موفر البطارية",
+  "smartBatterySaverSub": "التحويل إلى الصوت فقط عند انخفاض البطارية عن 20% بدون شاحن",
+  "smartDataSaverTitle": "موفر البيانات",
+  "smartDataSaverSub": "تحديد جودة البث لتوفير بيانات الإنترنت"
 }

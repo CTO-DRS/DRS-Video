@@ -220,6 +220,28 @@ class PreferencesService {
   Future<void> clearIntroEndFor(String folderKey) =>
       _prefs.remove('${PrefKeys.introEndPrefix}$folderKey');
 
+  // ---- translation + picture calibration (v1.13.0) -------------------------
+
+  /// Target language for subtitle auto-translation (default Arabic).
+  String get translateTargetLang =>
+      _prefs.getString(PrefKeys.translateTargetLang) ?? 'ar';
+  set translateTargetLang(String v) =>
+      _prefs.setString(PrefKeys.translateTargetLang, v);
+
+  /// Auto-translate YouTube captions right after auto-attach.
+  bool get autoTranslateSubs =>
+      _prefs.getBool(PrefKeys.autoTranslateSubs) ?? true;
+  set autoTranslateSubs(bool v) => _prefs.setBool(PrefKeys.autoTranslateSubs, v);
+
+  /// Persisted picture calibration (VideoEq JSON string).
+  String? get videoEqRaw => _prefs.getString(PrefKeys.videoEq);
+  Future<void> setVideoEq(String raw) => _prefs.setString(PrefKeys.videoEq, raw);
+
+  /// Persisted video rotation degrees.
+  int get videoRotate => _prefs.getInt(PrefKeys.videoRotate) ?? 0;
+  Future<void> setVideoRotate(int deg) =>
+      _prefs.setInt(PrefKeys.videoRotate, deg);
+
   Future<void> clearAll() => _prefs.clear();
 
   // ---- backup snapshot (v1.7.0) ------------------------------------------

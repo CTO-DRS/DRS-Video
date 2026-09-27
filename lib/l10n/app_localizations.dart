@@ -4490,6 +4490,192 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'استعادة الفيديو'**
   String get audioOnlyRestoreVideo;
+
+  /// No description provided for @playerBookmarkPrev.
+  ///
+  /// In ar, this message translates to:
+  /// **'السابق'**
+  String get playerBookmarkPrev;
+
+  /// No description provided for @playerBookmarkNext.
+  ///
+  /// In ar, this message translates to:
+  /// **'التالي'**
+  String get playerBookmarkNext;
+
+  /// No description provided for @pictureTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'معايرة الصورة'**
+  String get pictureTitle;
+
+  /// No description provided for @pictureBrightness.
+  ///
+  /// In ar, this message translates to:
+  /// **'السطوع'**
+  String get pictureBrightness;
+
+  /// No description provided for @pictureContrast.
+  ///
+  /// In ar, this message translates to:
+  /// **'التباين'**
+  String get pictureContrast;
+
+  /// No description provided for @pictureSaturation.
+  ///
+  /// In ar, this message translates to:
+  /// **'التشبّع'**
+  String get pictureSaturation;
+
+  /// No description provided for @pictureGamma.
+  ///
+  /// In ar, this message translates to:
+  /// **'الغاما'**
+  String get pictureGamma;
+
+  /// No description provided for @pictureHue.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدرجة اللونية'**
+  String get pictureHue;
+
+  /// No description provided for @pictureReset.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة ضبط'**
+  String get pictureReset;
+
+  /// No description provided for @pictureRotate.
+  ///
+  /// In ar, this message translates to:
+  /// **'تدوير'**
+  String get pictureRotate;
+
+  /// No description provided for @pictureZoom.
+  ///
+  /// In ar, this message translates to:
+  /// **'التكبير'**
+  String get pictureZoom;
+
+  /// No description provided for @pictureZoomReset.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصفير التكبير'**
+  String get pictureZoomReset;
+
+  /// No description provided for @pictureZoomHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'استخدم إصبعين على الفيديو للتكبير والتحريك — الضغط المطوّل يسرّع التشغيل إلى 2×.'**
+  String get pictureZoomHint;
+
+  /// No description provided for @translateTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الترجمة التلقائية'**
+  String get translateTitle;
+
+  /// No description provided for @translateHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تُترجم ملف الترجمة الحالي إلى اللغة المختارة عبر خدمة ترجمة مجانية (يتطلب اتصال إنترنت).'**
+  String get translateHint;
+
+  /// No description provided for @translateNoSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد ملف ترجمة خارجي حالي — حمّل ترجمة أولاً لترجمتها.'**
+  String get translateNoSubtitle;
+
+  /// No description provided for @translateButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترجم الآن'**
+  String get translateButton;
+
+  /// No description provided for @translateDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت الترجمة وتبديل المسار'**
+  String get translateDone;
+
+  /// No description provided for @translateDoneCached.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تطبيق الترجمة المحفوظة'**
+  String get translateDoneCached;
+
+  /// No description provided for @translateAlreadyTarget.
+  ///
+  /// In ar, this message translates to:
+  /// **'الترجمة بالفعل بهذه اللغة'**
+  String get translateAlreadyTarget;
+
+  /// No description provided for @translateFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشلت الترجمة — تحقق من الاتصال وحاول مجدداً'**
+  String get translateFailed;
+
+  /// No description provided for @translateAutoPrefTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترجمة تلقائية لترجمات يوتيوب'**
+  String get translateAutoPrefTitle;
+
+  /// No description provided for @translateAutoPrefSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'تبديل تلقائي إلى الترجمة المترجمة بعد تحميلها'**
+  String get translateAutoPrefSub;
+
+  /// No description provided for @smartAutoSubsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترجمات يوتيوب تلقائياً'**
+  String get smartAutoSubsTitle;
+
+  /// No description provided for @smartAutoSubsSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرفاق الترجمة المتاحة من يوتيوب مع الفيديو'**
+  String get smartAutoSubsSub;
+
+  /// No description provided for @smartAutoSiblingTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترجمة المجلد تلقائياً'**
+  String get smartAutoSiblingTitle;
+
+  /// No description provided for @smartAutoSiblingSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحميل ملف ترجمة بنفس اسم الفيديو من نفس المجلد'**
+  String get smartAutoSiblingSub;
+
+  /// No description provided for @smartBatterySaverTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'موفر البطارية'**
+  String get smartBatterySaverTitle;
+
+  /// No description provided for @smartBatterySaverSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحويل إلى الصوت فقط عند انخفاض البطارية عن 20% بدون شاحن'**
+  String get smartBatterySaverSub;
+
+  /// No description provided for @smartDataSaverTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'موفر البيانات'**
+  String get smartDataSaverTitle;
+
+  /// No description provided for @smartDataSaverSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديد جودة البث لتوفير بيانات الإنترنت'**
+  String get smartDataSaverSub;
 }
 
 class _AppLocalizationsDelegate
