@@ -6,6 +6,7 @@ import '../core/utils/logger.dart';
 import '../data/models/download_task.dart';
 import '../data/models/media_item.dart';
 import '../services/downloader/download_service.dart';
+import '../services/downloader/platform_download_resolver.dart';
 import '../services/platform/native_channel.dart';
 
 /// Thin UI-facing wrapper over [DownloadService].
@@ -63,10 +64,14 @@ class DownloadsController extends ChangeNotifier {
 
   /// v1.14.0: starts a raw-URL download from the add-download sheet
   /// (paste-link flow). The service picks the extension/classification.
+  /// v1.14.2: [resolvedMedia] + [preflight] come from the sheet's single
+  /// probe pass so start() neither re-resolves nor re-probes.
   Future<DownloadTaskModel> startFromUrl({
     required String url,
     required String title,
     DownloadPriority priority = DownloadPriority.normal,
+    ResolvedPlatformMedia? resolvedMedia,
+    PreflightInfo? preflight,
   }) async {
     if (!isOnline) {
       throw const AppException(AppErrorType.network);
@@ -75,6 +80,8 @@ class DownloadsController extends ChangeNotifier {
       url: url,
       title: title,
       priority: priority,
+      resolvedMedia: resolvedMedia,
+      preflight: preflight,
     );
   }
 

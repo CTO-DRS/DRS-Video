@@ -34,9 +34,27 @@ class DioClient {
 
   /// HEAD probe used to learn size/content-type/range support without
   /// downloading the body.
-  Future<Response<dynamic>> head(String url, {Map<String, String>? headers}) async {
+  ///
+  /// v1.14.2: [timeout] overrides the generous 15s/30s defaults per call
+  /// (probes pass ~8s so a dead host fails fast instead of starving the
+  /// UI), and [noRetry] skips RetryInterceptor — 3 retries × backoff used
+  /// to turn one failed probe into ~45s of dead waiting.
+  Future<Response<dynamic>> head(
+    String url, {
+    Map<String, String>? headers,
+    Duration? timeout,
+    bool noRetry = false,
+  }) async {
     try {
-      return await _dio.head(url, options: Options(headers: headers, followRedirects: true));
+      return await _dio.head(url,
+          options: Options(
+            headers: headers,
+            followRedirects: true,
+            connectTimeout: timeout,
+            receiveTimeout: timeout,
+            sendTimeout: timeout,
+            extra: noRetry ? const {'drsNoRetry': true} : null,
+          ));
     } catch (e) {
       throw mapException(e);
     }
@@ -61,14 +79,18 @@ class DioClient {
   /// the real content-type. ResponseType.stream is used so a hostile
   /// server that ignores Range and answers 200 never buffers a huge body
   /// into memory — we read headers and close the stream.
+  ///
+  /// v1.14.2: tight connect budget + optional [noRetry] (probes).
   Future<Response<dynamic>> rangeProbe(String url,
-      {Map<String, String>? headers}) async {
+      {Map<String, String>? headers, bool noRetry = false}) async {
     try {
       return await _dio.get(url,
           options: Options(
             headers: {...?headers, 'Range': 'bytes=0-0'},
             responseType: ResponseType.stream,
             receiveTimeout: const Duration(seconds: 15),
+            connectTimeout: const Duration(seconds: 8),
+            extra: noRetry ? const {'drsNoRetry': true} : null,
           ));
     } catch (e) {
       throw mapException(e);
@@ -85,6 +107,11 @@ class RetryInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
+    // v1.14.2: opt-out flag — probe paths must fail FAST (a 3× retried
+    // HEAD to a dead host cost ~45s before this guard).
+    if (err.requestOptions.extra['drsNoRetry'] == true) {
+      return handler.next(err);
+    }
     final extra = err.requestOptions.extra;
     final tryCount = (extra['try'] as int? ?? 1) + 1;
     final method = err.requestOptions.method.toUpperCase();

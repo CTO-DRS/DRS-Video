@@ -34,8 +34,14 @@ android {
         // release build; modern devices are arm64 and this still upgrades
         // in place over previous releases (same signing key). Bump back to
         // the full list when building on a roomier machine.
-        ndk {
-            abiFilters += listOf("arm64-v8a")
+        // v1.14.2 (patch restored): when Flutter drives the build with
+        // --split-per-abi, the split config owns the ABI filters and an
+        // unconditional ndk.abiFilters here makes AGP fail with
+        // "Conflicting configuration" — apply it to universal builds only.
+        if (project.findProperty("split-per-abi") == null) {
+            ndk {
+                abiFilters += listOf("arm64-v8a")
+            }
         }
     }
 

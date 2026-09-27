@@ -1037,10 +1037,8 @@
       }
     }
   },
-
   "playerBookmarkPrev": "Previous",
   "playerBookmarkNext": "Next",
-
   "pictureTitle": "Picture calibration",
   "pictureBrightness": "Brightness",
   "pictureContrast": "Contrast",
@@ -1052,7 +1050,6 @@
   "pictureZoom": "Zoom",
   "pictureZoomReset": "Reset zoom",
   "pictureZoomHint": "Pinch with two fingers to zoom and pan — long-press boosts speed to 2×.",
-
   "translateTitle": "Auto-translation",
   "translateHint": "Translates the current subtitle file into the chosen language via a free translation service (needs internet).",
   "translateNoSubtitle": "No external subtitle loaded — load one first to translate it.",
@@ -1063,7 +1060,6 @@
   "translateFailed": "Translation failed — check your connection and retry",
   "translateAutoPrefTitle": "Auto-translate YouTube captions",
   "translateAutoPrefSub": "Automatically swap to the translated track after download",
-
   "smartAutoSubsTitle": "YouTube captions automatically",
   "smartAutoSubsSub": "Attach the available YouTube captions to the video",
   "smartAutoSiblingTitle": "Auto-load folder subtitle",
@@ -1072,8 +1068,7 @@
   "smartBatterySaverSub": "Switch to audio-only below 20% battery while unplugged",
   "smartDataSaverTitle": "Data saver",
   "smartDataSaverSub": "Cap streaming quality to save mobile data",
-
-"actionInfo": "Info",
+  "actionInfo": "Info",
   "dlAddStorage": "Not enough storage space",
   "dlAddTitle": "Add download",
   "dlAddUrlLabel": "File URL",
@@ -1081,6 +1076,7 @@
   "dlAddClipboardFound": "A link is in your clipboard",
   "dlAddProbe": "Inspect link",
   "dlAddProbing": "Inspecting…",
+  "dlAddExtracting": "Extracting link…",
   "dlAddPreviewTitle": "File details",
   "dlAddName": "File name",
   "dlAddKind": "Type",
@@ -1104,7 +1100,6 @@
   "kindDocument": "Document",
   "kindApp": "App",
   "kindOther": "Other file",
-
   "studioTitle": "Studios",
   "studioOpenAll": "View all",
   "studioVideo": "Video studio",
@@ -1155,7 +1150,6 @@
   "studioInfoSize": "Size",
   "studioInfoDate": "Last modified",
   "studioInfoPath": "Path",
-
   "editPickHint": "Pick an image to edit (rotate, flip, grayscale, brightness, contrast), or an audio/video file to manage it",
   "editPickButton": "Choose file",
   "editPickAnother": "Choose another file",

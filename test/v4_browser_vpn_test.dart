@@ -223,8 +223,8 @@ void main() {
     });
 
     test('DatabaseService constant bumped to v4', () {
-      expect(AppConstants.dbVersion, 6);
-      expect(AppConstants.appVersion, '1.14.1');
+      expect(AppConstants.dbVersion, 7);
+      expect(AppConstants.appVersion, '1.14.2');
     });
   });
 }

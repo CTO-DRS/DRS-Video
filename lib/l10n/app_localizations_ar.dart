@@ -2499,6 +2499,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dlAddProbing => 'جارٍ الفحص…';
 
   @override
+  String get dlAddExtracting => 'جارٍ استخراج الرابط…';
+
+  @override
   String get dlAddPreviewTitle => 'تفاصيل الملف';
 
   @override

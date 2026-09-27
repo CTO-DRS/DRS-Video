@@ -78,6 +78,7 @@ class DatabaseService {
         media_item_id TEXT,
         error TEXT,
         headers TEXT,
+        origin_url TEXT,
         created_at INTEGER NOT NULL,
         completed_at INTEGER
       )''');
@@ -207,6 +208,12 @@ class DatabaseService {
     // resume re-enqueue web-scrape addresses with their required headers.
     if (oldVersion < 6) {
       await db.execute('ALTER TABLE downloads ADD COLUMN headers TEXT');
+    }
+    // v7 (v1.14.2): original share link per task — resolved CDN URLs are
+    // SIGNED and expire, so failed tasks re-resolve from this origin
+    // instead of retrying a dead URL verbatim.
+    if (oldVersion < 7) {
+      await db.execute('ALTER TABLE downloads ADD COLUMN origin_url TEXT');
     }
   }
 

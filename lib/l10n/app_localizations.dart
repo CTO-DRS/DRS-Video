@@ -4725,6 +4725,12 @@ abstract class AppLocalizations {
   /// **'جارٍ الفحص…'**
   String get dlAddProbing;
 
+  /// No description provided for @dlAddExtracting.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ استخراج الرابط…'**
+  String get dlAddExtracting;
+
   /// No description provided for @dlAddPreviewTitle.
   ///
   /// In ar, this message translates to:

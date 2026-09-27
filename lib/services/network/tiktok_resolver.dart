@@ -6,6 +6,15 @@ import 'package:dio/dio.dart';
 import '../../core/utils/logger.dart';
 import 'tiktok_webview_extractor.dart';
 
+/// v1.14.2 per-phase time budgets.
+///
+/// v1.14.1 killed the WHOLE resolve with one outer 15s timeout while the
+/// layers ran sequentially — on networks where tikwm is slow/blocked the
+/// budget died on layer 1 and the headless WebView (the only layer that
+/// survives anti-bot challenges) NEVER RAN. Now each phase owns its own
+/// budget and the API layer races in parallel, so a hanging endpoint can
+/// no longer starve the others.
+
 /// How long a resolved TikTok stream stays valid in the cache. TikTok CDN
 /// URLs live for hours; after this window the next play re-resolves.
 const Duration _cacheTtl = Duration(hours: 6);
@@ -110,9 +119,13 @@ class TikTokResolver {
 
   /// Resolves [url] into a direct stream. Null on any failure — safe to
   /// call from UI paths.
+  ///
+  /// [timeout] is an outer safety net only; with the v1.14.2 phase budgets
+  /// a full deep run (race 8s → page 5s → webview 20s) needs ~33s, so the
+  /// download path passes 35s while play paths keep tighter values.
   Future<TikTokResolved?> resolve(
     String url, {
-    Duration timeout = const Duration(seconds: 15),
+    Duration timeout = const Duration(seconds: 35),
   }) async {
     if (!isTikTokUrl(url)) return null;
 
@@ -124,6 +137,15 @@ class TikTokResolver {
     }
   }
 
+  /// Mobile feed API nodes. v1.14.2 live check (2026-09-27): api16 answers
+  /// HTTP 429 and api22 answers 200-with-empty-body for many regions —
+  /// racing several nodes means one dead node costs nothing.
+  static const List<String> _feedNodes = [
+    'https://api16-normal-c-useast1a.tiktokv.com',
+    'https://api22-normal-c-useast2a.tiktokv.com',
+    'https://api31-normal-useast1a.tiktokv.com',
+  ];
+
   Future<TikTokResolved?> _resolveNow(String url) async {
     var pageUrl = url.trim();
 
@@ -134,37 +156,42 @@ class TikTokResolver {
       id = extractVideoId(pageUrl);
     }
     if (id == null) return null;
+    final videoId = id; // promoted once — closures can't capture `var id`
 
     final cached = _cache[id];
     if (cached != null && !cached.isExpired) return cached.value;
 
-    // 2) tikwm.com public resolver API — tried FIRST since v1.14.1: the
-    //    mobile feed API endpoint has gone dark in some regions (returns
-    //    empty bodies) and tikwm answers in <1s with a no-watermark MP4.
-    final viaTikwm = await _resolveViaTikwm(pageUrl);
-    if (viaTikwm != null) {
-      _cache[id] = _CacheEntry(viaTikwm);
-      return viaTikwm;
+    // 2) PHASE 1 — parallel race: tikwm + every feed API node. First
+    //    non-null answer wins; the whole phase is capped at 8s. tikwm is
+    //    the only endpoint verified alive (region SA included), the feed
+    //    nodes fail fast (429/empty <1s) so racing them costs nothing but
+    //    rescues regions where tikwm itself is throttled.
+    final raced = await raceSuccess<TikTokResolved>([
+      () => _resolveViaTikwm(pageUrl),
+      for (final node in _feedNodes) () => _resolveViaFeedApi(videoId, node),
+    ], budget: const Duration(seconds: 8));
+    if (raced != null) {
+      _cache[id] = _CacheEntry(raced);
+      return raced;
     }
 
-    // 3) Mobile feed API (no-watermark, headers-free CDN URL).
-    final viaApi = await _resolveViaFeedApi(id);
-    if (viaApi != null) {
-      _cache[id] = _CacheEntry(viaApi);
-      return viaApi;
-    }
-
-    // 4) Static web page rehydration data (needs UA/Referer headers).
-    final viaPage = await _resolveViaWebPage(pageUrl, id);
+    // 3) PHASE 2 — static web page rehydration data (needs UA/Referer
+    //    headers). Own 5s budget so a dead phase can't starve phase 3.
+    final viaPage = await _resolveViaWebPage(pageUrl, id)
+        .timeout(const Duration(seconds: 5), onTimeout: () => null);
     if (viaPage != null) {
       _cache[id] = _CacheEntry(viaPage);
       return viaPage;
     }
 
-    // 5) Heavyweight: render the page in a real headless WebView. This
-    //    is the path that survives TikTok's anti-bot challenges because
-    //    the browser engine executes the page's JavaScript for real.
-    final viaWebView = await _resolveViaWebView(pageUrl, id);
+    // 4) PHASE 3 — heavyweight: render the page in a real headless
+    //    WebView. This is the path that survives TikTok's anti-bot
+    //    challenges because the browser engine executes the page's
+    //    JavaScript for real. v1.14.2 guarantees it gets its turn (own
+    //    20s budget — under v1.14.1's shared 15s outer kill it never ran
+    //    on slow networks).
+    final viaWebView = await _resolveViaWebView(pageUrl, id)
+        .timeout(const Duration(seconds: 20), onTimeout: () => null);
     if (viaWebView != null) {
       _cache[id] = _CacheEntry(viaWebView);
       return viaWebView;
@@ -172,11 +199,51 @@ class TikTokResolver {
     return null;
   }
 
+  /// Runs [tasks] CONCURRENTLY and completes with the first non-null
+  /// result, or null when every task finishes null/fails or [budget]
+  /// elapses. Losers keep running but their result is ignored.
+  ///
+  /// v1.14.2 core concurrency primitive — replaces the sequential layer
+  /// chain that made slow/blocked endpoints starve the working ones.
+  static Future<T?> raceSuccess<T>(
+    List<Future<T?> Function()> tasks, {
+    required Duration budget,
+  }) {
+    if (tasks.isEmpty) return Future<T?>.value();
+    final completer = Completer<T?>();
+    var settled = false;
+    var pending = tasks.length;
+
+    void settle(T? value) {
+      if (settled) return;
+      settled = true;
+      completer.complete(value);
+    }
+
+    Future<void> run(Future<T?> Function() task) async {
+      try {
+        final value = await task();
+        if (value != null) return settle(value);
+      } catch (_) {
+        // individual racers may fail — the race itself never throws
+      }
+      pending--;
+      if (pending == 0) settle(null);
+    }
+
+    Timer(budget, () => settle(null));
+    for (final task in tasks) {
+      unawaited(run(task));
+    }
+    return completer.future;
+  }
+
   /// Follows short-link redirects manually so a hostile chain can never
-  /// loop: at most 5 hops, always re-checked against tiktok.com.
+  /// loop: at most 3 hops, always re-checked against tiktok.com, tight
+  /// per-hop timeouts (a dead short-link host costs ≤3s per hop).
   Future<String> _followRedirects(String url) async {
     var current = url;
-    for (var hop = 0; hop < 5; hop++) {
+    for (var hop = 0; hop < 3; hop++) {
       final dio = _ensureDio();
       final res = await dio.get<Object?>(
         current,
@@ -185,6 +252,8 @@ class TikTokResolver {
           validateStatus: (s) => s != null && s < 400,
           responseType: ResponseType.plain,
           headers: {'User-Agent': _mobileUa},
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 6),
         ),
       );
       final status = res.statusCode ?? 0;
@@ -204,11 +273,11 @@ class TikTokResolver {
     return current;
   }
 
-  Future<TikTokResolved?> _resolveViaFeedApi(String id) async {
+  Future<TikTokResolved?> _resolveViaFeedApi(String id, String node) async {
     try {
       final dio = _ensureDio();
       final res = await dio.get<String>(
-        'https://api16-normal-c-useast1a.tiktokv.com/aweme/v1/feed/',
+        '$node/aweme/v1/feed/',
         queryParameters: {
           'aweme_id': id,
           'version_code': '300904',
@@ -223,6 +292,8 @@ class TikTokResolver {
           responseType: ResponseType.json,
           headers: {'User-Agent': _mobileUa},
           validateStatus: (s) => s != null && s < 500,
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 6),
         ),
       );
       final body = res.data;
@@ -245,6 +316,8 @@ class TikTokResolver {
           responseType: ResponseType.plain,
           headers: {'User-Agent': _desktopUa},
           validateStatus: (s) => s != null && s < 500,
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 5),
         ),
       );
       final html = res.data;
@@ -296,6 +369,8 @@ class TikTokResolver {
           responseType: ResponseType.plain,
           headers: {'User-Agent': _mobileUa},
           validateStatus: (s) => s != null && s < 500,
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 7),
         ),
       );
       final body = res.data;
@@ -353,9 +428,11 @@ class TikTokResolver {
   }
 
   Dio _ensureDio() {
+    // v1.14.2: the base timeouts are deliberately generous (WebView-ish
+    // callers) — every racing call overrides them per-Options above.
     _dio ??= Dio(BaseOptions(
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 15),
+      connectTimeout: const Duration(seconds: 4),
+      receiveTimeout: const Duration(seconds: 8),
       followRedirects: true,
       maxRedirects: 5,
       validateStatus: (s) => s != null && s < 500,

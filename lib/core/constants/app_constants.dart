@@ -5,10 +5,10 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.14.1';
+  static const String appVersion = '1.14.2';
 
   static const String dbName = 'drs_video.db';
-  static const int dbVersion = 6;
+  static const int dbVersion = 7;
 
   /// Android MethodChannel used by MainActivity (Kotlin).
   static const String nativeChannel = 'drs.video/native';

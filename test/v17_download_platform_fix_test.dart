@@ -10,7 +10,7 @@ import 'package:drs_video/services/downloader/url_probe_service.dart';
 import 'package:drs_video/services/smart/intel_v4.dart';
 import 'package:drs_video/core/errors/app_exception.dart';
 
-/// v1.14.1 regression tests — "TikTok download saves a .txt document".
+/// v1.14.2 regression tests — "TikTok download saves a .txt document".
 ///
 /// The fix: platform share links are resolved into direct media BEFORE the
 /// download engine probes/enqueues them, page-like responses are never

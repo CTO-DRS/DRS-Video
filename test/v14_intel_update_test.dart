@@ -288,7 +288,7 @@ void main() {
 
   group('v1.12.0 version bump', () {
     test('app version is 1.12.0', () {
-      expect(AppConstants.appVersion, '1.14.1');
+      expect(AppConstants.appVersion, '1.14.2');
       expect(AppConstants.githubRepo, 'CTO-DRS/DRS-Video');
     });
   });

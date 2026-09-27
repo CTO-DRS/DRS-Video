@@ -1089,10 +1089,8 @@
       }
     }
   },
-
   "playerBookmarkPrev": "السابق",
   "playerBookmarkNext": "التالي",
-
   "pictureTitle": "معايرة الصورة",
   "pictureBrightness": "السطوع",
   "pictureContrast": "التباين",
@@ -1104,7 +1102,6 @@
   "pictureZoom": "التكبير",
   "pictureZoomReset": "تصفير التكبير",
   "pictureZoomHint": "استخدم إصبعين على الفيديو للتكبير والتحريك — الضغط المطوّل يسرّع التشغيل إلى 2×.",
-
   "translateTitle": "الترجمة التلقائية",
   "translateHint": "تُترجم ملف الترجمة الحالي إلى اللغة المختارة عبر خدمة ترجمة مجانية (يتطلب اتصال إنترنت).",
   "translateNoSubtitle": "لا يوجد ملف ترجمة خارجي حالي — حمّل ترجمة أولاً لترجمتها.",
@@ -1115,7 +1112,6 @@
   "translateFailed": "فشلت الترجمة — تحقق من الاتصال وحاول مجدداً",
   "translateAutoPrefTitle": "ترجمة تلقائية لترجمات يوتيوب",
   "translateAutoPrefSub": "تبديل تلقائي إلى الترجمة المترجمة بعد تحميلها",
-
   "smartAutoSubsTitle": "ترجمات يوتيوب تلقائياً",
   "smartAutoSubsSub": "إرفاق الترجمة المتاحة من يوتيوب مع الفيديو",
   "smartAutoSiblingTitle": "ترجمة المجلد تلقائياً",
@@ -1124,8 +1120,7 @@
   "smartBatterySaverSub": "التحويل إلى الصوت فقط عند انخفاض البطارية عن 20% بدون شاحن",
   "smartDataSaverTitle": "موفر البيانات",
   "smartDataSaverSub": "تحديد جودة البث لتوفير بيانات الإنترنت",
-
-"actionInfo": "معلومات",
+  "actionInfo": "معلومات",
   "dlAddStorage": "لا توجد مساحة تخزين كافية",
   "dlAddTitle": "إضافة تنزيل",
   "dlAddUrlLabel": "رابط الملف",
@@ -1133,6 +1128,7 @@
   "dlAddClipboardFound": "يوجد رابط في الحافظة",
   "dlAddProbe": "فحص الرابط",
   "dlAddProbing": "جارٍ الفحص…",
+  "dlAddExtracting": "جارٍ استخراج الرابط…",
   "dlAddPreviewTitle": "تفاصيل الملف",
   "dlAddName": "اسم الملف",
   "dlAddKind": "النوع",
@@ -1156,7 +1152,6 @@
   "kindDocument": "مستند",
   "kindApp": "تطبيق",
   "kindOther": "ملف آخر",
-
   "studioTitle": "الاستوديوهات",
   "studioOpenAll": "عرض الكل",
   "studioVideo": "استوديو الفيديو",
@@ -1207,7 +1202,6 @@
   "studioInfoSize": "الحجم",
   "studioInfoDate": "آخر تعديل",
   "studioInfoPath": "المسار",
-
   "editPickHint": "اختر صورة لتحريرها (تدوير، قلب، أبيض وأسود، سطوع، تباين)، أو ملفًا صوتيًا/فيديو لإدارة خياراته",
   "editPickButton": "اختيار ملف",
   "editPickAnother": "اختيار ملف آخر",

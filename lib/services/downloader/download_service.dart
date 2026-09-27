@@ -18,6 +18,24 @@ import '../notifications/notification_service.dart';
 import '../platform/native_channel.dart';
 import 'platform_download_resolver.dart';
 
+/// v1.14.2: probe results handed in by the add-download sheet so
+/// [DownloadService.start] skips its own HEAD/range probing — the flow
+/// previously resolved + probed TWICE (sheet, then start), doubling the
+/// user-visible latency on every download.
+class PreflightInfo {
+  const PreflightInfo({
+    required this.expectedSize,
+    required this.resumable,
+    required this.contentType,
+    this.disposition,
+  });
+
+  final int? expectedSize;
+  final bool resumable;
+  final String? contentType;
+  final String? disposition;
+}
+
 /// Top-level callback required by flutter_downloader. Forwards native
 /// download events into the Dart service.
 @pragma('vm:entry-point')
@@ -52,6 +70,7 @@ class DownloadService extends ChangeNotifier {
   final Map<String, List<(DateTime, int)>> _samples = {}; // taskId -> samples
   final Map<String, double> _speeds = {}; // taskId -> bytes/s
   final Map<String, int> _retryCount = {}; // our id -> auto retries
+  final Map<String, int> _resolveRetries = {}; // our id -> re-resolve retries
 
   /// Tasks the user paused by hand this session (v1.8.0): auto-resume on
   /// WiFi must never override an explicit user decision.
@@ -164,6 +183,10 @@ class DownloadService extends ChangeNotifier {
   /// (with CDN headers) BEFORE probing/enqueuing, and a page-like probe
   /// response aborts with a clear error instead of saving a .txt/.html
   /// document that pretends to be the video.
+  ///
+  /// v1.14.2 speed fix: [resolvedMedia] + [preflight] come from the sheet's
+  /// single probe pass — when provided, resolution and HEAD/range probing
+  /// are SKIPPED here (the flow runs each step exactly once).
   Future<DownloadTaskModel> start({
     required String url,
     required String title,
@@ -171,15 +194,18 @@ class DownloadService extends ChangeNotifier {
     Map<String, String>? headers,
     DownloadPriority priority = DownloadPriority.normal,
     String? desiredFileName,
+    ResolvedPlatformMedia? resolvedMedia,
+    PreflightInfo? preflight,
   }) async {
     // Lazy init: WorkManager is no longer touched at app boot (v1.0.2
     // startup hardening); initialize right before the first real use.
     await init();
     final dir = await downloadDir;
+    final originUrl = url; // v1.14.2: kept for signed-URL re-resolve
 
-    // --- v1.14.1: platform page → direct media -------------------------
-    ResolvedPlatformMedia? resolved;
-    if (PlatformDownloadResolver.needsResolution(url)) {
+    // --- platform page → direct media ---------------------------------
+    ResolvedPlatformMedia? resolved = resolvedMedia;
+    if (resolved == null && PlatformDownloadResolver.needsResolution(url)) {
       resolved = await PlatformDownloadResolver.instance.resolve(url);
       if (resolved == null) {
         // Honest failure: we refuse to enqueue an HTML page. The sheet
@@ -188,6 +214,8 @@ class DownloadService extends ChangeNotifier {
         AppLogger.instance.warning('dl', 'platform resolve failed: $url');
         throw const AppException(AppErrorType.invalidInput);
       }
+    }
+    if (resolved != null) {
       url = resolved.directUrl;
       headers = <String, String>{...?headers, ...resolved.headers};
       final rt = resolved.title;
@@ -199,39 +227,55 @@ class DownloadService extends ChangeNotifier {
           'resolved ${resolved.platform} link → ${Uri.parse(url).host}');
     }
 
-    // Pre-flight: probe size/resume support (real HEAD request).
+    // Pre-flight: probe size/resume support (real HEAD request). v1.14.2:
+    // skipped entirely when the sheet already probed with the same URL.
     int? expectedSize;
     var resumable = false;
     String? probedMime;
     String? disposition;
-    try {
-      final res = await DioClient.instance.head(url, headers: headers);
-      final len = res.headers.value(HttpHeaders.contentLengthHeader);
-      expectedSize = len == null ? null : int.tryParse(len.trim());
-      final range = res.headers.value(HttpHeaders.acceptRangesHeader) ?? '';
-      resumable = range.toLowerCase() == 'bytes';
-      probedMime = res.headers.value(HttpHeaders.contentTypeHeader);
-      disposition = res.headers.value('content-disposition');
-      AppLogger.instance.info('dl', 'probe ok: size=$expectedSize resumable=$resumable');
-    } on AppException catch (e) {
-      if (e.type == AppErrorType.notFound || e.type == AppErrorType.forbidden) rethrow;
-      AppLogger.instance.warning('dl', 'probe failed, continuing anyway: $e');
-      // v1.14.1: HEAD-hostile CDNs (TikTok answers 503 to HEAD while GET
-      // works) — a 1-byte range GET recovers mime/size/resume so the HTML
-      // guard and integrity check still see the truth.
+    if (preflight != null) {
+      expectedSize = preflight.expectedSize;
+      resumable = preflight.resumable;
+      probedMime = preflight.contentType;
+      disposition = preflight.disposition;
+      AppLogger.instance.info('dl',
+          'preflight reused: size=$expectedSize mime=$probedMime');
+    } else {
       try {
-        final r = await DioClient.instance.rangeProbe(url, headers: headers);
-        final cr = r.headers.value('content-range');
-        final m = RegExp(r'bytes\s+\d+-\d+/(\d+)').firstMatch(cr ?? '');
-        if (m != null) expectedSize = int.tryParse(m.group(1)!);
-        probedMime = r.headers.value(HttpHeaders.contentTypeHeader);
-        disposition = r.headers.value('content-disposition');
-        resumable = (r.statusCode ?? 0) == 206;
+        final res = await DioClient.instance.head(url,
+            headers: headers, timeout: const Duration(seconds: 8));
+        final len = res.headers.value(HttpHeaders.contentLengthHeader);
+        expectedSize = len == null ? null : int.tryParse(len.trim());
+        final range = res.headers.value(HttpHeaders.acceptRangesHeader) ?? '';
+        resumable = range.toLowerCase() == 'bytes';
+        probedMime = res.headers.value(HttpHeaders.contentTypeHeader);
+        disposition = res.headers.value('content-disposition');
         AppLogger.instance
-            .info('dl', 'range probe ok: size=$expectedSize mime=$probedMime');
-      } catch (e2) {
-        AppLogger.instance
-            .warning('dl', 'range probe failed too: $e2 (continuing)');
+            .info('dl', 'probe ok: size=$expectedSize resumable=$resumable');
+      } on AppException catch (e) {
+        if (e.type == AppErrorType.notFound ||
+            e.type == AppErrorType.forbidden) {
+          rethrow;
+        }
+        AppLogger.instance.warning('dl', 'probe failed, continuing anyway: $e');
+        // v1.14.1: HEAD-hostile CDNs (TikTok answers 503 to HEAD while GET
+        // works) — a 1-byte range GET recovers mime/size/resume so the HTML
+        // guard and integrity check still see the truth.
+        try {
+          final r = await DioClient.instance.rangeProbe(url, headers: headers);
+          final cr = r.headers.value('content-range');
+          final m =
+              RegExp(r'bytes\s+\d+-\d+/(\d+)').firstMatch(cr ?? '');
+          if (m != null) expectedSize = int.tryParse(m.group(1)!);
+          probedMime = r.headers.value(HttpHeaders.contentTypeHeader);
+          disposition = r.headers.value('content-disposition');
+          resumable = (r.statusCode ?? 0) == 206;
+          AppLogger.instance.info(
+              'dl', 'range probe ok: size=$expectedSize mime=$probedMime');
+        } catch (e2) {
+          AppLogger.instance
+              .warning('dl', 'range probe failed too: $e2 (continuing)');
+        }
       }
     }
 
@@ -280,6 +324,7 @@ class DownloadService extends ChangeNotifier {
       expectedSize: expectedSize,
       priority: priority,
       headers: (headers == null || headers.isEmpty) ? null : headers,
+      originUrl: (resolved != null && originUrl != url) ? originUrl : null,
     );
     await _repo.insert(task);
     _tasks = await _repo.all();
@@ -500,7 +545,59 @@ class DownloadService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// v1.14.2 pure retry gate: a task re-resolves from its origin link when
+  /// the origin is a platform share page and the session re-resolve budget
+  /// (2) is not exhausted. Signed CDN URLs expire — same-URL retries can
+  /// never recover them.
+  static bool shouldReresolveOnFailure({String? originUrl, required int attempts}) {
+    if (originUrl == null) return false;
+    if (attempts >= 2) return false;
+    return PlatformDownloadResolver.needsResolution(originUrl);
+  }
+
   Future<void> _onNativeFailed(DownloadTaskModel task) async {
+    // v1.14.2: platform share links resolve to SIGNED CDN URLs that
+    // expire — retrying the same dead URL can NEVER succeed. When the task
+    // carries its origin link, re-resolve it into a fresh URL and enqueue
+    // a new native task (max 2 times per session per task).
+    final origin = task.originUrl;
+    if (origin != null &&
+        shouldReresolveOnFailure(
+            originUrl: origin, attempts: _resolveRetries[task.id] ?? 0)) {
+      _resolveRetries[task.id] = (_resolveRetries[task.id] ?? 0) + 1;
+      try {
+        final fresh = await PlatformDownloadResolver.instance.resolve(origin);
+        if (fresh != null) {
+          if (task.taskId != null) {
+            await FlutterDownloader.remove(
+                taskId: task.taskId!, shouldDeleteContent: true);
+          }
+          task.url = fresh.directUrl;
+          if (fresh.headers.isNotEmpty) task.headers = fresh.headers;
+          task.progress = 0;
+          task.error = null;
+          final newTaskId = await FlutterDownloader.enqueue(
+            url: task.url,
+            savedDir: task.savedDir,
+            fileName: task.fileName,
+            showNotification: true,
+            openFileFromNotification: false,
+            headers: task.headers ?? const {},
+          );
+          task.taskId = newTaskId;
+          task.status = DownloadStatus.running;
+          await _repo.update(task);
+          _samples[newTaskId ?? task.id] = [(DateTime.now(), 0)];
+          AppLogger.instance.info('dl',
+              're-resolved ${task.fileName} → fresh native task (attempt ${_resolveRetries[task.id]})');
+          notifyListeners();
+          return;
+        }
+      } catch (e) {
+        AppLogger.instance.warning('dl', 're-resolve retry failed: $e');
+      }
+    }
+
     // Deterministic auto-retry: one extra attempt with backoff.
     final tries = _retryCount.putIfAbsent(task.id, () => 0);
     if (tries < 1 && task.taskId != null) {

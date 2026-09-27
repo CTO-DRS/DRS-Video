@@ -6,6 +6,15 @@ import '../../core/utils/logger.dart';
 import '../smart/intel_v4.dart';
 import 'platform_download_resolver.dart';
 
+/// v1.14.2: probe result CARRYING the resolved platform media. The
+/// add-download sheet passes both to DownloadService.start so resolution
+/// + probing run exactly ONCE per download instead of twice.
+class ProbeWithMedia {
+  const ProbeWithMedia({required this.summary, this.media});
+  final ProbeSummary summary;
+  final ResolvedPlatformMedia? media;
+}
+
 /// Probes a URL and returns a pure [ProbeSummary] used by the add-download
 /// sheet preview (العرض): file name, size, kind, resumable state.
 ///
@@ -31,11 +40,14 @@ class UrlProbeService {
 
   static Future<Response<dynamic>> _defaultFetch(
           String url, Map<String, String> headers) =>
-      DioClient.instance.head(url, headers: headers);
+      DioClient.instance.head(url,
+          headers: headers,
+          timeout: const Duration(seconds: 8),
+          noRetry: true);
 
   static Future<Response<dynamic>> _defaultRangeFetch(
           String url, Map<String, String> headers) =>
-      DioClient.instance.rangeProbe(url, headers: headers);
+      DioClient.instance.rangeProbe(url, headers: headers, noRetry: true);
 
   final Future<Response<dynamic>> Function(String url, Map<String, String> headers)
       _fetcher;
@@ -44,10 +56,18 @@ class UrlProbeService {
 
   /// Returns a summary, or throws [AppException] with a user-actionable type.
   /// Network errors are NOT swallowed: the sheet shows them verbatim.
-  Future<ProbeSummary> probe(String url) async {
+  Future<ProbeSummary> probe(String url) async =>
+      (await probeWithMedia(url)).summary;
+
+  /// v1.14.2: the same probe, also returning the resolved platform media
+  /// (direct URL + CDN headers + title) so the caller can start the
+  /// download WITHOUT re-resolving and re-probing (the double work that
+  /// made the flow feel dead-slow).
+  Future<ProbeWithMedia> probeWithMedia(String url) async {
     var effectiveUrl = url;
     var headers = const <String, String>{};
     String? resolvedTitle;
+    ResolvedPlatformMedia? media;
 
     // Platform pages are HTML — resolve the real media URL first so the
     // preview reflects what will actually be downloaded. Resolution
@@ -55,6 +75,7 @@ class UrlProbeService {
     try {
       final resolved = await PlatformDownloadResolver.instance.resolve(url);
       if (resolved != null) {
+        media = resolved;
         effectiveUrl = resolved.directUrl;
         headers = resolved.headers;
         resolvedTitle = resolved.title;
@@ -63,16 +84,24 @@ class UrlProbeService {
       AppLogger.instance.warning('probe', 'platform resolve skipped: $e');
     }
 
+    // v1.14.2: tight 8s budget + noRetry — a probe must answer in seconds,
+    // never crawl through 3× retry backoffs.
     try {
       final res = await _fetcher(effectiveUrl, headers);
-      return _summarize(res, effectiveUrl, resolvedTitle);
+      return ProbeWithMedia(
+        summary: _summarize(res, effectiveUrl, resolvedTitle),
+        media: media,
+      );
     } on AppException {
       // HEAD-hostile CDN → 1-byte range GET fallback (real content-type +
       // total size from Content-Range, byte-budgeted so it can never pull
       // a huge body).
       try {
         final r = await _rangeFetcher(effectiveUrl, headers);
-        return _summarize(r, effectiveUrl, resolvedTitle);
+        return ProbeWithMedia(
+          summary: _summarize(r, effectiveUrl, resolvedTitle),
+          media: media,
+        );
       } catch (e) {
         AppLogger.instance
             .warning('probe', 'HEAD + range-GET both failed: $e');

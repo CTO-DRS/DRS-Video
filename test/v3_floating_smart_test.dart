@@ -189,7 +189,7 @@ void main() {
     });
 
     test('app version constant bumped to 1.12.0', () {
-      expect(AppConstants.appVersion, '1.14.1');
+      expect(AppConstants.appVersion, '1.14.2');
     });
   });
 }

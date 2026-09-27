@@ -2509,6 +2509,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dlAddProbing => 'Inspecting…';
 
   @override
+  String get dlAddExtracting => 'Extracting link…';
+
+  @override
   String get dlAddPreviewTitle => 'File details';
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +8,8 @@ import '../../core/constants/app_constants.dart';
 import '../../core/errors/app_exception.dart';
 import '../../core/utils/formatters.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/downloader/download_service.dart';
+import '../../services/downloader/platform_download_resolver.dart';
 import '../../services/downloader/url_probe_service.dart';
 import '../../services/smart/intel_v4.dart';
 import '../../state/downloads_controller.dart';
@@ -33,6 +37,7 @@ class _AddDownloadSheetState extends State<AddDownloadSheet> {
   final _nameCtrl = TextEditingController();
   final _probe = UrlProbeService();
   ProbeSummary? _summary;
+  ResolvedPlatformMedia? _media; // v1.14.2: resolved platform media
   bool _probing = false;
   bool _starting = false;
   String? _error;
@@ -75,8 +80,11 @@ class _AddDownloadSheetState extends State<AddDownloadSheet> {
         _urlCtrl.text = text;
         _clipboardSuggestion = null;
         _summary = null;
+        _media = null;
         _error = null;
       });
+      // v1.14.2: probe immediately — pasting is an intent to download.
+      unawaited(_runProbe());
     } else {
       setState(() => _error = AppLocalizations.of(context)!.dlAddInvalidUrl);
     }
@@ -87,8 +95,11 @@ class _AddDownloadSheetState extends State<AddDownloadSheet> {
       _urlCtrl.text = _clipboardSuggestion!;
       _clipboardSuggestion = null;
       _summary = null;
+      _media = null;
       _error = null;
     });
+    // v1.14.2: probe immediately — accepting the suggestion is an intent.
+    unawaited(_runProbe());
   }
 
   Future<void> _runProbe() async {
@@ -105,18 +116,20 @@ class _AddDownloadSheetState extends State<AddDownloadSheet> {
       _probing = true;
       _error = null;
       _summary = null;
+      _media = null;
     });
     try {
-      final s = await _probe.probe(url);
+      final r = await _probe.probeWithMedia(url);
       if (!mounted) return;
       setState(() {
-        _summary = s;
+        _summary = r.summary;
+        _media = r.media;
         // v1.14.1: prefer the platform-extracted title (human readable) over
         // the CDN hash name for the pre-filled file name.
         if (_nameCtrl.text.trim().isEmpty) {
-          final rt = s.resolvedTitle?.trim();
+          final rt = r.summary.resolvedTitle?.trim();
           _nameCtrl.text =
-              (rt != null && rt.isNotEmpty) ? rt : s.fileName;
+              (rt != null && rt.isNotEmpty) ? rt : r.summary.fileName;
         }
       });
     } on AppException catch (e) {
@@ -146,10 +159,24 @@ class _AddDownloadSheetState extends State<AddDownloadSheet> {
           ? FileNameSuggester.sanitize(_nameCtrl.text.trim())
           : _summary?.fileName ??
               FileNameSuggester.suggest(url: url, fallback: 'download');
+      // v1.14.2: hand the sheet's resolution + probe results to the
+      // service — the download starts with ZERO duplicate network work.
+      final preflight = _summary == null
+          ? null
+          : PreflightInfo(
+              expectedSize:
+                  _summary!.sizeBytes >= 0 ? _summary!.sizeBytes : null,
+              resumable: _summary!.resumable,
+              contentType: _summary!.contentType.isEmpty
+                  ? null
+                  : _summary!.contentType,
+            );
       await context.read<DownloadsController>().startFromUrl(
             url: url,
             title: name,
             priority: _priority,
+            resolvedMedia: _media,
+            preflight: preflight,
           );
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -225,7 +252,12 @@ class _AddDownloadSheetState extends State<AddDownloadSheet> {
               keyboardType: TextInputType.url,
               maxLines: 1,
               onChanged: (_) {
-                if (_summary != null) setState(() => _summary = null);
+                if (_summary != null || _media != null) {
+                  setState(() {
+                    _summary = null;
+                    _media = null;
+                  });
+                }
               },
               decoration: InputDecoration(
                 labelText: l.dlAddUrlLabel,
@@ -247,7 +279,14 @@ class _AddDownloadSheetState extends State<AddDownloadSheet> {
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.search),
-                label: Text(_probing ? l.dlAddProbing : l.dlAddProbe),
+                label: Text(_probing
+                    // v1.14.2: honest stage label — platform links are being
+                    // EXTRACTED (multi-layer), plain links are just probed.
+                    ? (PlatformDownloadResolver.needsResolution(
+                            _urlCtrl.text.trim())
+                        ? l.dlAddExtracting
+                        : l.dlAddProbing)
+                    : l.dlAddProbe),
               ),
             ]),
             if (_error != null) ...[

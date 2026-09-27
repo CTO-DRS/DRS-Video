@@ -18,12 +18,17 @@ class DownloadTaskModel {
     this.mediaItemId,
     this.error,
     this.headers,
+    this.originUrl,
     DateTime? createdAt,
     this.completedAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
   final String id;
-  final String url;
+
+  /// The URL the engine downloads from. v1.14.2: mutable — platform share
+  /// links resolve to SIGNED CDN URLs that expire, so a failed task is
+  /// re-resolved from [originUrl] and this field is refreshed.
+  String url;
   final String savedDir;
   final String fileName;
   String? taskId; // flutter_downloader native task id (null while queued)
@@ -37,6 +42,12 @@ class DownloadTaskModel {
   /// v1.14.1: CDN headers (User-Agent/Referer) required by web-scrape
   /// media addresses. Persisted so retry/resume re-enqueue with them.
   Map<String, String>? headers;
+
+  /// v1.14.2: the ORIGINAL link the user pasted (platform share page) when
+  /// this task was resolved into a direct media URL. Retries re-resolve
+  /// from it because the resolved CDN URL carries a signature that can
+  /// expire — retrying the dead URL verbatim can never succeed.
+  String? originUrl;
 
   final DateTime createdAt;
   DateTime? completedAt;
@@ -62,6 +73,7 @@ class DownloadTaskModel {
         'headers': (headers == null || (headers?.isEmpty ?? true))
             ? null
             : jsonEncode(headers),
+        'origin_url': originUrl,
         'created_at': createdAt.millisecondsSinceEpoch,
         'completed_at': completedAt?.millisecondsSinceEpoch,
       };
@@ -90,6 +102,7 @@ class DownloadTaskModel {
         mediaItemId: m['media_item_id'] as String?,
         error: m['error'] as String?,
         headers: _decodeHeaders(m['headers']),
+        originUrl: m['origin_url'] as String?,
         createdAt: DateTime.fromMillisecondsSinceEpoch(m['created_at'] as int),
         completedAt: m['completed_at'] == null
             ? null
