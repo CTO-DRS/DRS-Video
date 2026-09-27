@@ -2126,4 +2126,162 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get audioEnhanceNote =>
       'Applied live and saved as the default for every video you open.';
+
+  @override
+  String get vaultTitle => 'Private vault';
+
+  @override
+  String get vaultLockedTitle => 'Vault locked';
+
+  @override
+  String get vaultCreatePin => 'Create a vault PIN';
+
+  @override
+  String get vaultConfirmPin => 'Confirm the PIN';
+
+  @override
+  String get vaultSetupHint =>
+      'This PIN guards your hidden videos only — it is separate from the app lock. 4 digits.';
+
+  @override
+  String get vaultPinMismatch => 'The two PINs do not match — start over';
+
+  @override
+  String get vaultPinInvalid => 'The PIN must be 4 digits';
+
+  @override
+  String get vaultPinCreated =>
+      'Vault PIN created. Use \'Hide in vault\' from any video\'s menu.';
+
+  @override
+  String get vaultPinChanged => 'Vault PIN updated';
+
+  @override
+  String get vaultWrongPin => 'Wrong vault PIN';
+
+  @override
+  String get vaultEnterPin => 'Enter the vault PIN';
+
+  @override
+  String vaultLockedOut(int seconds) {
+    return 'Too many attempts. Wait $seconds seconds';
+  }
+
+  @override
+  String get vaultChangePin => 'Change vault PIN';
+
+  @override
+  String get vaultCurrentPin => 'Current PIN';
+
+  @override
+  String get vaultNewPin => 'New PIN (4 digits)';
+
+  @override
+  String get vaultLockNow => 'Lock now';
+
+  @override
+  String get vaultEmpty => 'The vault is empty';
+
+  @override
+  String get vaultEmptyHint =>
+      'Long-press any video in the library and choose \'Hide in vault\' to move it here.';
+
+  @override
+  String get hideInVault => 'Hide in vault';
+
+  @override
+  String get unhideFromVault => 'Move out of vault';
+
+  @override
+  String get vaultItemHidden =>
+      'Video hidden — find it in Settings → Private vault';
+
+  @override
+  String get vaultItemRestored => 'Video restored to the library';
+
+  @override
+  String get vaultRemoveForever => 'Delete permanently?';
+
+  @override
+  String get vaultRemoveForeverHint =>
+      'The video file itself is deleted from the device, not just its library entry.';
+
+  @override
+  String get subtitleToolsTitle => 'Subtitle tools';
+
+  @override
+  String get subtitleToolsHint => 'Sync delay + Arabic legacy encoding fix';
+
+  @override
+  String get subtitleDelayTitle => 'Sync delay';
+
+  @override
+  String get subtitleDelayEarlier => 'Subtitles earlier';
+
+  @override
+  String get subtitleDelayLater => 'Subtitles later';
+
+  @override
+  String get subtitleDelayNone => 'No delay — subtitles are in sync';
+
+  @override
+  String subtitleDelayShownLater(String value) {
+    return 'Subtitles appear $value s later';
+  }
+
+  @override
+  String subtitleDelayShownEarlier(String value) {
+    return 'Subtitles appear $value s earlier';
+  }
+
+  @override
+  String get subtitleDelayReset => 'Reset delay';
+
+  @override
+  String get subtitleEncodingTitle => 'Text encoding';
+
+  @override
+  String get subtitleEncodingHint =>
+      'Old Arabic .srt files show as scrambled letters? Pick the right encoding and DRS Video converts them to readable Arabic automatically.';
+
+  @override
+  String get encAuto => 'Auto-detect (recommended)';
+
+  @override
+  String get encUtf8 => 'UTF-8 (modern files)';
+
+  @override
+  String get encWin1256 => 'Windows-1256 (legacy Arabic)';
+
+  @override
+  String get encIso8859 => 'ISO-8859-6 (legacy Arabic)';
+
+  @override
+  String get encWin1252 => 'Windows-1252 (Latin)';
+
+  @override
+  String get subtitleLoadExternal => 'Load subtitle file';
+
+  @override
+  String get subtitleLoadOk => 'Subtitle loaded';
+
+  @override
+  String get subtitleLoadFailed => 'Could not load the subtitle file';
+
+  @override
+  String get audioOnlyTitle => 'Audio-only mode';
+
+  @override
+  String get audioOnlyHint => 'Skip video decoding — saves battery and data';
+
+  @override
+  String get audioOnlyNote =>
+      'Sound keeps playing while the screen shows this page. Your choice is remembered for the next videos.';
+
+  @override
+  String get audioOnlyActive =>
+      'Audio-only mode is on — video decoding is paused to save battery and data.';
+
+  @override
+  String get audioOnlyRestoreVideo => 'Restore video';
 }

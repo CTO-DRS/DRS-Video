@@ -82,6 +82,27 @@ Future<void> showAudioSheet(BuildContext context) async {
                 child: Text(l.audioEnhanceNote,
                     style: theme.textTheme.bodySmall),
               ),
+              const Divider(),
+              // Audio-only mode (v1.10.0): disables video decoding to
+              // save battery and mobile data while audio keeps playing.
+              SwitchListTile(
+                secondary: Icon(
+                  player.audioOnly ? Icons.music_note : Icons.videocam,
+                  color: player.audioOnly
+                      ? theme.colorScheme.primary
+                      : null,
+                ),
+                title: Text(l.audioOnlyTitle),
+                subtitle: Text(l.audioOnlyHint,
+                    style: theme.textTheme.bodySmall),
+                value: player.audioOnly,
+                onChanged: (v) async => await player.setAudioOnly(v),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Text(l.audioOnlyNote,
+                    style: theme.textTheme.bodySmall),
+              ),
             ],
           );
         },

@@ -151,6 +151,20 @@ class MainActivity : AudioServiceActivity() {
                 window.attributes = lp
                 result.success(null)
             }
+            "window/secure" -> {
+                // FLAG_SECURE (v1.10.0 private vault): blocks screenshots,
+                // screen recording and the recents thumbnail while active.
+                val secure = call.argument<Boolean>("secure") ?: false
+                if (secure) {
+                    window.setFlags(
+                        WindowManager.LayoutParams.FLAG_SECURE,
+                        WindowManager.LayoutParams.FLAG_SECURE
+                    )
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                }
+                result.success(null)
+            }
             "settings/allFiles" -> {
                 // The all-files-access settings screen exists on Android 11+.
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {

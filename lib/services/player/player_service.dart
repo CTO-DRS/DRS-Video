@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert' show utf8;
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/errors/app_exception.dart';
 import '../../core/network/connectivity_service.dart';
@@ -16,6 +19,8 @@ import 'ab_repeat.dart';
 import 'audio_enhancer.dart';
 import 'audio_handler.dart';
 import 'sleep_timer.dart';
+import 'subtitle_charset.dart';
+import 'subtitle_parser.dart';
 
 enum RepeatMode { off, all, one }
 
@@ -324,6 +329,11 @@ class PlayerService extends ChangeNotifier {
       // Audio enhancement defaults (v1.9.0) — applied per media load
       // because mpv resets the af chain on new files.
       await _applyAudioEnhance();
+      // Subtitle delay (v1.10.0): mpv resets sub-delay per file too.
+      await _applySubtitleDelay();
+      // Audio-only default (v1.10.0): re-applied per media for the same
+      // reason — vid resets to auto on every new load.
+      await _applyAudioOnly();
       // Restore persisted A-B markers per media (keyed to the item id).
       _loadAbLoopFor(item.id);
     } catch (e, s) {
@@ -572,22 +582,71 @@ class PlayerService extends ChangeNotifier {
   }
 
   /// Loads an external SRT/VTT file into mpv (validated first).
+  ///
+  /// v1.10.0: the raw BYTES are read and run through the charset toolkit —
+  /// legacy Windows-1256/ISO-8859-6 files are converted to UTF-8 in the
+  /// cache dir and mpv is pointed at the normalized copy, so Arabic
+  /// subtitles from old sites render correctly instead of mojibake.
   Future<bool> addExternalSubtitle(String path, String title) async {
     try {
       final isUrl = path.startsWith('http://') || path.startsWith('https://');
+      String loadPath = path;
       if (!isUrl) {
-        final file = File(path);
-        final content = await file.readAsString();
-        // Validation only (mpv renders the real track).
-        if (content.trim().isEmpty) return false;
+        final bytes = await File(path).readAsBytes();
+        final content = SubtitleCharset.decode(bytes);
+        // Real validation: parse before anything touches the engine so
+        // the user gets honest feedback on broken files.
+        SubtitleParser.parse(content);
+        final normalized = await _writeNormalizedSubtitle(content);
+        if (normalized != null) loadPath = normalized;
       }
       if (_player == null) return false;
-      await _engine.setSubtitleTrack(SubtitleTrack.uri(path, title: title));
+      await _engine.setSubtitleTrack(SubtitleTrack.uri(loadPath, title: title));
       _notify();
       return true;
     } catch (e) {
       AppLogger.instance.warning('player', 'external subtitle failed: $e');
       return false;
+    }
+  }
+
+  /// Loads external subtitle bytes with an explicit (or auto) encoding —
+  /// the manual-encoding path of the subtitle toolkit sheet.
+  Future<bool> loadSubtitleFromBytes(
+    List<int> bytes,
+    String title, {
+    SubtitleEncoding? encoding,
+  }) async {
+    try {
+      final content = SubtitleCharset.decode(bytes, encoding: encoding);
+      SubtitleParser.parse(content); // throws FormatException on garbage
+      final normalized = await _writeNormalizedSubtitle(content);
+      if (_player == null) return normalized != null ? true : false;
+      await _engine.setSubtitleTrack(
+        SubtitleTrack.uri(normalized ?? '', title: title),
+      );
+      _notify();
+      return normalized != null;
+    } catch (e) {
+      AppLogger.instance.warning('player', 'subtitle bytes failed: $e');
+      return false;
+    }
+  }
+
+  /// Writes decoded subtitle text as a UTF-8 copy in the cache dir and
+  /// returns its path (null when the write is impossible).
+  Future<String?> _writeNormalizedSubtitle(String content) async {
+    try {
+      final base = await getTemporaryDirectory();
+      final dir = Directory(p.join(base.path, 'subtitles'));
+      if (!dir.existsSync()) dir.createSync(recursive: true);
+      final stamp = DateTime.now().millisecondsSinceEpoch;
+      final file = File(p.join(dir.path, 'ext_$stamp.srt'));
+      await file.writeAsString(content, flush: true, encoding: utf8);
+      return file.path;
+    } catch (e) {
+      AppLogger.instance.warning('player', 'subtitle normalize failed: $e');
+      return null;
     }
   }
 
@@ -701,6 +760,98 @@ class PlayerService extends ChangeNotifier {
     _prefs.audioBoostDb = _audioBoostDb;
     await _applyAudioEnhance();
     _notify();
+  }
+
+  // ---- subtitle toolkit (v1.10.0) ----
+
+  /// Current subtitle sync delay in seconds (negative = subtitles early).
+  double _subDelaySeconds = 0;
+
+  double get subtitleDelay => _subDelaySeconds;
+
+  /// Sets the subtitle sync delay, persists it per media and applies it
+  /// live via mpv's `sub-delay`. Works even while the engine is cold:
+  /// the value is stored and applied on the next open.
+  Future<void> setSubtitleDelay(double seconds) async {
+    _subDelaySeconds = seconds.clamp(-60.0, 60.0).toDouble();
+    final item = _current;
+    if (item != null) {
+      unawaited(_prefs.setSubtitleDelayFor(item.id, _subDelaySeconds));
+    }
+    final platform = _player?.platform;
+    if (platform is NativePlayer) {
+      try {
+        await platform.setProperty('sub-delay', _subDelaySeconds.toStringAsFixed(2));
+      } catch (e) {
+        AppLogger.instance.warning('player', 'sub-delay failed: $e');
+      }
+    }
+    _notify();
+  }
+
+  /// Applies the persisted per-media delay after a new file loads.
+  Future<void> _applySubtitleDelay() async {
+    final item = _current;
+    if (item == null) return;
+    final stored = _prefs.subtitleDelayFor(item.id) ?? 0.0;
+    _subDelaySeconds = stored;
+    final platform = _player?.platform;
+    if ((platform is NativePlayer) && stored != 0) {
+      try {
+        await platform.setProperty('sub-delay', stored.toStringAsFixed(2));
+      } catch (e) {
+        AppLogger.instance.warning('player', 'sub-delay restore failed: $e');
+      }
+    }
+  }
+
+  /// Clears the persisted delay for the current media (reset button).
+  Future<void> resetSubtitleDelay() async {
+    await setSubtitleDelay(0);
+    final item = _current;
+    if (item != null) {
+      await _prefs.clearSubtitleDelayFor(item.id);
+    }
+    _notify();
+  }
+
+  // ---- audio-only mode (v1.10.0) ----
+
+  /// True while video decoding is disabled (battery/data saver).
+  bool _audioOnly = false;
+
+  bool get audioOnly => _audioOnly;
+
+  /// Toggles audio-only playback. `VideoTrack.no()` tells mpv to skip
+  /// the video track entirely — the decoder idles, saving battery and
+  /// up to the full video bitrate on cellular data. The choice is
+  /// remembered as the default for future sessions.
+  Future<void> setAudioOnly(bool on) async {
+    _audioOnly = on;
+    _prefs.audioOnlyDefault = on;
+    final player = _player;
+    if (player != null) {
+      try {
+        await player.setVideoTrack(on ? VideoTrack.no() : VideoTrack.auto());
+      } catch (e) {
+        AppLogger.instance.warning('player', 'audio-only failed: $e');
+      }
+    }
+    _notify();
+  }
+
+  /// Re-applies the audio-only default after a new file loads (mpv
+  /// resets track selection per file).
+  Future<void> _applyAudioOnly() async {
+    _audioOnly = _prefs.audioOnlyDefault;
+    final player = _player;
+    if (player != null && _audioOnly) {
+      try {
+        await player.setVideoTrack(VideoTrack.no());
+      } catch (e) {
+        AppLogger.instance.warning('player', 'audio-only re-apply failed: $e');
+      }
+    }
   }
 
   // ---- HLS / stream quality (v1.2.x) ----

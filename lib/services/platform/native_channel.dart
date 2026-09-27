@@ -66,6 +66,11 @@ class NativeChannel {
   Future<void> setBrightness(double? value) =>
       _invoke<void>('window/brightness', {'value': value});
 
+  /// Toggles FLAG_SECURE (v1.10.0 private vault): while active the app's
+  /// surface cannot be screenshotted, recorded, or shown in recents.
+  Future<void> setSecureFlag(bool secure) =>
+      _invoke<void>('window/secure', {'secure': secure});
+
   Future<bool> isPipSupported() async => (await _invoke<bool>('pip/supported')) ?? false;
 
   /// Opens the system "All files access" settings page.

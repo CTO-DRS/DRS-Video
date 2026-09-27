@@ -21,6 +21,7 @@ class LibraryQuery {
     this.sort = SortBy.dateAdded,
     this.direction = SortDirection.descending,
     this.limit,
+    this.includeHidden = false,
   });
 
   final String? search;
@@ -31,6 +32,13 @@ class LibraryQuery {
   final SortBy sort;
   final SortDirection direction;
   final int? limit;
+
+  /// Private vault (v1.10.0): hidden rows are excluded from EVERY library
+  /// listing by default — search, home, recommendations, activity, smart
+  /// playlists and cleanup all flow through [LibraryRepository.query], so
+  /// one filter here covers the whole app. Only the backup collector and
+  /// the vault screen opt in with [includeHidden] = true.
+  final bool includeHidden;
 }
 
 class LibraryRepository {
@@ -40,6 +48,14 @@ class LibraryRepository {
 
   Future<MediaItem> upsert(MediaItem item) async {
     final database = await _db.database;
+    // Private vault: a rescan that re-inserts an already hidden row (same
+    // id or same uri) must NOT unhide it — carry the flag over.
+    final existing = await database.query('media_items',
+        where: 'id = ? OR uri = ?', whereArgs: [item.id, item.uri], limit: 1);
+    if (existing.isNotEmpty) {
+      item.isHidden =
+          ((existing.first['is_hidden'] as int?) ?? 0) == 1 || item.isHidden;
+    }
     await database.insert('media_items', item.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
     return item;
@@ -61,6 +77,10 @@ class LibraryRepository {
     final database = await _db.database;
     final where = <String>[];
     final args = <Object?>[];
+
+    // Vault filter first: hidden rows stay invisible everywhere unless the
+    // caller (vault screen / backup) explicitly opts in.
+    if (!q.includeHidden) where.add('is_hidden = 0');
 
     if (q.search != null && q.search!.trim().isNotEmpty) {
       where.add('title LIKE ?');
@@ -159,13 +179,41 @@ class LibraryRepository {
   Future<int> countByType(MediaItemType type) async {
     final database = await _db.database;
     final rows = await database.rawQuery(
-        'SELECT COUNT(*) c FROM media_items WHERE type = ?', [type.name]);
+        'SELECT COUNT(*) c FROM media_items WHERE type = ? AND is_hidden = 0',
+        [type.name]);
     return (rows.first['c'] as int?) ?? 0;
   }
 
   Future<int> countFavorites() async {
     final database = await _db.database;
-    final rows = await database.rawQuery('SELECT COUNT(*) c FROM media_items WHERE is_favorite = 1');
+    final rows = await database.rawQuery(
+        'SELECT COUNT(*) c FROM media_items WHERE is_favorite = 1 AND is_hidden = 0');
+    return (rows.first['c'] as int?) ?? 0;
+  }
+
+  // ---- private vault (v1.10.0) -------------------------------------------
+
+  /// Moves a media row into (or out of) the private vault. Hidden rows are
+  /// excluded from every listing (see [LibraryQuery.includeHidden]).
+  Future<void> setHidden(String id, bool hidden) async {
+    final database = await _db.database;
+    await database.update('media_items', {'is_hidden': hidden ? 1 : 0},
+        where: 'id = ?', whereArgs: [id]);
+  }
+
+  /// All vaulted rows, newest first — the vault screen grid.
+  Future<List<MediaItem>> vaultItems() async {
+    final database = await _db.database;
+    final rows = await database.query('media_items',
+        where: 'is_hidden = 1', orderBy: 'added_at DESC');
+    return rows.map(MediaItem.fromMap).toList();
+  }
+
+  /// Number of rows currently in the vault (settings screen subtitle).
+  Future<int> hiddenCount() async {
+    final database = await _db.database;
+    final rows = await database.rawQuery(
+        'SELECT COUNT(*) c FROM media_items WHERE is_hidden = 1');
     return (rows.first['c'] as int?) ?? 0;
   }
 

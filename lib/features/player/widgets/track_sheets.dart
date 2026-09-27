@@ -7,6 +7,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../services/player/player_service.dart';
 import '../../../services/sharing/share_service.dart';
+import 'subtitle_sheet.dart';
 
 /// Speed selection sheet (0.25x .. 4x presets).
 Future<void> showSpeedSheet(BuildContext context) async {
@@ -224,6 +225,18 @@ Future<void> showTracksSheet(BuildContext context) async {
                             },
                           ),
                         const Divider(),
+                        // v1.10.0 Arabic subtitle toolkit: sync delay +
+                        // legacy encoding conversion with preview.
+                        ListTile(
+                          leading: const Icon(Icons.tune),
+                          title: Text(l.subtitleToolsTitle),
+                          subtitle: Text(l.subtitleToolsHint,
+                              style: theme.textTheme.bodySmall),
+                          onTap: () {
+                            Navigator.of(sheet).pop();
+                            showSubtitleSheet(context);
+                          },
+                        ),
                         ListTile(
                           leading: const Icon(Icons.add),
                           title: Text(l.playerAddSubtitle),

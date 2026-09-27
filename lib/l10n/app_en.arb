@@ -858,7 +858,6 @@
   "cloudRemoteList": "Backups on the server",
   "cloudListHint": "Tap to fetch the cloud backup list",
   "cloudListEmpty": "No backups on the server yet",
-
   "appLock": "App lock",
   "appLockIntro": "Protect the app with a PIN. It is asked when you return after leaving the app; the PIN itself is never stored on the device — only a cryptographic fingerprint of it.",
   "appLockCreatePin": "Create PIN",
@@ -888,7 +887,6 @@
     }
   },
   "lockPrivacyNote": "The PIN is stored only as a salted SHA-256 fingerprint on this device. If you forget it, clearing the app's data is required.",
-
   "playerAbRepeat": "A-B segment loop",
   "playerAbInactive": "No segment marked for looping yet",
   "playerAbSetStart": "Set start (A)",
@@ -898,7 +896,6 @@
   "playerAbTooShort": "Segment too short — move the position and retry",
   "playerAbClear": "Stop looping",
   "playerAbNote": "Great for Quran memorization and language learning: playback jumps back to A whenever it reaches B — even after a manual seek past the end. Use Stop looping to end it.",
-
   "playerAudio": "Audio",
   "audioSheetTitle": "Audio enhancement",
   "audioPresetFlat": "No EQ",
@@ -913,5 +910,74 @@
   "audioPresetMovieDesc": "Wide curve with a theater feel",
   "audioBoost": "Volume boost",
   "audioBoostWarning": "High boost: loud sources may distort",
-  "audioEnhanceNote": "Applied live and saved as the default for every video you open."
+  "audioEnhanceNote": "Applied live and saved as the default for every video you open.",
+  "vaultTitle": "Private vault",
+  "vaultLockedTitle": "Vault locked",
+  "vaultCreatePin": "Create a vault PIN",
+  "vaultConfirmPin": "Confirm the PIN",
+  "vaultSetupHint": "This PIN guards your hidden videos only — it is separate from the app lock. 4 digits.",
+  "vaultPinMismatch": "The two PINs do not match — start over",
+  "vaultPinInvalid": "The PIN must be 4 digits",
+  "vaultPinCreated": "Vault PIN created. Use 'Hide in vault' from any video's menu.",
+  "vaultPinChanged": "Vault PIN updated",
+  "vaultWrongPin": "Wrong vault PIN",
+  "vaultEnterPin": "Enter the vault PIN",
+  "vaultLockedOut": "Too many attempts. Wait {seconds} seconds",
+  "@vaultLockedOut": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "vaultChangePin": "Change vault PIN",
+  "vaultCurrentPin": "Current PIN",
+  "vaultNewPin": "New PIN (4 digits)",
+  "vaultLockNow": "Lock now",
+  "vaultEmpty": "The vault is empty",
+  "vaultEmptyHint": "Long-press any video in the library and choose 'Hide in vault' to move it here.",
+  "hideInVault": "Hide in vault",
+  "unhideFromVault": "Move out of vault",
+  "vaultItemHidden": "Video hidden — find it in Settings → Private vault",
+  "vaultItemRestored": "Video restored to the library",
+  "vaultRemoveForever": "Delete permanently?",
+  "vaultRemoveForeverHint": "The video file itself is deleted from the device, not just its library entry.",
+  "subtitleToolsTitle": "Subtitle tools",
+  "subtitleToolsHint": "Sync delay + Arabic legacy encoding fix",
+  "subtitleDelayTitle": "Sync delay",
+  "subtitleDelayEarlier": "Subtitles earlier",
+  "subtitleDelayLater": "Subtitles later",
+  "subtitleDelayNone": "No delay — subtitles are in sync",
+  "subtitleDelayShownLater": "Subtitles appear {value} s later",
+  "@subtitleDelayShownLater": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "subtitleDelayShownEarlier": "Subtitles appear {value} s earlier",
+  "@subtitleDelayShownEarlier": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "subtitleDelayReset": "Reset delay",
+  "subtitleEncodingTitle": "Text encoding",
+  "subtitleEncodingHint": "Old Arabic .srt files show as scrambled letters? Pick the right encoding and DRS Video converts them to readable Arabic automatically.",
+  "encAuto": "Auto-detect (recommended)",
+  "encUtf8": "UTF-8 (modern files)",
+  "encWin1256": "Windows-1256 (legacy Arabic)",
+  "encIso8859": "ISO-8859-6 (legacy Arabic)",
+  "encWin1252": "Windows-1252 (Latin)",
+  "subtitleLoadExternal": "Load subtitle file",
+  "subtitleLoadOk": "Subtitle loaded",
+  "subtitleLoadFailed": "Could not load the subtitle file",
+  "audioOnlyTitle": "Audio-only mode",
+  "audioOnlyHint": "Skip video decoding — saves battery and data",
+  "audioOnlyNote": "Sound keeps playing while the screen shows this page. Your choice is remembered for the next videos.",
+  "audioOnlyActive": "Audio-only mode is on — video decoding is paused to save battery and data.",
+  "audioOnlyRestoreVideo": "Restore video"
 }

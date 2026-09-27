@@ -910,7 +910,6 @@
   "cloudRemoteList": "النسخ الموجودة على الخادم",
   "cloudListHint": "اضغط لجلب قائمة النسخ السحابية",
   "cloudListEmpty": "لا توجد نسخ على الخادم بعد",
-
   "appLock": "قفل التطبيق",
   "appLockIntro": "احمِ تطبيقك برمز سري. يُطلب الرمز عند فتح التطبيق بعد مغادرته، ولا يُخزَّن الرمز نفسه على الجهاز إطلاقًا — فقط بصمة مشفّرة منه.",
   "appLockCreatePin": "إنشاء رمز سري",
@@ -940,7 +939,6 @@
     }
   },
   "lockPrivacyNote": "الرمز محفوظ بصمة مشفّرة (SHA-256 مملّح) داخل الجهاز فقط. إذا نسيت الرمز فستحتاج إلى مسح بيانات التطبيق.",
-
   "playerAbRepeat": "تكرار المقطع (أ-ب)",
   "playerAbInactive": "لم يُحدَّد مقطع للتكرار بعد",
   "playerAbSetStart": "تعيين البداية (أ)",
@@ -950,7 +948,6 @@
   "playerAbTooShort": "المقطع قصير جدًا — حرّك موضع التشغيل ثم أعد التعيين",
   "playerAbClear": "إلغاء التكرار",
   "playerAbNote": "مثالي لحفظ القرآن وتعلم اللغات: يعود التشغيل تلقائيًا إلى نقطة البداية عند بلوغ النهاية، حتى لو انتقلت يدويًا بعد نقطة النهاية. لإيقاف التكرار استخدم زر إلغاء التكرار.",
-
   "playerAudio": "الصوت",
   "audioSheetTitle": "تحسين الصوت",
   "audioPresetFlat": "بدون معادل",
@@ -965,5 +962,74 @@
   "audioPresetMovieDesc": "منحنى واسع يمنح إحساس قاعة العرض",
   "audioBoost": "تعزيز مستوى الصوت",
   "audioBoostWarning": "تعزيز عالٍ: قد يظهر تشويش في مقاطع مرتفعة الصوت أصلًا",
-  "audioEnhanceNote": "تُطبَّق الإعدادات فورًا وتُحفظ كافتراض لكل مقطع تفتحه."
+  "audioEnhanceNote": "تُطبَّق الإعدادات فورًا وتُحفظ كافتراض لكل مقطع تفتحه.",
+  "vaultTitle": "الخزنة الخاصة",
+  "vaultLockedTitle": "الخزنة مقفلة",
+  "vaultCreatePin": "أنشئ رمز الخزنة",
+  "vaultConfirmPin": "أعد إدخال الرمز للتأكيد",
+  "vaultSetupHint": "هذا الرمز يحمي مقاطعك المخفية فقط — وهو مستقل عن رمز قفل التطبيق. 4 أرقام.",
+  "vaultPinMismatch": "الرمزان غير متطابقين — ابدأ من جديد",
+  "vaultPinInvalid": "يجب أن يتكون الرمز من 4 أرقام",
+  "vaultPinCreated": "تم إنشاء رمز الخزنة. استخدم «إخفاء في الخزنة» من قائمة أي مقطع.",
+  "vaultPinChanged": "تم تحديث رمز الخزنة",
+  "vaultWrongPin": "رمز الخزنة غير صحيح",
+  "vaultEnterPin": "أدخل رمز الخزنة",
+  "vaultLockedOut": "محاولات كثيرة جدًا. انتظر {seconds} ثانية",
+  "@vaultLockedOut": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "vaultChangePin": "تغيير رمز الخزنة",
+  "vaultCurrentPin": "الرمز الحالي",
+  "vaultNewPin": "الرمز الجديد (4 أرقام)",
+  "vaultLockNow": "قفل الآن",
+  "vaultEmpty": "الخزنة فارغة",
+  "vaultEmptyHint": "اضغط مطولًا على أي مقطع في المكتبة واختر «إخفاء في الخزنة» لنقله إلى هنا.",
+  "hideInVault": "إخفاء في الخزنة",
+  "unhideFromVault": "إخراج من الخزنة",
+  "vaultItemHidden": "تم إخفاء المقطع — تجده في الإعدادات → الخزنة الخاصة",
+  "vaultItemRestored": "تمت إعادة المقطع إلى المكتبة",
+  "vaultRemoveForever": "حذف نهائي؟",
+  "vaultRemoveForeverHint": "سيُحذف ملف الفيديو نفسه من الجهاز، وليس مدخله في المكتبة فقط.",
+  "subtitleToolsTitle": "أدوات الترجمة",
+  "subtitleToolsHint": "مزامنة التوقيت + إصلاح ترميز الملفات القديمة",
+  "subtitleDelayTitle": "تأخير المزامنة",
+  "subtitleDelayEarlier": "تقديم الترجمة",
+  "subtitleDelayLater": "تأخير الترجمة",
+  "subtitleDelayNone": "لا يوجد تأخير — الترجمة متزامنة",
+  "subtitleDelayShownLater": "تظهر الترجمة بعد {value} ثانية",
+  "@subtitleDelayShownLater": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "subtitleDelayShownEarlier": "تظهر الترجمة قبل {value} ثانية",
+  "@subtitleDelayShownEarlier": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "subtitleDelayReset": "تصفير التأخير",
+  "subtitleEncodingTitle": "ترميز النص",
+  "subtitleEncodingHint": "تظهر ملفات الترجمة العربية القديمة بحروف مبعثرة؟ اختر الترميز الصحيح وسيحوّلها DRS Video تلقائيًا إلى عربية سليمة.",
+  "encAuto": "كشف تلقائي (موصى به)",
+  "encUtf8": "UTF-8 (الملفات الحديثة)",
+  "encWin1256": "Windows-1256 (عربي قديم)",
+  "encIso8859": "ISO-8859-6 (عربي قديم)",
+  "encWin1252": "Windows-1252 (لاتيني)",
+  "subtitleLoadExternal": "تحميل ملف ترجمة",
+  "subtitleLoadOk": "تم تحميل الترجمة",
+  "subtitleLoadFailed": "تعذر تحميل ملف الترجمة",
+  "audioOnlyTitle": "وضع الصوت فقط",
+  "audioOnlyHint": "إيقاف فك ترميز الفيديو — يوفر البطارية والبيانات",
+  "audioOnlyNote": "يستمر تشغيل الصوت بينما تعرض الشاشة هذه الصفحة. يُحفظ اختيارك للمقاطع التالية.",
+  "audioOnlyActive": "وضع الصوت فقط مُفعّل — تم إيقاف فك ترميز الفيديو لتوفير البطارية والبيانات.",
+  "audioOnlyRestoreVideo": "استعادة الفيديو"
 }

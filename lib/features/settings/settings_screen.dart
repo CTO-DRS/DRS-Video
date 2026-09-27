@@ -15,6 +15,7 @@ import 'backup_screen.dart';
 import 'diagnostics_screen.dart';
 import 'storage_screen.dart';
 import '../security/app_lock_settings_screen.dart';
+import '../security/vault_screen.dart';
 import '../vpn/protection_screen.dart';
 
 /// Settings Center: playback, downloads, appearance, storage, privacy,
@@ -60,6 +61,11 @@ class SettingsScreen extends StatelessWidget {
           _Section(l.appLock, Icons.lock_person_outlined, context, () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const AppLockSettingsScreen()));
+          }),
+          // v1.10.0: private vault (hidden media behind its own PIN).
+          _Section(l.vaultTitle, Icons.shield_outlined, context, () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const VaultScreen()));
           }),
           _Section(l.setDiagnostics, Icons.troubleshoot_outlined, context, () {
             Navigator.of(context).push(

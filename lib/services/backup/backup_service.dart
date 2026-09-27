@@ -239,9 +239,11 @@ class BackupService {
 
   // ---------------------------------------------------------------- export
 
-  /// Collects a summary (counts) for the backup screen.
+  /// Collects a summary (counts) for the backup screen. Vaulted items are
+  /// counted too: backups must be complete (v1.10.0).
   Future<BackupSummary> summarize() async {
-    final items = await _library.query(const LibraryQuery(limit: 100000));
+    final items = await _library
+        .query(const LibraryQuery(limit: 100000, includeHidden: true));
     final pl = await _playlists.list();
     final progress = await _history.progressMap();
     final searches = await _history.recentSearches(limit: 500);
@@ -280,7 +282,10 @@ class BackupService {
   }
 
   Future<BackupPayload> _collect() async {
-    final items = await _library.query(const LibraryQuery(limit: 100000));
+    // includeHidden: the vault is part of the library — a backup that
+    // silently drops hidden rows would lose them on restore.
+    final items = await _library
+        .query(const LibraryQuery(limit: 100000, includeHidden: true));
     final playlists = await _playlists.list();
     final plMaps = <Map<String, Object?>>[];
     for (final pl in playlists) {

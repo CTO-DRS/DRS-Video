@@ -158,6 +158,32 @@ class PreferencesService {
   set audioBoostDb(double v) => _prefs.setDouble(
       PrefKeys.audioBoostDb, v.clamp(0.0, AppConstants.maxAudioBoostDb).toDouble());
 
+  // ---- private vault + subtitles (v1.10.0) --------------------------------
+
+  /// Salted vault PIN hash `<salt>:<hash>` — independent from the app
+  /// lock. null = no vault PIN configured.
+  String? get vaultHash => _prefs.getString(PrefKeys.vaultHash);
+  set vaultHash(String? v) => v == null
+      ? _prefs.remove(PrefKeys.vaultHash)
+      : _prefs.setString(PrefKeys.vaultHash, v);
+
+  /// Persisted subtitle delay (seconds, may be negative) for [itemId].
+  double? subtitleDelayFor(String itemId) {
+    final v = _prefs.getDouble('${PrefKeys.subDelayPrefix}$itemId');
+    return v;
+  }
+
+  Future<void> setSubtitleDelayFor(String itemId, double seconds) =>
+      _prefs.setDouble(
+          '${PrefKeys.subDelayPrefix}$itemId', seconds.clamp(-60.0, 60.0));
+
+  Future<void> clearSubtitleDelayFor(String itemId) =>
+      _prefs.remove('${PrefKeys.subDelayPrefix}$itemId');
+
+  /// Audio-only default: start playback with video decoding disabled.
+  bool get audioOnlyDefault => _prefs.getBool(PrefKeys.audioOnlyDefault) ?? false;
+  set audioOnlyDefault(bool v) => _prefs.setBool(PrefKeys.audioOnlyDefault, v);
+
   Future<void> clearAll() => _prefs.clear();
 
   // ---- backup snapshot (v1.7.0) ------------------------------------------

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -11,6 +12,7 @@ import '../../data/models/media_item.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/platform/native_channel.dart';
 import '../../services/player/player_service.dart';
+import '../../services/security/secure_flag.dart';
 import '../../state/floating_player_controller.dart';
 import '../../state/media_actions.dart';
 import '../../widgets/common/error_view.dart';
@@ -69,6 +71,16 @@ class _PlayerScreenState extends State<PlayerScreen>
     _scheduleHide();
     _applyOrientation();
     _setupAutoPip();
+    _setupSecureFlag();
+  }
+
+  /// Private vault (v1.10.0): while a vaulted item is on screen the
+  /// window carries FLAG_SECURE — no screenshots, no recording, no
+  /// recents thumbnail. Held via the ref-counted keeper so popping back
+  /// to the vault grid keeps the protection alive.
+  Future<void> _setupSecureFlag() async {
+    if (!widget.item.isHidden) return;
+    await SecureFlagKeeper.acquire(SecureFlagKeys.player(widget.item.id));
   }
 
   Future<void> _applyOrientation() async {
@@ -102,6 +114,8 @@ class _PlayerScreenState extends State<PlayerScreen>
     _hideTimer?.cancel();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    unawaited(SecureFlagKeeper.release(
+        SecureFlagKeys.player(widget.item.id)));
     _player.saveProgress();
     super.dispose();
   }
@@ -190,6 +204,9 @@ class _PlayerScreenState extends State<PlayerScreen>
           controls: NoVideoControls,
           fit: BoxFit.contain,
         ),
+        // Audio-only mode (v1.10.0): video decoding is off; show a real
+        // "now playing" face instead of a frozen/black frame.
+        if (player.audioOnly) _buildAudioOnlyFace(context, player, l),
         if (player.isBuffering)
           const Center(child: CircularProgressIndicator(color: Colors.white)),
         if (error != null)
@@ -214,6 +231,66 @@ class _PlayerScreenState extends State<PlayerScreen>
   Future<void> _retry() async {
     final actions = context.read<MediaActions>();
     await actions.playItem(widget.item);
+  }
+
+  /// Audio-only "now playing" face (v1.10.0): replaces the frozen video
+  /// surface while mpv skips the video track. Artwork + title + a restore
+  /// button keep the state obvious — never a silent black screen.
+  Widget _buildAudioOnlyFace(
+      BuildContext context, PlayerService player, AppLocalizations l) {
+    final theme = Theme.of(context);
+    final item = widget.item;
+    final thumb = item.thumbPath;
+    return Positioned.fill(
+      child: ColoredBox(
+        color: theme.colorScheme.surface,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: thumb != null && File(thumb).existsSync()
+                  ? Image.file(File(thumb), fit: BoxFit.cover)
+                  : Icon(Icons.music_note,
+                      size: 72, color: theme.colorScheme.primary),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                item.title,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleMedium,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                l.audioOnlyActive,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.tonalIcon(
+              onPressed: () => player.setAudioOnly(false),
+              icon: const Icon(Icons.videocam),
+              label: Text(l.audioOnlyRestoreVideo),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // ---- built-in browser fallback (v1.4.1) ----

@@ -5,10 +5,10 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'DRS Video';
-  static const String appVersion = '1.9.0';
+  static const String appVersion = '1.10.0';
 
   static const String dbName = 'drs_video.db';
-  static const int dbVersion = 4;
+  static const int dbVersion = 5;
 
   /// Android MethodChannel used by MainActivity (Kotlin).
   static const String nativeChannel = 'drs.video/native';
@@ -215,6 +215,17 @@ class PrefKeys {
   static const playerAbLoop = 'player_ab_loop';
   static const audioPreset = 'audio_preset';
   static const audioBoostDb = 'audio_boost_db';
+
+  /// Private vault (v1.10.0): separate salted PIN hash for the hidden
+  /// media vault — independent from the app lock PIN. PIN never stored.
+  static const vaultHash = 'vault_hash';
+
+  /// Per-media subtitle sync delay in seconds ('<itemId>' -> double).
+  static const subDelayPrefix = 'sub_delay_';
+
+  /// Audio-only default (v1.10.0): when true, playback starts with video
+  /// decoding disabled (battery/data saver).
+  static const audioOnlyDefault = 'audio_only_default';
 }
 
 /// Download priority values.

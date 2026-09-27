@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/errors/app_exception.dart';
+import '../../core/storage/preferences_service.dart';
 import '../../data/models/media_item.dart';
+import '../../data/repositories/library_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/sharing/share_service.dart';
 import '../../state/downloads_controller.dart';
@@ -10,6 +12,7 @@ import '../../state/playlists_controller.dart';
 import '../../widgets/common/empty_state.dart';
 import '../../widgets/common/error_view.dart';
 import '../player/play_helpers.dart';
+import '../security/vault_screen.dart';
 
 /// Context menu with every per-item action (play, favorite, playlist,
 /// share, download, rename, info, delete).
@@ -54,6 +57,17 @@ Future<void> showMediaItemMenu(BuildContext context, MediaItem item) async {
             onTap: () {
               Navigator.of(sheet).pop();
               _addToPlaylist(context, item);
+            },
+          ),
+          // Private vault (v1.10.0): hide this item behind the vault PIN.
+          // Without a configured PIN the setup flow opens first, so items
+          // can never become invisible with no way back to them.
+          ListTile(
+            leading: const Icon(Icons.shield_outlined),
+            title: Text(l.hideInVault),
+            onTap: () async {
+              Navigator.of(sheet).pop();
+              await _hideInVault(context, item);
             },
           ),
           if (item.type == MediaItemType.network) ...[
@@ -353,4 +367,27 @@ Widget libraryEmptyView(BuildContext context, LibraryTab tab) {
         title: l.emptyLibraryTitle,
         body: l.emptyLibraryBody),
   };
+}
+
+/// Private vault (v1.10.0): hides [item] behind the vault PIN. When no
+/// vault PIN exists yet the setup screen opens first — an item must never
+/// disappear from the library without a configured way back to it.
+Future<void> _hideInVault(BuildContext context, MediaItem item) async {
+  final l = AppLocalizations.of(context)!;
+  final messenger = ScaffoldMessenger.of(context);
+  final navigator = Navigator.of(context);
+  final prefs = context.read<PreferencesService>();
+  final repo = context.read<LibraryRepository>();
+  final controller = context.read<LibraryController>();
+
+  if (prefs.vaultHash == null) {
+    // First use: guide the user through PIN creation, then hide.
+    await navigator.push(
+        MaterialPageRoute(builder: (_) => const VaultScreen()));
+    if (prefs.vaultHash == null) return; // setup abandoned — do nothing
+  }
+
+  await repo.setHidden(item.id, true);
+  await controller.load();
+  messenger.showSnackBar(SnackBar(content: Text(l.vaultItemHidden)));
 }

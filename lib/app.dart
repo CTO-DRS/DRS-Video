@@ -30,6 +30,7 @@ import 'services/files/file_manager_service.dart';
 import 'services/player/player_service.dart';
 import 'services/platform/native_channel.dart';
 import 'services/security/pin_lock.dart';
+import 'services/security/vault_controller.dart';
 import 'services/sharing/share_service.dart';
 import 'services/storage/storage_analyzer.dart';
 import 'state/app_providers.dart';
@@ -69,6 +70,7 @@ class _DrsAppState extends State<DrsApp> {
   AppServices? _services;
   ThemeController? _theme;
   AppLockController? _lock;
+  VaultController? _vault;
   String? _stage;
   Object? _bootError;
   StackTrace? _bootStack;
@@ -154,6 +156,9 @@ class _DrsAppState extends State<DrsApp> {
           storedHash: services.prefs.appLockHash,
           delay: AppLockDelayX.fromId(services.prefs.appLockDelayId),
         );
+        // Private vault (v1.10.0): separate PIN, locked until unlocked
+        // inside the vault screen.
+        _vault = VaultController(storedHash: services.prefs.vaultHash);
       });
       unawaited(_clearCrashHistory());
     } catch (error, stack) {
@@ -172,9 +177,10 @@ class _DrsAppState extends State<DrsApp> {
     final services = _services;
     final theme = _theme;
     final lock = _lock;
+    final vault = _vault;
 
     // Boot phase: loading or recoverable error — always a real UI.
-    if (services == null || theme == null || lock == null) {
+    if (services == null || theme == null || lock == null || vault == null) {
       return BootMaterialApp(
         stage: _stage,
         slow: _slow,
@@ -264,6 +270,8 @@ class _DrsAppState extends State<DrsApp> {
         // App lock controller (v1.9.0) — shared by the gate and the
         // settings screen.
         ChangeNotifierProvider<AppLockController>.value(value: lock),
+        // Private vault controller (v1.10.0) — gate + settings persistence.
+        ChangeNotifierProvider<VaultController>.value(value: vault),
         ChangeNotifierProvider(
           create: (_) => PlatformsController(
             factory: services.streamFactory,

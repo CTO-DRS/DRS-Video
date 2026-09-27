@@ -2116,4 +2116,164 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get audioEnhanceNote =>
       'تُطبَّق الإعدادات فورًا وتُحفظ كافتراض لكل مقطع تفتحه.';
+
+  @override
+  String get vaultTitle => 'الخزنة الخاصة';
+
+  @override
+  String get vaultLockedTitle => 'الخزنة مقفلة';
+
+  @override
+  String get vaultCreatePin => 'أنشئ رمز الخزنة';
+
+  @override
+  String get vaultConfirmPin => 'أعد إدخال الرمز للتأكيد';
+
+  @override
+  String get vaultSetupHint =>
+      'هذا الرمز يحمي مقاطعك المخفية فقط — وهو مستقل عن رمز قفل التطبيق. 4 أرقام.';
+
+  @override
+  String get vaultPinMismatch => 'الرمزان غير متطابقين — ابدأ من جديد';
+
+  @override
+  String get vaultPinInvalid => 'يجب أن يتكون الرمز من 4 أرقام';
+
+  @override
+  String get vaultPinCreated =>
+      'تم إنشاء رمز الخزنة. استخدم «إخفاء في الخزنة» من قائمة أي مقطع.';
+
+  @override
+  String get vaultPinChanged => 'تم تحديث رمز الخزنة';
+
+  @override
+  String get vaultWrongPin => 'رمز الخزنة غير صحيح';
+
+  @override
+  String get vaultEnterPin => 'أدخل رمز الخزنة';
+
+  @override
+  String vaultLockedOut(int seconds) {
+    return 'محاولات كثيرة جدًا. انتظر $seconds ثانية';
+  }
+
+  @override
+  String get vaultChangePin => 'تغيير رمز الخزنة';
+
+  @override
+  String get vaultCurrentPin => 'الرمز الحالي';
+
+  @override
+  String get vaultNewPin => 'الرمز الجديد (4 أرقام)';
+
+  @override
+  String get vaultLockNow => 'قفل الآن';
+
+  @override
+  String get vaultEmpty => 'الخزنة فارغة';
+
+  @override
+  String get vaultEmptyHint =>
+      'اضغط مطولًا على أي مقطع في المكتبة واختر «إخفاء في الخزنة» لنقله إلى هنا.';
+
+  @override
+  String get hideInVault => 'إخفاء في الخزنة';
+
+  @override
+  String get unhideFromVault => 'إخراج من الخزنة';
+
+  @override
+  String get vaultItemHidden =>
+      'تم إخفاء المقطع — تجده في الإعدادات → الخزنة الخاصة';
+
+  @override
+  String get vaultItemRestored => 'تمت إعادة المقطع إلى المكتبة';
+
+  @override
+  String get vaultRemoveForever => 'حذف نهائي؟';
+
+  @override
+  String get vaultRemoveForeverHint =>
+      'سيُحذف ملف الفيديو نفسه من الجهاز، وليس مدخله في المكتبة فقط.';
+
+  @override
+  String get subtitleToolsTitle => 'أدوات الترجمة';
+
+  @override
+  String get subtitleToolsHint =>
+      'مزامنة التوقيت + إصلاح ترميز الملفات القديمة';
+
+  @override
+  String get subtitleDelayTitle => 'تأخير المزامنة';
+
+  @override
+  String get subtitleDelayEarlier => 'تقديم الترجمة';
+
+  @override
+  String get subtitleDelayLater => 'تأخير الترجمة';
+
+  @override
+  String get subtitleDelayNone => 'لا يوجد تأخير — الترجمة متزامنة';
+
+  @override
+  String subtitleDelayShownLater(String value) {
+    return 'تظهر الترجمة بعد $value ثانية';
+  }
+
+  @override
+  String subtitleDelayShownEarlier(String value) {
+    return 'تظهر الترجمة قبل $value ثانية';
+  }
+
+  @override
+  String get subtitleDelayReset => 'تصفير التأخير';
+
+  @override
+  String get subtitleEncodingTitle => 'ترميز النص';
+
+  @override
+  String get subtitleEncodingHint =>
+      'تظهر ملفات الترجمة العربية القديمة بحروف مبعثرة؟ اختر الترميز الصحيح وسيحوّلها DRS Video تلقائيًا إلى عربية سليمة.';
+
+  @override
+  String get encAuto => 'كشف تلقائي (موصى به)';
+
+  @override
+  String get encUtf8 => 'UTF-8 (الملفات الحديثة)';
+
+  @override
+  String get encWin1256 => 'Windows-1256 (عربي قديم)';
+
+  @override
+  String get encIso8859 => 'ISO-8859-6 (عربي قديم)';
+
+  @override
+  String get encWin1252 => 'Windows-1252 (لاتيني)';
+
+  @override
+  String get subtitleLoadExternal => 'تحميل ملف ترجمة';
+
+  @override
+  String get subtitleLoadOk => 'تم تحميل الترجمة';
+
+  @override
+  String get subtitleLoadFailed => 'تعذر تحميل ملف الترجمة';
+
+  @override
+  String get audioOnlyTitle => 'وضع الصوت فقط';
+
+  @override
+  String get audioOnlyHint =>
+      'إيقاف فك ترميز الفيديو — يوفر البطارية والبيانات';
+
+  @override
+  String get audioOnlyNote =>
+      'يستمر تشغيل الصوت بينما تعرض الشاشة هذه الصفحة. يُحفظ اختيارك للمقاطع التالية.';
+
+  @override
+  String get audioOnlyActive =>
+      'وضع الصوت فقط مُفعّل — تم إيقاف فك ترميز الفيديو لتوفير البطارية والبيانات.';
+
+  @override
+  String get audioOnlyRestoreVideo => 'استعادة الفيديو';
 }

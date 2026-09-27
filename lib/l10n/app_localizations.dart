@@ -4028,6 +4028,294 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تُطبَّق الإعدادات فورًا وتُحفظ كافتراض لكل مقطع تفتحه.'**
   String get audioEnhanceNote;
+
+  /// No description provided for @vaultTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخزنة الخاصة'**
+  String get vaultTitle;
+
+  /// No description provided for @vaultLockedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخزنة مقفلة'**
+  String get vaultLockedTitle;
+
+  /// No description provided for @vaultCreatePin.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنشئ رمز الخزنة'**
+  String get vaultCreatePin;
+
+  /// No description provided for @vaultConfirmPin.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعد إدخال الرمز للتأكيد'**
+  String get vaultConfirmPin;
+
+  /// No description provided for @vaultSetupHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الرمز يحمي مقاطعك المخفية فقط — وهو مستقل عن رمز قفل التطبيق. 4 أرقام.'**
+  String get vaultSetupHint;
+
+  /// No description provided for @vaultPinMismatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمزان غير متطابقين — ابدأ من جديد'**
+  String get vaultPinMismatch;
+
+  /// No description provided for @vaultPinInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'يجب أن يتكون الرمز من 4 أرقام'**
+  String get vaultPinInvalid;
+
+  /// No description provided for @vaultPinCreated.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إنشاء رمز الخزنة. استخدم «إخفاء في الخزنة» من قائمة أي مقطع.'**
+  String get vaultPinCreated;
+
+  /// No description provided for @vaultPinChanged.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحديث رمز الخزنة'**
+  String get vaultPinChanged;
+
+  /// No description provided for @vaultWrongPin.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز الخزنة غير صحيح'**
+  String get vaultWrongPin;
+
+  /// No description provided for @vaultEnterPin.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمز الخزنة'**
+  String get vaultEnterPin;
+
+  /// No description provided for @vaultLockedOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'محاولات كثيرة جدًا. انتظر {seconds} ثانية'**
+  String vaultLockedOut(int seconds);
+
+  /// No description provided for @vaultChangePin.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير رمز الخزنة'**
+  String get vaultChangePin;
+
+  /// No description provided for @vaultCurrentPin.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز الحالي'**
+  String get vaultCurrentPin;
+
+  /// No description provided for @vaultNewPin.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز الجديد (4 أرقام)'**
+  String get vaultNewPin;
+
+  /// No description provided for @vaultLockNow.
+  ///
+  /// In ar, this message translates to:
+  /// **'قفل الآن'**
+  String get vaultLockNow;
+
+  /// No description provided for @vaultEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخزنة فارغة'**
+  String get vaultEmpty;
+
+  /// No description provided for @vaultEmptyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اضغط مطولًا على أي مقطع في المكتبة واختر «إخفاء في الخزنة» لنقله إلى هنا.'**
+  String get vaultEmptyHint;
+
+  /// No description provided for @hideInVault.
+  ///
+  /// In ar, this message translates to:
+  /// **'إخفاء في الخزنة'**
+  String get hideInVault;
+
+  /// No description provided for @unhideFromVault.
+  ///
+  /// In ar, this message translates to:
+  /// **'إخراج من الخزنة'**
+  String get unhideFromVault;
+
+  /// No description provided for @vaultItemHidden.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إخفاء المقطع — تجده في الإعدادات → الخزنة الخاصة'**
+  String get vaultItemHidden;
+
+  /// No description provided for @vaultItemRestored.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت إعادة المقطع إلى المكتبة'**
+  String get vaultItemRestored;
+
+  /// No description provided for @vaultRemoveForever.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف نهائي؟'**
+  String get vaultRemoveForever;
+
+  /// No description provided for @vaultRemoveForeverHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُحذف ملف الفيديو نفسه من الجهاز، وليس مدخله في المكتبة فقط.'**
+  String get vaultRemoveForeverHint;
+
+  /// No description provided for @subtitleToolsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدوات الترجمة'**
+  String get subtitleToolsTitle;
+
+  /// No description provided for @subtitleToolsHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'مزامنة التوقيت + إصلاح ترميز الملفات القديمة'**
+  String get subtitleToolsHint;
+
+  /// No description provided for @subtitleDelayTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأخير المزامنة'**
+  String get subtitleDelayTitle;
+
+  /// No description provided for @subtitleDelayEarlier.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقديم الترجمة'**
+  String get subtitleDelayEarlier;
+
+  /// No description provided for @subtitleDelayLater.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأخير الترجمة'**
+  String get subtitleDelayLater;
+
+  /// No description provided for @subtitleDelayNone.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد تأخير — الترجمة متزامنة'**
+  String get subtitleDelayNone;
+
+  /// No description provided for @subtitleDelayShownLater.
+  ///
+  /// In ar, this message translates to:
+  /// **'تظهر الترجمة بعد {value} ثانية'**
+  String subtitleDelayShownLater(String value);
+
+  /// No description provided for @subtitleDelayShownEarlier.
+  ///
+  /// In ar, this message translates to:
+  /// **'تظهر الترجمة قبل {value} ثانية'**
+  String subtitleDelayShownEarlier(String value);
+
+  /// No description provided for @subtitleDelayReset.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصفير التأخير'**
+  String get subtitleDelayReset;
+
+  /// No description provided for @subtitleEncodingTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترميز النص'**
+  String get subtitleEncodingTitle;
+
+  /// No description provided for @subtitleEncodingHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تظهر ملفات الترجمة العربية القديمة بحروف مبعثرة؟ اختر الترميز الصحيح وسيحوّلها DRS Video تلقائيًا إلى عربية سليمة.'**
+  String get subtitleEncodingHint;
+
+  /// No description provided for @encAuto.
+  ///
+  /// In ar, this message translates to:
+  /// **'كشف تلقائي (موصى به)'**
+  String get encAuto;
+
+  /// No description provided for @encUtf8.
+  ///
+  /// In ar, this message translates to:
+  /// **'UTF-8 (الملفات الحديثة)'**
+  String get encUtf8;
+
+  /// No description provided for @encWin1256.
+  ///
+  /// In ar, this message translates to:
+  /// **'Windows-1256 (عربي قديم)'**
+  String get encWin1256;
+
+  /// No description provided for @encIso8859.
+  ///
+  /// In ar, this message translates to:
+  /// **'ISO-8859-6 (عربي قديم)'**
+  String get encIso8859;
+
+  /// No description provided for @encWin1252.
+  ///
+  /// In ar, this message translates to:
+  /// **'Windows-1252 (لاتيني)'**
+  String get encWin1252;
+
+  /// No description provided for @subtitleLoadExternal.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحميل ملف ترجمة'**
+  String get subtitleLoadExternal;
+
+  /// No description provided for @subtitleLoadOk.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحميل الترجمة'**
+  String get subtitleLoadOk;
+
+  /// No description provided for @subtitleLoadFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر تحميل ملف الترجمة'**
+  String get subtitleLoadFailed;
+
+  /// No description provided for @audioOnlyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'وضع الصوت فقط'**
+  String get audioOnlyTitle;
+
+  /// No description provided for @audioOnlyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'إيقاف فك ترميز الفيديو — يوفر البطارية والبيانات'**
+  String get audioOnlyHint;
+
+  /// No description provided for @audioOnlyNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'يستمر تشغيل الصوت بينما تعرض الشاشة هذه الصفحة. يُحفظ اختيارك للمقاطع التالية.'**
+  String get audioOnlyNote;
+
+  /// No description provided for @audioOnlyActive.
+  ///
+  /// In ar, this message translates to:
+  /// **'وضع الصوت فقط مُفعّل — تم إيقاف فك ترميز الفيديو لتوفير البطارية والبيانات.'**
+  String get audioOnlyActive;
+
+  /// No description provided for @audioOnlyRestoreVideo.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة الفيديو'**
+  String get audioOnlyRestoreVideo;
 }
 
 class _AppLocalizationsDelegate

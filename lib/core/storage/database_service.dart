@@ -50,7 +50,8 @@ class DatabaseService {
         intro_end_ms INTEGER,
         outro_start_ms INTEGER,
         headers TEXT,
-        play_uri TEXT
+        play_uri TEXT,
+        is_hidden INTEGER NOT NULL DEFAULT 0
       )''');
     batch.execute('CREATE INDEX idx_media_type ON media_items(type)');
     batch.execute('CREATE INDEX idx_media_last_played ON media_items(last_played_at)');
@@ -195,6 +196,11 @@ class DatabaseService {
       final batch = db.batch();
       _createBrowserTables(batch);
       await batch.commit(noResult: true);
+    }
+    // v5: private vault (v1.10.0) — hidden flag on media rows.
+    if (oldVersion < 5) {
+      await db.execute(
+          'ALTER TABLE media_items ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0');
     }
   }
 

@@ -25,6 +25,7 @@ class MediaItem {
     this.outroStartMs,
     this.headers,
     this.playUri,
+    this.isHidden = false,
   }) : addedAt = addedAt ?? DateTime.now();
 
   final String id;
@@ -55,6 +56,12 @@ class MediaItem {
   /// from the stable logical [uri] (e.g. SFTP proxy URL with token, FTP URL
   /// with credentials, WebDAV signed URL). Null for plain links.
   String? playUri;
+
+  /// Private vault (v1.10.0): hidden rows are excluded from every library
+  /// listing (search, home, recommendations, activity) and are only
+  /// visible behind the vault PIN screen. Mutable so a rescan of local
+  /// media can preserve the flag (see LibraryRepository.upsert).
+  bool isHidden;
 
   /// Runtime hint set for live IPTV channels: skips resume and progress
   /// saving. NOT persisted.
@@ -116,6 +123,7 @@ class MediaItem {
         'outro_start_ms': outroStartMs,
         'headers': _encodeHeaders(headers),
         'play_uri': playUri,
+        'is_hidden': isHidden ? 1 : 0,
       };
 
   static MediaItem fromMap(Map<String, Object?> m) => MediaItem(
@@ -140,6 +148,7 @@ class MediaItem {
         outroStartMs: m['outro_start_ms'] as int?,
         headers: _decodeHeaders(m['headers'] as String?),
         playUri: m['play_uri'] as String?,
+        isHidden: ((m['is_hidden'] as int?) ?? 0) == 1,
       );
 }
 
