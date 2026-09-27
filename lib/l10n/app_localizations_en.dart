@@ -2547,6 +2547,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not inspect the link — retry or start the download anyway';
 
   @override
+  String get dlAddPageNotMedia =>
+      'This link is a web page, not a direct media file — copy the video link via the app\'s share button and try again, or open the page in the built-in browser';
+
+  @override
   String get dlAddNotFound => 'Link not found (404)';
 
   @override

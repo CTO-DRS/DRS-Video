@@ -4797,6 +4797,12 @@ abstract class AppLocalizations {
   /// **'تعذر فحص الرابط، يمكنك المحاولة مرة أخرى أو بدء التحميل مباشرة'**
   String get dlAddProbeFailed;
 
+  /// No description provided for @dlAddPageNotMedia.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الرابط صفحة ويب وليس ملف وسائط مباشرًا — انسخ رابط الفيديو عبر زر المشاركة في التطبيق ثم أعد المحاولة، أو افتح الصفحة في المتصفح المدمج'**
+  String get dlAddPageNotMedia;
+
   /// No description provided for @dlAddNotFound.
   ///
   /// In ar, this message translates to:

@@ -433,6 +433,7 @@ class ProbeSummary {
     required this.sizeBytes,
     required this.resumable,
     required this.contentType,
+    this.resolvedTitle,
   });
 
   final DownloadKind kind;
@@ -440,6 +441,20 @@ class ProbeSummary {
   final int sizeBytes; // -1 unknown
   final bool resumable;
   final String contentType;
+
+  /// v1.14.1: when the probed URL was a platform share link, this carries
+  /// the extracted display title (TikTok description / tweet text) so the
+  /// sheet can pre-fill a human name instead of the CDN hash name.
+  final String? resolvedTitle;
+
+  ProbeSummary withResolvedTitle(String title) => ProbeSummary(
+        kind: kind,
+        fileName: fileName,
+        sizeBytes: sizeBytes,
+        resumable: resumable,
+        contentType: contentType,
+        resolvedTitle: title,
+      );
 
   /// Pure parser: [status] and [headers] from a HEAD request.
   /// Throws FormatException on non-2xx so the caller can show an honest error.

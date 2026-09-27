@@ -111,7 +111,13 @@ class _AddDownloadSheetState extends State<AddDownloadSheet> {
       if (!mounted) return;
       setState(() {
         _summary = s;
-        if (_nameCtrl.text.trim().isEmpty) _nameCtrl.text = s.fileName;
+        // v1.14.1: prefer the platform-extracted title (human readable) over
+        // the CDN hash name for the pre-filled file name.
+        if (_nameCtrl.text.trim().isEmpty) {
+          final rt = s.resolvedTitle?.trim();
+          _nameCtrl.text =
+              (rt != null && rt.isNotEmpty) ? rt : s.fileName;
+        }
       });
     } on AppException catch (e) {
       if (!mounted) return;
@@ -167,6 +173,9 @@ class _AddDownloadSheetState extends State<AddDownloadSheet> {
         AppErrorType.notFound => l.dlAddNotFound,
         AppErrorType.forbidden => l.dlAddForbidden,
         AppErrorType.storage => l.dlAddStorage,
+        // v1.14.1: the link is a web page (extraction failed) — honest,
+        // actionable guidance instead of silently saving a .txt document.
+        AppErrorType.invalidInput => l.dlAddPageNotMedia,
         _ => l.dlAddProbeFailed,
       };
 

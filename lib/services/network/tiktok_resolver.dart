@@ -138,25 +138,27 @@ class TikTokResolver {
     final cached = _cache[id];
     if (cached != null && !cached.isExpired) return cached.value;
 
-    // 2) Mobile feed API first (no-watermark, headers-free CDN URL).
+    // 2) tikwm.com public resolver API — tried FIRST since v1.14.1: the
+    //    mobile feed API endpoint has gone dark in some regions (returns
+    //    empty bodies) and tikwm answers in <1s with a no-watermark MP4.
+    final viaTikwm = await _resolveViaTikwm(pageUrl);
+    if (viaTikwm != null) {
+      _cache[id] = _CacheEntry(viaTikwm);
+      return viaTikwm;
+    }
+
+    // 3) Mobile feed API (no-watermark, headers-free CDN URL).
     final viaApi = await _resolveViaFeedApi(id);
     if (viaApi != null) {
       _cache[id] = _CacheEntry(viaApi);
       return viaApi;
     }
 
-    // 3) Static web page rehydration data (needs UA/Referer headers).
+    // 4) Static web page rehydration data (needs UA/Referer headers).
     final viaPage = await _resolveViaWebPage(pageUrl, id);
     if (viaPage != null) {
       _cache[id] = _CacheEntry(viaPage);
       return viaPage;
-    }
-
-    // 4) tikwm.com public resolver API (third-party free service).
-    final viaTikwm = await _resolveViaTikwm(pageUrl);
-    if (viaTikwm != null) {
-      _cache[id] = _CacheEntry(viaTikwm);
-      return viaTikwm;
     }
 
     // 5) Heavyweight: render the page in a real headless WebView. This

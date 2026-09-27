@@ -77,6 +77,7 @@ class DatabaseService {
         priority INTEGER NOT NULL DEFAULT 1,
         media_item_id TEXT,
         error TEXT,
+        headers TEXT,
         created_at INTEGER NOT NULL,
         completed_at INTEGER
       )''');
@@ -201,6 +202,11 @@ class DatabaseService {
     if (oldVersion < 5) {
       await db.execute(
           'ALTER TABLE media_items ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0');
+    }
+    // v6 (v1.14.1): CDN headers persisted per download task so retry /
+    // resume re-enqueue web-scrape addresses with their required headers.
+    if (oldVersion < 6) {
+      await db.execute('ALTER TABLE downloads ADD COLUMN headers TEXT');
     }
   }
 

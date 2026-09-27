@@ -16,6 +16,7 @@ import '../smart/intel_v4.dart';
 import '../../data/repositories/library_repository.dart';
 import '../notifications/notification_service.dart';
 import '../platform/native_channel.dart';
+import 'platform_download_resolver.dart';
 
 /// Top-level callback required by flutter_downloader. Forwards native
 /// download events into the Dart service.
@@ -157,6 +158,12 @@ class DownloadService extends ChangeNotifier {
 
   /// Starts a download for a media URL. Throws [AppException] on pre-flight
   /// failures (invalid URL, no space, network gate).
+  ///
+  /// v1.14.1 platform fix: share links (TikTok vm./vt., X, Facebook) are
+  /// HTML *pages*, not media. They are resolved into the real stream URL
+  /// (with CDN headers) BEFORE probing/enqueuing, and a page-like probe
+  /// response aborts with a clear error instead of saving a .txt/.html
+  /// document that pretends to be the video.
   Future<DownloadTaskModel> start({
     required String url,
     required String title,
@@ -169,6 +176,28 @@ class DownloadService extends ChangeNotifier {
     // startup hardening); initialize right before the first real use.
     await init();
     final dir = await downloadDir;
+
+    // --- v1.14.1: platform page → direct media -------------------------
+    ResolvedPlatformMedia? resolved;
+    if (PlatformDownloadResolver.needsResolution(url)) {
+      resolved = await PlatformDownloadResolver.instance.resolve(url);
+      if (resolved == null) {
+        // Honest failure: we refuse to enqueue an HTML page. The sheet
+        // maps invalidInput to a message telling the user to re-copy the
+        // share link or open the page in the built-in browser.
+        AppLogger.instance.warning('dl', 'platform resolve failed: $url');
+        throw const AppException(AppErrorType.invalidInput);
+      }
+      url = resolved.directUrl;
+      headers = <String, String>{...?headers, ...resolved.headers};
+      final rt = resolved.title;
+      if (rt != null && rt.isNotEmpty &&
+          (title.trim().isEmpty || title.trim() == 'download')) {
+        title = rt;
+      }
+      AppLogger.instance.info('dl',
+          'resolved ${resolved.platform} link → ${Uri.parse(url).host}');
+    }
 
     // Pre-flight: probe size/resume support (real HEAD request).
     int? expectedSize;
@@ -187,6 +216,17 @@ class DownloadService extends ChangeNotifier {
     } on AppException catch (e) {
       if (e.type == AppErrorType.notFound || e.type == AppErrorType.forbidden) rethrow;
       AppLogger.instance.warning('dl', 'probe failed, continuing anyway: $e');
+    }
+
+    // --- v1.14.1: HTML guard -------------------------------------------
+    // A page-like response means this URL is still a web page (extraction
+    // failed / interstitial / login wall). NEVER save it as the file the
+    // user believes is the video — that is exactly the .txt bug.
+    if (PlatformDownloadResolver.shouldAbortAsPageSave(
+        contentType: probedMime, url: url)) {
+      AppLogger.instance
+          .warning('dl', 'blocked page-like save: $probedMime $url');
+      throw const AppException(AppErrorType.invalidInput);
     }
 
     // Storage check.
@@ -222,6 +262,7 @@ class DownloadService extends ChangeNotifier {
       status: DownloadStatus.queued,
       expectedSize: expectedSize,
       priority: priority,
+      headers: (headers == null || headers.isEmpty) ? null : headers,
     );
     await _repo.insert(task);
     _tasks = await _repo.all();
@@ -304,7 +345,9 @@ class DownloadService extends ChangeNotifier {
           fileName: task.fileName,
           showNotification: true,
           openFileFromNotification: false,
-          headers: const {},
+          // v1.14.1: CDN headers (User-Agent/Referer) now travel with the
+          // native task — web-scrape addresses 403 without them.
+          headers: task.headers ?? const {},
         );
         if (taskId == null) {
           throw StateError('enqueue returned null');

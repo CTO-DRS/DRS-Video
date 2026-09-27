@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../core/constants/app_constants.dart';
 import '../../core/utils/validators.dart';
 
@@ -15,6 +17,7 @@ class DownloadTaskModel {
     this.priority = DownloadPriority.normal,
     this.mediaItemId,
     this.error,
+    this.headers,
     DateTime? createdAt,
     this.completedAt,
   }) : createdAt = createdAt ?? DateTime.now();
@@ -30,6 +33,11 @@ class DownloadTaskModel {
   DownloadPriority priority;
   String? mediaItemId;
   String? error;
+
+  /// v1.14.1: CDN headers (User-Agent/Referer) required by web-scrape
+  /// media addresses. Persisted so retry/resume re-enqueue with them.
+  Map<String, String>? headers;
+
   final DateTime createdAt;
   DateTime? completedAt;
 
@@ -51,9 +59,23 @@ class DownloadTaskModel {
         'priority': priority.index,
         'media_item_id': mediaItemId,
         'error': error,
+        'headers': (headers == null || (headers?.isEmpty ?? true))
+            ? null
+            : jsonEncode(headers),
         'created_at': createdAt.millisecondsSinceEpoch,
         'completed_at': completedAt?.millisecondsSinceEpoch,
       };
+
+  static Map<String, String>? _decodeHeaders(Object? raw) {
+    if (raw is! String || raw.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) return null;
+      return decoded.map((k, v) => MapEntry(k, v.toString()));
+    } catch (_) {
+      return null;
+    }
+  }
 
   static DownloadTaskModel fromMap(Map<String, Object?> m) => DownloadTaskModel(
         id: m['id'] as String,
@@ -67,6 +89,7 @@ class DownloadTaskModel {
         priority: DownloadPriority.values[(m['priority'] as int?) ?? 1],
         mediaItemId: m['media_item_id'] as String?,
         error: m['error'] as String?,
+        headers: _decodeHeaders(m['headers']),
         createdAt: DateTime.fromMillisecondsSinceEpoch(m['created_at'] as int),
         completedAt: m['completed_at'] == null
             ? null

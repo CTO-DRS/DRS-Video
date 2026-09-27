@@ -2536,6 +2536,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذر فحص الرابط، يمكنك المحاولة مرة أخرى أو بدء التحميل مباشرة';
 
   @override
+  String get dlAddPageNotMedia =>
+      'هذا الرابط صفحة ويب وليس ملف وسائط مباشرًا — انسخ رابط الفيديو عبر زر المشاركة في التطبيق ثم أعد المحاولة، أو افتح الصفحة في المتصفح المدمج';
+
+  @override
   String get dlAddNotFound => 'الرابط غير موجود (404)';
 
   @override
