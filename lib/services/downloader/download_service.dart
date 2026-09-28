@@ -71,7 +71,37 @@ class DownloadService extends ChangeNotifier {
   final Map<String, List<(DateTime, int)>> _samples = {}; // taskId -> samples
   final Map<String, double> _speeds = {}; // taskId -> bytes/s
   final Map<String, int> _retryCount = {}; // our id -> auto retries
+
+  /// Engine progress tracking for the service-side freeze watchdog:
+  /// bytes may tick (progress timer) without actually moving — we track
+  /// CHANGES, not callbacks.
+  final Map<String, int> _engineLastBytes = {};
+  final Map<String, DateTime> _engineLastMove = {};
+
+  /// One notification per file per window — see NotificationService.
+  void _showFailNotif(DownloadTaskModel t, String reason) {
+    unawaited(_notifications.showDownloadFailedDeduped(t.fileName, reason));
+  }
+
   final Map<String, int> _resolveRetries = {}; // our id -> re-resolve retries
+
+  /// Cross-session failure chain (persisted per task): how many FINAL
+  /// failures in a row (across app restarts) this task accumulated by
+  /// automatic recovery alone. At the ceiling the task stays paused — the
+  /// user retries by hand, which resets the chain. This is what stops the
+  /// post-update notification storms: dead links are no longer
+  /// auto-reattacked on every launch / wifi flip.
+  static const int maxFailChain = 2;
+
+  int _failChain(String id) => _prefs.downloadFailChain(id);
+
+  void _bumpFailChain(String id) =>
+      _prefs.setDownloadFailChain(id, _failChain(id) + 1);
+
+  void _resetFailChain(String id) => _prefs.setDownloadFailChain(id, 0);
+
+  bool _chainBlocked(DownloadTaskModel t) =>
+      failChainBlocksAutoRestart(_failChain(t.id));
 
   /// v1.14.4: live chunked engines (task.id -> engine) plus the tasks that
   /// already fell back to the native engine (server ignores Range — never
@@ -398,7 +428,9 @@ class DownloadService extends ChangeNotifier {
     if (wifi && _prefs.autoResumeOnWifi) {
       final waiting = _tasks
           .where((t) =>
-              t.status == DownloadStatus.paused && !_userPaused.contains(t.id))
+              t.status == DownloadStatus.paused &&
+              !_userPaused.contains(t.id) &&
+              !_chainBlocked(t)) // v1.14.7: dead links stay paused
           .toList();
       for (final t in waiting) {
         if (t.taskId != null) {
@@ -418,6 +450,19 @@ class DownloadService extends ChangeNotifier {
     final running = _tasks.where((t) => t.status == DownloadStatus.running).length;
     var slots = _prefs.maxConcurrentDownloads - running;
     if (slots <= 0) return;
+
+    // v1.14.7 cross-session fail-chain: queued tasks that already burned
+    // their automatic recovery budget in previous sessions are parked as
+    // paused (visible retry button). Nothing auto-attacks dead links on
+    // launch — the notification storm source is closed.
+    for (final t in _tasks
+        .where((t) => t.status == DownloadStatus.queued && _chainBlocked(t))
+        .toList()) {
+      t.status = DownloadStatus.paused;
+      await _repo.update(t);
+      AppLogger.instance.info(
+          'dl', 'fail-chain parked ${t.fileName} (chain=${_failChain(t.id)})');
+    }
 
     final queue = _tasks
         .where((t) => t.status == DownloadStatus.queued)
@@ -468,7 +513,10 @@ class DownloadService extends ChangeNotifier {
           url: task.url,
           savedDir: task.savedDir,
           fileName: task.fileName,
-          showNotification: true,
+          // v1.14.7: progress lives in the downloads screen + throttled
+          // local notifications — native per-task notifications were one
+          // side of the endless-notification-storm report.
+          showNotification: false,
           openFileFromNotification: false,
           // v1.14.1: CDN headers (User-Agent/Referer) now travel with the
           // native task — web-scrape addresses 403 without them.
@@ -574,7 +622,7 @@ class DownloadService extends ChangeNotifier {
         task.error = 'size mismatch: $actual != ${task.expectedSize}';
         await _repo.update(task);
         if (_prefs.notifyDownloadError) {
-          await _notifications.showDownloadFailed(task.fileName, 'corrupted');
+          _showFailNotif(task, 'corrupted');
         }
         return;
       }
@@ -645,7 +693,9 @@ class DownloadService extends ChangeNotifier {
             url: task.url,
             savedDir: task.savedDir,
             fileName: task.fileName,
-            showNotification: true,
+            // v1.14.7: silent re-enqueues — automatic recovery must never
+            // spawn fresh native notifications (notification storm fix).
+            showNotification: false,
             openFileFromNotification: false,
             headers: task.headers ?? const {},
           );
@@ -675,8 +725,9 @@ class DownloadService extends ChangeNotifier {
     task.status = DownloadStatus.failed;
     task.error ??= 'unknown error';
     await _repo.update(task);
+    _bumpFailChain(task.id);
     if (_prefs.notifyDownloadError) {
-      await _notifications.showDownloadFailed(task.fileName, task.error ?? '');
+      _showFailNotif(task, task.error ?? '');
     }
     await _pump();
     notifyListeners();
@@ -735,6 +786,10 @@ class DownloadService extends ChangeNotifier {
     final task = _byId(id);
     if (task == null || !isEngineTask(task)) return;
     _stall.touch(id);
+    if (_engineLastBytes[id] != bytes) {
+      _engineLastBytes[id] = bytes; // track MOVEMENT, not callback ticks
+      _engineLastMove[id] = DateTime.now();
+    }
     final key = task.taskId ?? id;
     final samples = _samples.putIfAbsent(key, () => []);
     final now = DateTime.now();
@@ -801,8 +856,9 @@ class DownloadService extends ChangeNotifier {
     task.status = DownloadStatus.failed;
     task.error ??= 'network stall: segments exhausted';
     await _repo.update(task);
+    _bumpFailChain(task.id);
     if (_prefs.notifyDownloadError) {
-      await _notifications.showDownloadFailed(task.fileName, task.error ?? '');
+      _showFailNotif(task, task.error ?? '');
     }
     await _pump();
     notifyListeners();
@@ -825,7 +881,10 @@ class DownloadService extends ChangeNotifier {
 
   /// Watchdog heartbeat: kick stalled native tasks (pause+resume forces a
   /// fresh TCP connection with Range), then promote them to the chunked
-  /// engine when kicks are exhausted.
+  /// engine when kicks are exhausted. v1.14.7 also watches ENGINE tasks
+  /// (previously excluded — a frozen watermark stayed 'running' forever,
+  /// the other half of the 'download stays stuck' report) and fails any
+  /// non-promotable native task instead of kicking it endlessly.
   Future<void> _watchdogTick() async {
     if (!_initialized) return;
     final stalled = _tasks
@@ -847,9 +906,59 @@ class DownloadService extends ChangeNotifier {
         } catch (e) {
           AppLogger.instance.warning('dl', 'stall kick failed: $e');
         }
+      } else if (!engineEligible(t.expectedSize)) {
+        // v1.14.7: cannot be promoted (unknown size) — fail LOUDLY instead
+        // of pause/resume-kicking the same dead task every 45s forever
+        // (each kick re-raised its native notification).
+        try {
+          await FlutterDownloader.cancel(taskId: t.taskId!);
+        } catch (_) {}
+        _stall.forget(t.id);
+        t.status = DownloadStatus.failed;
+        t.error = 'stalled repeatedly — tap retry';
+        await _repo.update(t);
+        _bumpFailChain(t.id);
+        if (_prefs.notifyDownloadError) {
+          _showFailNotif(t, t.error ?? '');
+        }
+        await _pump();
+        notifyListeners();
       } else {
         await _promoteToEngine(t);
       }
+    }
+    await _watchEngineFreezes();
+  }
+
+  /// v1.14.7: engine tasks with a frozen watermark (no byte movement for
+  /// 3 minutes while claiming to run) are failed with a clear reason.
+  static const Duration _engineFreezeLimit = Duration(minutes: 3);
+
+  Future<void> _watchEngineFreezes() async {
+    final now = DateTime.now();
+    final frozen = _tasks
+        .where((t) =>
+            t.status == DownloadStatus.running &&
+            isEngineTask(t) &&
+            _engineLastMove[t.id] != null &&
+            now.difference(_engineLastMove[t.id]!) > _engineFreezeLimit)
+        .toList();
+    for (final t in frozen) {
+      _engines.remove(t.id)?.pause();
+      t.status = DownloadStatus.failed;
+      t.error = 'connection froze — tap retry (progress kept)';
+      await _repo.update(t);
+      _engineLastBytes.remove(t.id);
+      _engineLastMove.remove(t.id);
+      _stall.forget(t.id);
+      AppLogger.instance.warning('dl', 'engine freeze-fail ${t.fileName}');
+      if (_prefs.notifyDownloadError) {
+        _showFailNotif(t, t.error ?? '');
+      }
+    }
+    if (frozen.isNotEmpty) {
+      await _pump();
+      notifyListeners();
     }
   }
 
@@ -923,6 +1032,8 @@ class DownloadService extends ChangeNotifier {
       } else {
         await _cleanupEngineArtifacts(t);
       }
+      _engineLastBytes.remove(id);
+      _engineLastMove.remove(id);
     } else if (t.taskId != null) {
       await FlutterDownloader.cancel(taskId: t.taskId!);
     }
@@ -953,6 +1064,9 @@ class DownloadService extends ChangeNotifier {
     if (t == null) return;
     _retryCount.remove(id);
     _stall.forget(id);
+    // Manual retry is an explicit user decision — it resets the
+    // cross-session failure chain and un-parks the task.
+    _resetFailChain(id);
     if (isEngineTask(t)) {
       t.status = DownloadStatus.queued;
     } else if (t.taskId != null) {
@@ -972,6 +1086,8 @@ class DownloadService extends ChangeNotifier {
     if (t == null) return;
     if (isEngineTask(t)) {
       _engines.remove(id)?.pause();
+      _engineLastBytes.remove(id);
+      _engineLastMove.remove(id);
       if (deleteFile) {
         await _cleanupEngineArtifacts(t);
         final f = File(t.filePath);
@@ -1048,3 +1164,9 @@ class DownloadService extends ChangeNotifier {
     }
   }
 }
+
+/// Pure cross-session gate: a task whose automatic recovery produced
+/// [chain] consecutive final failures stays parked until the user retries
+/// by hand (which resets the chain). Kills the post-update notification
+/// storm — dead links are never auto-reattacked on every launch/wifi flip.
+bool failChainBlocksAutoRestart(int chain, {int max = 2}) => chain >= max;

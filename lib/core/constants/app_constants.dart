@@ -8,7 +8,7 @@ class AppConstants {
   /// Fallback display version — MUST mirror pubspec.yaml (guarded by
   /// test/v20_version_guard_test.dart). The live update check reads the
   /// real PackageInfo instead of this constant (v1.14.5 fix).
-  static const String appVersion = '1.14.6';
+  static const String appVersion = '1.14.7';
 
   static const String dbName = 'drs_video.db';
   static const int dbVersion = 7;
@@ -258,6 +258,10 @@ class PrefKeys {
 
   /// Per-folder intro end marker (ms): 'intro_end_' + folderKey.
   static const introEndPrefix = 'intro_end_';
+
+  /// Download task cross-session failure chain: 'dl_chain_' + taskId
+  /// (v1.14.7 — stops automatic re-attacks of dead links after updates).
+  static const downloadFailChainPrefix = 'dl_chain_';
 
   // ---- v1.13.0: translation + picture calibration -------------------------
 

@@ -2,12 +2,31 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../core/utils/logger.dart';
 import '../permissions/permission_service.dart';
 
+/// Pure decision: may a failure notification for [key] be shown at [now]?
+/// One notification per file per [window] — field reports showed endless
+/// notification storms when dead-link tasks auto-retried across sessions
+/// (every attempt re-fires 'download failed').
+bool failureNotifAllowed(
+  Map<String, DateTime> lastShown,
+  String key,
+  DateTime now, {
+  Duration window = const Duration(minutes: 10),
+}) {
+  final last = lastShown[key];
+  return last == null || now.difference(last) >= window;
+}
+
 /// Local notifications: download completion/failure and storage warnings.
-/// (Download progress notifications are rendered natively by
-/// flutter_downloader.)
+/// Download progress notifications used to be rendered natively by
+/// flutter_downloader — v1.14.7 disables those (every automatic retry
+/// spawned a fresh native notification); completion/failure are surfaced
+/// ONLY through these throttled local notifications.
 class NotificationService {
   NotificationService._();
   static final NotificationService instance = NotificationService._();
+
+  /// Per-file last failure-notification time (see failureNotifAllowed).
+  final Map<String, DateTime> _lastFailShown = {};
 
   final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
   bool _ready = false;
@@ -66,6 +85,7 @@ class NotificationService {
   }
 
   Future<void> showDownloadCompleted(String fileName) async {
+    _lastFailShown.remove(fileName); // success clears the failure throttle
     if (!await _canNotify()) return;
     const details = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -103,6 +123,15 @@ class NotificationService {
       '$fileName — $reason',
       details,
     );
+  }
+
+  /// Failure notification, throttled to one per file per 10 minutes.
+  /// The dedupe decision is pure ([failureNotifAllowed]) and tested.
+  Future<void> showDownloadFailedDeduped(String fileName, String reason) async {
+    final now = DateTime.now();
+    if (!failureNotifAllowed(_lastFailShown, fileName, now)) return;
+    _lastFailShown[fileName] = now;
+    await showDownloadFailed(fileName, reason);
   }
 
   Future<void> showStorageWarning() async {

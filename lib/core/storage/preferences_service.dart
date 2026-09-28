@@ -220,6 +220,14 @@ class PreferencesService {
   Future<void> clearIntroEndFor(String folderKey) =>
       _prefs.remove('${PrefKeys.introEndPrefix}$folderKey');
 
+  /// v1.14.7: cross-session failure chain per download task (int). Bumped
+  /// on every FINAL failure produced by automatic recovery alone; at the
+  /// ceiling the task is parked (manual retry resets it).
+  int downloadFailChain(String taskId) =>
+      _prefs.getInt('${PrefKeys.downloadFailChainPrefix}$taskId') ?? 0;
+  Future<void> setDownloadFailChain(String taskId, int chain) =>
+      _prefs.setInt('${PrefKeys.downloadFailChainPrefix}$taskId', chain);
+
   // ---- translation + picture calibration (v1.13.0) -------------------------
 
   /// Target language for subtitle auto-translation (default Arabic).
