@@ -58,9 +58,15 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
   bool _everLoaded = false;
   Timer? _watchdog;
 
+  /// Captured while the element is alive — context.read inside dispose()
+  /// always throws on unmount (same field-reported crash class as the
+  /// vault screen), which silently skipped every flush() here.
+  late final ProtectionController _protection;
+
   @override
   void initState() {
     super.initState();
+    _protection = context.read<ProtectionController>();
     final prefs = context.read<PreferencesService>();
     _desktopUa = prefs.browserDesktopUa;
     _incognito = prefs.browserIncognito;
@@ -91,9 +97,10 @@ class _PlatformBrowserScreenState extends State<PlatformBrowserScreen> {
     _watchdog?.cancel();
     _addressCtl.dispose();
     _addressFocus.dispose();
-    // Persist any pending blocked-count delta.
+    // Persist any pending blocked-count delta (via the captured
+    // controller — the context is dead by this point).
     try {
-      context.read<ProtectionController>().flush();
+      _protection.flush();
     } catch (_) {}
     super.dispose();
   }

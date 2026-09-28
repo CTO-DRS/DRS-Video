@@ -39,21 +39,27 @@ class _VaultScreenState extends State<VaultScreen> {
   String _firstPin = '';
   bool _confirming = false;
 
+  /// Captured while the element is alive — reading via context inside
+  /// dispose() is forbidden (element is being unmounted →
+  /// 'Null check operator used on a null value' crash reported from the
+  /// field, which ALSO aborted the rest of dispose(): the vault never
+  /// re-locked, the listener leaked and FLAG_SECURE stayed raised).
+  late final VaultController _vault;
+
   @override
   void initState() {
     super.initState();
-    final vault = context.read<VaultController>();
-    vault.addListener(_onVaultChanged);
+    _vault = context.read<VaultController>();
+    _vault.addListener(_onVaultChanged);
   }
 
   @override
   void dispose() {
-    final vault = context.read<VaultController>();
-    vault.removeListener(_onVaultChanged);
+    _vault.removeListener(_onVaultChanged);
     // Lock the vault when the user leaves the screen — playback opened
     // from here pops back to this route first, so this never fires while
     // a vaulted video is still visible.
-    vault.lock();
+    _vault.lock();
     unawaited(SecureFlagKeeper.release(SecureFlagKeys.vault));
     super.dispose();
   }

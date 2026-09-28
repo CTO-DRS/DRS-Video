@@ -8,7 +8,7 @@ class AppConstants {
   /// Fallback display version — MUST mirror pubspec.yaml (guarded by
   /// test/v20_version_guard_test.dart). The live update check reads the
   /// real PackageInfo instead of this constant (v1.14.5 fix).
-  static const String appVersion = '1.14.5';
+  static const String appVersion = '1.14.6';
 
   static const String dbName = 'drs_video.db';
   static const int dbVersion = 7;
