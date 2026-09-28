@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../core/constants/app_constants.dart';
@@ -113,15 +114,35 @@ class UpdateService {
     }
   }
 
+  /// The version the app is REALLY running, read from the platform
+  /// package metadata (pubspec version baked at build time).
+  ///
+  /// v1.14.5 fix — the endless-update-prompt bug: comparison used to be
+  /// fed the hand-maintained [AppConstants.appVersion] constant, which
+  /// drifted (stayed '1.14.3' while release v1.14.4 shipped). The app
+  /// then asked to update to the very release the user was running.
+  /// Reading the live PackageInfo makes that drift impossible; the
+  /// constant remains only as a last-resort fallback.
+  static Future<String> runningVersion() async {
+    try {
+      final p = await PackageInfo.fromPlatform();
+      if (p.version.isNotEmpty) return p.version;
+    } catch (_) {
+      // Plugin unavailable (rare, e.g. unit-test env) — fall through.
+    }
+    return AppConstants.appVersion;
+  }
+
   /// The newest release whose APK is installable over the running version.
   /// null when up-to-date, offline, or no APK asset.
   Future<GitHubRelease?> checkForUpdate({
-    String currentVersion = AppConstants.appVersion,
+    String? currentVersion,
   }) async {
+    final current = currentVersion ?? await runningVersion();
     final releases = await fetchReleases(limit: 5);
     for (final r in releases) {
       if (r.apkAsset == null) continue;
-      if (VersionCompare.isNewer(r.tagName, currentVersion)) return r;
+      if (VersionCompare.isNewer(r.tagName, current)) return r;
     }
     return null;
   }

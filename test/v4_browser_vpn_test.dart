@@ -224,7 +224,9 @@ void main() {
 
     test('DatabaseService constant bumped to v4', () {
       expect(AppConstants.dbVersion, 7);
-      expect(AppConstants.appVersion, '1.14.3');
+      // Pattern-only here: exact equality with pubspec is guarded centrally
+      // by test/v20_version_guard_test.dart (endless-update-prompt fix).
+      expect(AppConstants.appVersion, matches(RegExp(r'^\d+\.\d+\.\d+$')));
     });
   });
 }

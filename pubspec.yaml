@@ -1,7 +1,7 @@
 name: drs_video
 description: "DRS Video - Advanced video player and library platform."
 publish_to: "none"
-version: 1.14.4+26
+version: 1.14.5+27
 
 environment:
   sdk: ">=3.6.0 <4.0.0"

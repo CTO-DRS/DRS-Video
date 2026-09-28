@@ -35,6 +35,11 @@ class _GitHubScreenState extends State<GitHubScreen> {
   String? _error;
   bool _autoCheck = true;
 
+  /// The version the app is REALLY running (live PackageInfo), so the
+  /// update card never compares against a stale hand-maintained constant
+  /// (root cause of the endless-update-prompt bug fixed in v1.14.5).
+  String _currentVersion = AppConstants.appVersion;
+
   @override
   void initState() {
     super.initState();
@@ -55,11 +60,12 @@ class _GitHubScreenState extends State<GitHubScreen> {
       if (!silent) _progress = null;
     });
     try {
+      _currentVersion = await UpdateService.runningVersion();
       final releases = await _svc.fetchReleases(limit: 10);
       GitHubRelease? update;
       for (final r in releases) {
         if (r.apkAsset == null) continue;
-        if (VersionCompare.isNewer(r.tagName, AppConstants.appVersion)) {
+        if (VersionCompare.isNewer(r.tagName, _currentVersion)) {
           update = r;
           break;
         }
@@ -152,7 +158,7 @@ class _GitHubScreenState extends State<GitHubScreen> {
                     ),
                   ]),
                   const SizedBox(height: 8),
-                  Text(l.ghCurrentVersion(AppConstants.appVersion),
+                  Text(l.ghCurrentVersion(_currentVersion),
                       style: theme.textTheme.bodyMedium),
                   if (_update != null)
                     Padding(
