@@ -356,7 +356,7 @@ class _ActiveTile extends StatelessWidget {
             '${Formatters.percent(task.progress.toDouble())}'
             ' · ${Formatters.speed(speed)}'
             ' · ${Formatters.eta(remaining, speed)}'
-            '${task.expectedSize != null ? ' · ${Formatters.bytes(task.expectedSize!)}' : ''}',
+            '${task.expectedSize != null ? ' · ${Formatters.bytes(task.bytesDone)} / ${Formatters.bytes(task.expectedSize!)}' : ''}',
             style: theme.textTheme.bodySmall,
           ),
         ],

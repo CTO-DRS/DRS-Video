@@ -16,6 +16,7 @@ import '../smart/intel_v4.dart';
 import '../../data/repositories/library_repository.dart';
 import '../notifications/notification_service.dart';
 import '../platform/native_channel.dart';
+import 'chunked_download_engine.dart';
 import 'platform_download_resolver.dart';
 
 /// v1.14.2: probe results handed in by the add-download sheet so
@@ -72,6 +73,22 @@ class DownloadService extends ChangeNotifier {
   final Map<String, int> _retryCount = {}; // our id -> auto retries
   final Map<String, int> _resolveRetries = {}; // our id -> re-resolve retries
 
+  /// v1.14.4: live chunked engines (task.id -> engine) plus the tasks that
+  /// already fell back to the native engine (server ignores Range — never
+  /// try the chunked engine twice, it would loop).
+  final Map<String, ChunkedDownloadEngine> _engines = {};
+  final Set<String> _engineFellBack = {};
+
+  /// v1.14.4: engine tasks the user paused this session — their run()
+  /// future returning failed must NOT be treated as a real failure.
+  final Set<String> _enginePaused = {};
+
+  /// v1.14.4: stall watchdog — native tasks whose progress freezes get a
+  /// connection kick (pause+resume with Range), then promotion to the
+  /// chunked engine. This is the direct fix for "stuck at 0% forever".
+  final StallTracker _stall = StallTracker();
+  Timer? _watchdog;
+
   /// Tasks the user paused by hand this session (v1.8.0): auto-resume on
   /// WiFi must never override an explicit user decision.
   final Set<String> _userPaused = {};
@@ -105,6 +122,9 @@ class DownloadService extends ChangeNotifier {
       _defaultDir = _prefs.downloadDir ?? await _ensureDefaultDir();
       await _syncWithNative();
       _connectivity.addListener(_pump);
+      _watchdog ??= Timer.periodic(const Duration(seconds: 15), (_) {
+        unawaited(_watchdogTick());
+      });
       _initialized = true;
       AppLogger.instance.info('dl', 'initialized, dir=$_defaultDir');
     } catch (e, s) {
@@ -153,11 +173,17 @@ class DownloadService extends ChangeNotifier {
         await _onNativeComplete(t);
       }
     }
-    // Any row still "running" without a live native task becomes paused.
+    // Any row still "running" without a live native task becomes paused —
+    // v1.14.4: EXCEPT engine tasks (pseudo task id), which re-queue so the
+    // pump restarts them and the sidecar resumes exact byte watermarks.
     for (final t in dbTasks) {
       if (t.status == DownloadStatus.running &&
           !((native ?? []).any((n) => n.taskId == t.taskId))) {
-        t.status = DownloadStatus.paused;
+        if (t.taskId != null && t.taskId!.startsWith('engine_')) {
+          t.status = DownloadStatus.queued;
+        } else {
+          t.status = DownloadStatus.paused;
+        }
         await _repo.update(t);
       }
     }
@@ -400,6 +426,43 @@ class DownloadService extends ChangeNotifier {
 
     for (final task in queue) {
       if (slots <= 0) break;
+      // v1.14.4: large platform-resolved files run on the stall-proof
+      // chunked engine (parallel Range segments + auto-resume). Servers
+      // that ignore Range fall back to the native engine exactly once.
+      if (!_engineFellBack.contains(task.id) && engineEligible(task.expectedSize)) {
+        try {
+          final partial = File(task.filePath);
+          final seed = partial.existsSync() ? partial.lengthSync() : 0;
+          final free = await NativeChannel.instance.freeSpaceBytes(task.savedDir);
+          final engine = ChunkedDownloadEngine(
+            url: task.url,
+            headers: task.headers ?? const {},
+            filePath: task.filePath,
+            total: task.expectedSize!,
+            maxSegments: segmentCountFor(task.expectedSize!, freeBytes: free),
+            seedOffset: seed,
+            onProgress: (bytes) => _onEngineProgress(task.id, bytes),
+            onLog: (m) => AppLogger.instance
+                .info('dl-engine', '${task.fileName}: $m'),
+          );
+          _engines[task.id] = engine;
+          task.taskId = 'engine_${task.id}';
+          task.status = DownloadStatus.running;
+          await _repo.update(task);
+          _stall.forget(task.id);
+          _samples[task.taskId!] = [(DateTime.now(), 0)];
+          slots--;
+          unawaited(_runEngine(task, engine));
+          AppLogger.instance.info('dl',
+              'chunked engine started ${task.fileName} (${task.expectedSize} B, seed=$seed)');
+          continue;
+        } catch (e) {
+          AppLogger.instance.warning('dl', 'engine start failed: $e');
+          _engines.remove(task.id);
+          _engineFellBack.add(task.id);
+          // fall through to the native engine below
+        }
+      }
       try {
         final taskId = await FlutterDownloader.enqueue(
           url: task.url,
@@ -418,6 +481,7 @@ class DownloadService extends ChangeNotifier {
         task.status = DownloadStatus.running;
         await _repo.update(task);
         _samples[taskId] = [(DateTime.now(), task.bytesDone)];
+        _stall.touch(task.id);
         slots--;
         AppLogger.instance.info('dl', 'started ${task.fileName}');
       } catch (e) {
@@ -451,6 +515,7 @@ class DownloadService extends ChangeNotifier {
     }
     if (task == null) return;
     final status = _statusFromRaw(nativeStatus);
+    if (progress > task.progress) _stall.touch(task.id);
     _trackSpeed(taskId, task, progress);
     _maybePersist(task, status, progress);
 
@@ -617,12 +682,210 @@ class DownloadService extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ---------------------------------------------------------------------
+  // v1.14.4 stall-proof machinery
+  // ---------------------------------------------------------------------
+
+  static bool isEngineTask(DownloadTaskModel t) =>
+      t.taskId != null && t.taskId!.startsWith('engine_');
+
+  /// Runs the engine future and routes the outcome. Kept separate so the
+  /// pump never awaits a whole download.
+  Future<void> _runEngine(
+      DownloadTaskModel task, ChunkedDownloadEngine engine) async {
+    final outcome = await engine.run();
+    // Re-read the task: other transitions may have touched it meanwhile.
+    final t = _byId(task.id);
+    if (t == null) {
+      _engines.remove(task.id);
+      return;
+    }
+    switch (outcome) {
+      case ChunkedEngineOutcome.completed:
+        _engines.remove(t.id);
+        _stall.forget(t.id);
+        await _onNativeComplete(t);
+        break;
+      case ChunkedEngineOutcome.nonResumable:
+        // Server ignores Range: this engine can never help. Hand the task
+        // to the native single-GET engine exactly once.
+        _engines.remove(t.id);
+        _engineFellBack.add(t.id);
+        t.taskId = null;
+        t.status = DownloadStatus.queued;
+        await _repo.update(t);
+        AppLogger.instance.info('dl',
+            '${t.fileName}: server ignores Range → native engine fallback');
+        await _pump();
+        break;
+      case ChunkedEngineOutcome.failed:
+        _engines.remove(t.id);
+        if (_enginePaused.contains(t.id)) {
+          _enginePaused.remove(t.id);
+          break; // user pause — state already persisted
+        }
+        await _onEngineFailed(t);
+        break;
+    }
+    notifyListeners();
+  }
+
+  /// Engine byte watermark → task progress + real speed samples.
+  void _onEngineProgress(String id, int bytes) {
+    final task = _byId(id);
+    if (task == null || !isEngineTask(task)) return;
+    _stall.touch(id);
+    final key = task.taskId ?? id;
+    final samples = _samples.putIfAbsent(key, () => []);
+    final now = DateTime.now();
+    samples.add((now, bytes));
+    while (samples.length > 12) {
+      samples.removeAt(0);
+    }
+    if (samples.length >= 2) {
+      final first = samples.first;
+      final dt = now.difference(first.$1).inMilliseconds;
+      if (dt > 500) {
+        _speeds[task.id] = (bytes - first.$2) * 1000 / dt;
+      }
+    }
+    final p = percentOf(bytes, task.expectedSize ?? 0).round();
+    if (p != task.progress || task.status != DownloadStatus.running) {
+      task.progress = p;
+      task.status = DownloadStatus.running;
+      unawaited(_repo.update(task));
+      notifyListeners();
+    }
+  }
+
+  /// Engine-level failure: re-resolve expired signed URLs (byte watermarks
+  /// survive the URL swap), then deterministic engine restarts.
+  Future<void> _onEngineFailed(DownloadTaskModel task) async {
+    final origin = task.originUrl;
+    if (origin != null &&
+        shouldReresolveOnFailure(
+            originUrl: origin, attempts: _resolveRetries[task.id] ?? 0)) {
+      _resolveRetries[task.id] = (_resolveRetries[task.id] ?? 0) + 1;
+      try {
+        final fresh = await PlatformDownloadResolver.instance.resolve(origin);
+        if (fresh != null) {
+          task.url = fresh.directUrl;
+          if (fresh.headers.isNotEmpty) task.headers = fresh.headers;
+          task.error = null;
+          task.status = DownloadStatus.running;
+          await _repo.update(task);
+          final engine = _buildEngine(task);
+          _engines[task.id] = engine;
+          AppLogger.instance.info('dl',
+              're-resolved ${task.fileName} → engine restart (attempt ${_resolveRetries[task.id]})');
+          unawaited(_runEngine(task, engine));
+          return;
+        }
+      } catch (e) {
+        AppLogger.instance.warning('dl', 'engine re-resolve failed: $e');
+      }
+    }
+    final tries = _retryCount.putIfAbsent(task.id, () => 0);
+    if (tries < 2) {
+      _retryCount[task.id] = tries + 1;
+      await Future.delayed(const Duration(seconds: 3));
+      task.status = DownloadStatus.running;
+      await _repo.update(task);
+      final engine = _buildEngine(task);
+      _engines[task.id] = engine;
+      AppLogger.instance.info('dl',
+          'engine auto-restart ${task.fileName} (try ${tries + 1})');
+      unawaited(_runEngine(task, engine));
+      return;
+    }
+    task.status = DownloadStatus.failed;
+    task.error ??= 'network stall: segments exhausted';
+    await _repo.update(task);
+    if (_prefs.notifyDownloadError) {
+      await _notifications.showDownloadFailed(task.fileName, task.error ?? '');
+    }
+    await _pump();
+    notifyListeners();
+  }
+
+  ChunkedDownloadEngine _buildEngine(DownloadTaskModel task) {
+    final partial = File(task.filePath);
+    final seed = partial.existsSync() ? partial.lengthSync() : 0;
+    return ChunkedDownloadEngine(
+      url: task.url,
+      headers: task.headers ?? const {},
+      filePath: task.filePath,
+      total: task.expectedSize!,
+      seedOffset: seed,
+      onProgress: (bytes) => _onEngineProgress(task.id, bytes),
+      onLog: (m) =>
+          AppLogger.instance.info('dl-engine', '${task.fileName}: $m'),
+    );
+  }
+
+  /// Watchdog heartbeat: kick stalled native tasks (pause+resume forces a
+  /// fresh TCP connection with Range), then promote them to the chunked
+  /// engine when kicks are exhausted.
+  Future<void> _watchdogTick() async {
+    if (!_initialized) return;
+    final stalled = _tasks
+        .where((t) =>
+            t.status == DownloadStatus.running &&
+            !isEngineTask(t) &&
+            t.taskId != null &&
+            _stall.isStalled(t.id))
+        .toList();
+    for (final t in stalled) {
+      final escalated = _stall.kick(t.id);
+      if (!escalated) {
+        try {
+          await FlutterDownloader.pause(taskId: t.taskId!);
+          await Future.delayed(const Duration(milliseconds: 500));
+          await FlutterDownloader.resume(taskId: t.taskId!);
+          AppLogger.instance
+              .info('dl', 'stall kick ${t.fileName} (connection restarted)');
+        } catch (e) {
+          AppLogger.instance.warning('dl', 'stall kick failed: $e');
+        }
+      } else {
+        await _promoteToEngine(t);
+      }
+    }
+  }
+
+  /// Moves a stalled native task onto the chunked engine, seeding from the
+  /// native partial file so no bytes are wasted.
+  Future<void> _promoteToEngine(DownloadTaskModel t) async {
+    if (!engineEligible(t.expectedSize)) return; // native retries continue
+    try {
+      await FlutterDownloader.cancel(taskId: t.taskId!);
+    } catch (_) {}
+    _stall.forget(t.id);
+    _samples.remove(t.taskId);
+    t.taskId = null;
+    t.status = DownloadStatus.queued;
+    await _repo.update(t);
+    AppLogger.instance
+        .info('dl', 'promoted ${t.fileName} to chunked engine');
+    await _pump();
+  }
+
   Future<void> pause(String id) async {
     await init();
     final t = _byId(id);
-    if (t?.taskId == null) return;
+    if (t == null) return;
+    if (isEngineTask(t)) {
+      _userPaused.add(id);
+      _enginePaused.add(id);
+      _engines[id]?.pause();
+      t.status = DownloadStatus.paused;
+      await _repo.update(t);
+      notifyListeners();
+      return;
+    }
+    if (t.taskId == null) return;
     _userPaused.add(id);
-    await FlutterDownloader.pause(taskId: t!.taskId!);
+    await FlutterDownloader.pause(taskId: t.taskId!);
     t.status = DownloadStatus.paused;
     await _repo.update(t);
     await _pump();
@@ -634,7 +897,10 @@ class DownloadService extends ChangeNotifier {
     final t = _byId(id);
     if (t == null) return;
     _userPaused.remove(id);
-    if (t.taskId == null) {
+    _enginePaused.remove(id);
+    if (isEngineTask(t) || t.taskId == null) {
+      // Engine tasks re-queue: the pump restarts them and the sidecar
+      // resumes exact byte watermarks.
       t.status = DownloadStatus.queued;
       await _repo.update(t);
       await _pump();
@@ -642,6 +908,7 @@ class DownloadService extends ChangeNotifier {
       await FlutterDownloader.resume(taskId: t.taskId!);
       t.status = DownloadStatus.running;
       await _repo.update(t);
+      _stall.touch(id);
     }
     notifyListeners();
   }
@@ -649,13 +916,35 @@ class DownloadService extends ChangeNotifier {
   Future<void> cancel(String id) async {
     final t = _byId(id);
     if (t == null) return;
-    if (t.taskId != null) {
+    if (isEngineTask(t)) {
+      final engine = _engines.remove(id);
+      if (engine != null) {
+        await engine.cancelAndCleanup();
+      } else {
+        await _cleanupEngineArtifacts(t);
+      }
+    } else if (t.taskId != null) {
       await FlutterDownloader.cancel(taskId: t.taskId!);
     }
+    _stall.forget(id);
     t.status = DownloadStatus.cancelled;
     await _repo.update(t);
     await _pump();
     notifyListeners();
+  }
+
+  /// Removes leftover part files + sidecar of an engine task.
+  Future<void> _cleanupEngineArtifacts(DownloadTaskModel t) async {
+    for (final p in [
+      '${t.filePath}.drsmeta',
+      '${t.filePath}.drsmeta.tmp',
+      for (var i = 0; i < 4; i++) '${t.filePath}.part$i',
+    ]) {
+      try {
+        final f = File(p);
+        if (f.existsSync()) await f.delete();
+      } catch (_) {}
+    }
   }
 
   Future<void> retry(String id) async {
@@ -663,7 +952,10 @@ class DownloadService extends ChangeNotifier {
     final t = _byId(id);
     if (t == null) return;
     _retryCount.remove(id);
-    if (t.taskId != null) {
+    _stall.forget(id);
+    if (isEngineTask(t)) {
+      t.status = DownloadStatus.queued;
+    } else if (t.taskId != null) {
       await FlutterDownloader.retry(taskId: t.taskId!);
       t.status = DownloadStatus.running;
     } else {
@@ -678,7 +970,14 @@ class DownloadService extends ChangeNotifier {
   Future<void> remove(String id, {bool deleteFile = false}) async {
     final t = _byId(id);
     if (t == null) return;
-    if (t.taskId != null) {
+    if (isEngineTask(t)) {
+      _engines.remove(id)?.pause();
+      if (deleteFile) {
+        await _cleanupEngineArtifacts(t);
+        final f = File(t.filePath);
+        if (f.existsSync()) await f.delete();
+      }
+    } else if (t.taskId != null) {
       await FlutterDownloader.remove(
           taskId: t.taskId!, shouldDeleteContent: deleteFile);
     } else if (deleteFile) {
