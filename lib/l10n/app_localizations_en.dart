@@ -2042,6 +2042,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudTestOk => 'Connection OK — folder ready';
 
   @override
+  String get cloudHostKeyChangedTitle => 'Security warning: host key changed';
+
+  @override
+  String cloudHostKeyChangedBody(String host, String fingerprint) {
+    return 'The connection to $host was rejected: the host key fingerprint does not match the pinned one. The server may have been reinstalled — or this could be an interception attempt. No password was sent. Presented key fingerprint:\n$fingerprint\n\nIf you verify this key is legitimate, you can pin it and retry.';
+  }
+
+  @override
+  String get cloudHostKeyTrustNew => 'Pin new key and retry';
+
+  @override
   String get cloudUploadNow => 'Back up now';
 
   @override
@@ -2724,4 +2735,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get editNotImage =>
       'Visual editing is available for images today. For this file, rename and share are available; visual trimming is in development.';
+
+  @override
+  String get insecureHttpTitle => 'Unencrypted connection';
+
+  @override
+  String get insecureHttpBody =>
+      'This source uses HTTP instead of HTTPS, so data crosses the network unencrypted — including any passwords or access tokens inside the URL. On your home network this is usually fine; on the public internet prefer a source that supports HTTPS.';
+
+  @override
+  String get insecureHttpFtpNote =>
+      'FTP encrypts nothing at all; if your server supports SFTP, use that instead.';
+
+  @override
+  String get insecureHttpContinue => 'Continue anyway';
 }

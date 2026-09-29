@@ -130,6 +130,34 @@ class PlayerService extends ChangeNotifier {
   AppException? _lastError;
   Timer? _saveTimer;
 
+  // ---- P4-M2: automatic recovery from mid-playback network loss ----
+
+  /// Bounded auto-retry budget per media session — recovery must never
+  /// loop forever against a dead network or fight the user (same
+  /// philosophy as the v1.14.7 download fail-chain).
+  static const int maxAutoRecoveryAttempts = 3;
+
+  int _recoverAttempts = 0;
+  Timer? _recoverTimer;
+  bool _autoRecovering = false;
+  int _openEpoch = 0; // bumped by every open(); invalidates stale retries
+  int _recoverEpoch = 0;
+  bool _listeningConnectivity = false;
+
+  /// True while the service is silently re-establishing a stream dropped
+  /// by a transport-level failure (network loss / timeout).
+  bool get autoRecovering => _autoRecovering;
+
+  /// P4-M2: only transport-level failures are worth an automatic retry.
+ /// Content problems (404/403/codec/corrupt) are real answers — retrying
+  /// them automatically would just hammer the server.
+  static bool isRecoverableNetworkError(AppException e) =>
+      e.type == AppErrorType.network || e.type == AppErrorType.timeout;
+
+  /// Backoff between auto-recovery attempts: 2s → 5s → 10s.
+  static Duration recoveryDelay(int attempt) =>
+      Duration(seconds: switch (attempt) { <= 0 => 2, 1 => 5, _ => 10 });
+
   final SleepTimer sleepTimer = SleepTimer(() {
     final svc = PlayerService.instance;
     final p = svc?._player;
@@ -204,8 +232,19 @@ class PlayerService extends ChangeNotifier {
     p.stream.buffering.listen((_) => _notify());
     p.stream.completed.listen(_onCompleted);
     p.stream.error.listen((e) {
+      final wasStreaming = p.state.playing || p.state.buffering;
       _lastError = _classifyPlayerError(e);
       AppLogger.instance.error('player', 'media error: $e');
+      // P4-M2: a dropped transport mid-stream recovers silently —
+      // bounded retries, only for network-class failures, only while the
+      // same media session is still the active one.
+      final err = _lastError;
+      if (err != null &&
+          wasStreaming &&
+          _current != null &&
+          isRecoverableNetworkError(err)) {
+        _beginAutoRecovery();
+      }
       _notify();
     });
     p.stream.track.listen((_) => _notify());
@@ -272,6 +311,111 @@ class PlayerService extends ChangeNotifier {
 
   void _notify() => notifyListeners();
 
+  // ---- P4-M2 implementation -------------------------------------------
+
+  /// Arms the bounded auto-recovery loop for the CURRENT media session.
+  /// Idempotent: repeated transport errors while already recovering only
+  /// refresh the connectivity fast-path, never the attempt budget.
+  void _beginAutoRecovery() {
+    _recoverEpoch = _openEpoch;
+    _ensureConnectivityListener();
+    if (_autoRecovering) return;
+    _autoRecovering = true;
+    AppLogger.instance.info('player',
+        'stream dropped — auto-recovery armed '
+        '(budget ${maxAutoRecoveryAttempts - _recoverAttempts} left)');
+    _scheduleRecovery(recoveryDelay(_recoverAttempts));
+  }
+
+  void _scheduleRecovery(Duration delay) {
+    _recoverTimer?.cancel();
+    _recoverTimer = Timer(delay, () {
+      unawaited(_attemptRecovery());
+    });
+  }
+
+  /// Connectivity fast-path: when the network comes back, retry at once
+  /// instead of waiting out the full backoff window.
+  void _ensureConnectivityListener() {
+    if (_listeningConnectivity) return;
+    _listeningConnectivity = true;
+    _connectivity.addListener(_onConnectivityChanged);
+  }
+
+  void _onConnectivityChanged() {
+    if (!_autoRecovering) return;
+    if (!_connectivity.isOnline) return;
+    AppLogger.instance.info('player', 'connectivity back — fast-path retry');
+    _scheduleRecovery(const Duration(milliseconds: 800));
+  }
+
+  Future<void> _attemptRecovery() async {
+    if (!_autoRecovering) return;
+    // The user opened different media meanwhile — this retry is stale.
+    if (_recoverEpoch != _openEpoch || _current == null) {
+      _abortAutoRecovery();
+      return;
+    }
+    if (_recoverAttempts >= maxAutoRecoveryAttempts) {
+      AppLogger.instance.warning('player',
+          'auto-recovery gave up after $maxAutoRecoveryAttempts attempts');
+      _abortAutoRecovery();
+      _notify();
+      return;
+    }
+    _recoverAttempts++;
+    final item = _current!;
+    final resumeAt = _player?.state.position ?? Duration.zero;
+    // The epoch this recovery owns; open() below bumps the global counter
+    // itself, so a clean re-open lands exactly one epoch ahead.
+    final ownedEpoch = _recoverEpoch;
+    AppLogger.instance.info('player',
+        'auto-recovery attempt $_recoverAttempts/$maxAutoRecoveryAttempts: ${item.title}');
+    try {
+      await open(item, queue: _queue, startIndex: _queueIndex);
+    } catch (e, s) {
+      // open() classifies its own failures; a throw here is unexpected —
+      // keep the bounded loop alive and let the next attempt decide.
+      AppLogger.instance.error('player', 'recovery open threw', e, s);
+    }
+    // The user switched media inside open() re-entrancy — stop here.
+    if (_openEpoch != ownedEpoch + 1) {
+      _abortAutoRecovery();
+      return;
+    }
+    _recoverEpoch = _openEpoch; // adopt the re-opened (same) session
+    if (_lastError != null) {
+      if (!isRecoverableNetworkError(_lastError!)) {
+        // Real content problem — surface it, stop retrying.
+        _abortAutoRecovery();
+        _notify();
+        return;
+      }
+      // Still offline / still failing: continue the bounded cycle.
+      _autoRecovering = true; // open() may have left state untouched
+      _scheduleRecovery(recoveryDelay(_recoverAttempts));
+      return;
+    }
+    // Reopened clean — land back where the stream died.
+    if (resumeAt > Duration.zero) {
+      try {
+        await _engine.seek(resumeAt);
+      } catch (e) {
+        AppLogger.instance.warning('player', 'recovery seek failed: $e');
+      }
+    }
+    _abortAutoRecovery();
+    AppLogger.instance.info('player', 'auto-recovery succeeded — resumed');
+    _notify();
+  }
+
+  void _abortAutoRecovery() {
+    _recoverTimer?.cancel();
+    _recoverTimer = null;
+    _autoRecovering = false;
+    _recoverAttempts = 0;
+  }
+
   /// Opens [item]; optionally within a [queue] at [startIndex].
   ///
   /// [audioFileUrl] loads an external audio track together with the
@@ -285,6 +429,7 @@ class PlayerService extends ChangeNotifier {
     String? audioFileUrl,
     String? autoSubtitlePath,
   }) async {
+    _openEpoch++; // invalidates any pending stale auto-recovery (P4-M2)
     _lastError = null;
     _current = item;
     _currentSubtitlePath = null; // fresh media → fresh subtitle state
@@ -505,6 +650,7 @@ class PlayerService extends ChangeNotifier {
 
   Future<void> stop() async {
     await saveProgress();
+    _abortAutoRecovery(); // an explicit stop is a user decision (P4-M2)
     if (_player == null) {
       _current = null;
       _notify();
@@ -1058,6 +1204,11 @@ class PlayerService extends ChangeNotifier {
   @override
   void dispose() {
     _saveTimer?.cancel();
+    _recoverTimer?.cancel();
+    if (_listeningConnectivity) {
+      _connectivity.removeListener(_onConnectivityChanged);
+      _listeningConnectivity = false;
+    }
     _posSub?.cancel();
     sleepTimer.removeListener(_onSleepTimerTick);
     sleepTimer.dispose();

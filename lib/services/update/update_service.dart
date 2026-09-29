@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../core/constants/app_constants.dart';
+import '../../core/network/cleartext_policy.dart';
 import '../../core/utils/logger.dart';
 import '../smart/intel_v2.dart' show VersionCompare;
 import '../../core/utils/md5.dart';
@@ -94,7 +95,8 @@ class UpdateService {
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(minutes: 10),
         headers: {'Accept': 'application/vnd.github+json'},
-      ));
+      ))
+        ..interceptors.add(const CleartextGuardInterceptor());
 
   /// Release list (newest first). Offline/API errors → empty list.
   Future<List<GitHubRelease>> fetchReleases({int limit = 10}) async {

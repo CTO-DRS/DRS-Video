@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:webdav_client/webdav_client.dart' as webdav;
 
 import '../../core/constants/app_constants.dart';
+import '../security/host_key_trust_store.dart';
 
 /// Which protocol the remote backup storage speaks.
 enum CloudBackupKind { webdav, sftp }
@@ -145,9 +146,14 @@ class CloudBackupPolicy {
 /// it over WebDAV or SFTP — mirroring the connection patterns already
 /// proven in NasService.
 class CloudBackupService {
-  CloudBackupService({required this.config});
+  /// [trustStore] pins the SSH host key (TOFU). P2 security fix (C3):
+  /// replaces `disableHostkeyVerification: true` — without it any machine
+  /// on the path could impersonate the backup target and harvest the
+  /// credentials (and receive every uploaded backup).
+  CloudBackupService({required this.config, required this.trustStore});
 
   final CloudBackupConfig config;
+  final HostKeyTrustStore trustStore;
 
   /// Directory (under the base path) holding the backups.
   static const String remoteDirName = 'drs-video-backups';
@@ -197,9 +203,15 @@ class CloudBackupService {
       socket,
       username: config.username.isEmpty ? 'root' : config.username,
       onPasswordRequest: () => config.password,
-      // Explicitly user-configured private backup target (same trade-off
-      // as the NAS feature): host keys are trusted on first use.
-      disableHostkeyVerification: true,
+      // P2 security fix (C3): TOFU host-key pinning — first connect
+      // anchors the fingerprint; later changes reject the handshake
+      // before the password is ever sent.
+      onVerifyHostKey: SshTofuVerifier(
+        trustStore,
+        config.host,
+        config.effectivePort,
+        label: 'cloud-backup',
+      ).call,
       keepAliveInterval: const Duration(seconds: 15),
     );
     _ssh = client;
@@ -364,4 +376,34 @@ class CloudBackupService {
 
 @visibleForTesting
 String cloudBackupRemoteDirForTesting(CloudBackupConfig config) =>
-    CloudBackupService(config: config).remoteDir;
+    CloudBackupService(
+      config: config,
+      trustStore: _NoopTrustStoreForTesting(),
+    ).remoteDir;
+
+/// The remote-dir helpers never open a connection, so the trust store is
+/// never consulted; this keeps the test helper honest without a prefs
+/// dependency. Any real connection requires the production trust store.
+class _NoopTrustStoreForTesting implements HostKeyTrustStore {
+  @override
+  String keyFor(String host, int port) => 'ssh_hostkey_${host}_$port';
+
+  @override
+  Future<void> forget(String host, int port) async {}
+
+  @override
+  String? lastMismatchFingerprint(String host, int port) => null;
+
+  @override
+  Future<void> recordMismatch(
+          String host, int port, String presentedFingerprint) async {}
+
+  @override
+  Future<void> trust(String host, int port, String fingerprint) async {}
+
+  @override
+  bool isTrusted(String host, int port) => false;
+
+  @override
+  String? trustedFingerprint(String host, int port) => null;
+}

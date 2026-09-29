@@ -3867,6 +3867,24 @@ abstract class AppLocalizations {
   /// **'الاتصال ناجح — المجلد جاهز'**
   String get cloudTestOk;
 
+  /// No description provided for @cloudHostKeyChangedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحذير أمني: تغيّر مفتاح المضيف'**
+  String get cloudHostKeyChangedTitle;
+
+  /// No description provided for @cloudHostKeyChangedBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'رُفض الاتصال بـ {host}: بصمة مفتاح المضيف لا تطابق المفتاح المحفوظ. قد يكون الخادم أُعيد تثبيته، أو أن هناك محاولة اعتراض. لم تُرسل أي كلمة مرور. بصمة المفتاح المقدّم:\n{fingerprint}\n\nإذا تأكدت من أن هذا المفتاح شرعي، يمكنك تثبيته وإعادة المحاولة.'**
+  String cloudHostKeyChangedBody(String host, String fingerprint);
+
+  /// No description provided for @cloudHostKeyTrustNew.
+  ///
+  /// In ar, this message translates to:
+  /// **'تثبيت المفتاح الجديد وإعادة المحاولة'**
+  String get cloudHostKeyTrustNew;
+
   /// No description provided for @cloudUploadNow.
   ///
   /// In ar, this message translates to:
@@ -5120,6 +5138,30 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'التحرير المرئي متاح للصور حاليًا. لهذا الملف متاحة إعادة التسمية والمشاركة، والقص المرئي قيد التطوير.'**
   String get editNotImage;
+
+  /// No description provided for @insecureHttpTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال غير مشفر'**
+  String get insecureHttpTitle;
+
+  /// No description provided for @insecureHttpBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا المصدر يستخدم HTTP بدل HTTPS، فتنتقل البيانات عبر الشبكة دون تشفير — بما فيها أي كلمات مرور أو رموز وصول داخل الرابط. على شبكتك المنزلية فهذا عادةً مقبول، أما عبر الإنترنت العام فننصح باستخدام مصدر يدعم HTTPS.'**
+  String get insecureHttpBody;
+
+  /// No description provided for @insecureHttpFtpNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'بروتوكول FTP لا يشفّر شيئًا على الإطلاق؛ إن كان خادمك يدعم SFTP فاستخدمه بدلًا منه.'**
+  String get insecureHttpFtpNote;
+
+  /// No description provided for @insecureHttpContinue.
+  ///
+  /// In ar, this message translates to:
+  /// **'متابعة رغم ذلك'**
+  String get insecureHttpContinue;
 }
 
 class _AppLocalizationsDelegate

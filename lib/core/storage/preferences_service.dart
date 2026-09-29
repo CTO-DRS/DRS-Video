@@ -259,14 +259,45 @@ class PreferencesService {
   static const _backupExcludedKeys = <String>{
     PrefKeys.firstRunDone,
     PrefKeys.blockedRequestsCount,
+    // P2 security fix (C2): these used to be exported, leaking secrets
+    // into shared/generated backup files:
+    //   cloudBackupConfig — JSON blob containing the WebDAV/SFTP password
+    //   appLockHash / vaultHash — offline-crackable PIN verifier hashes
+    //     (an attacker with a backup could also INJECT their own hash and
+    //     lock the owner out of the app/vault).
+    PrefKeys.cloudBackupConfig,
+    PrefKeys.appLockHash,
+    PrefKeys.vaultHash,
   };
+
+  /// Key prefixes excluded from backup in BOTH directions:
+  ///  - `ssh_hostkey_*` — TOFU trust anchors are device-local; exporting
+  ///    them would silently re-arm old trust decisions elsewhere.
+  ///  - vault keys (`nas_pwd_*`, `cloud_backup_pwd`) — secrets belong to
+  ///    the Keystore vault only; if a stray vault-style key ever lands in
+  ///    prefs, it still must not leak into a backup file.
+  static const _backupExcludedPrefixes = <String>{
+    'ssh_hostkey_',
+    'nas_pwd_',
+    'cloud_backup_pwd',
+  };
+
+  static bool _isBackupExcluded(String key) {
+    if (_backupExcludedKeys.contains(key)) return true;
+    for (final prefix in _backupExcludedPrefixes) {
+      if (key.startsWith(prefix)) return true;
+    }
+    return false;
+  }
 
   /// A typed snapshot of every stored preference (minus excluded keys).
   /// Values keep their runtime types so jsonEncode stays faithful.
+  ///
+  /// P2 (C2): never contains credentials or PIN/vault verifier hashes.
   Map<String, Object?> exportSnapshot() {
     final out = <String, Object?>{};
     for (final key in _prefs.getKeys()) {
-      if (_backupExcludedKeys.contains(key)) continue;
+      if (_isBackupExcluded(key)) continue;
       final v = _prefs.get(key);
       if (v != null) out[key] = v;
     }
@@ -276,9 +307,15 @@ class PreferencesService {
   /// Applies a snapshot produced by [exportSnapshot]. Unknown keys are
   /// written as-is (forward compatible), values must match a supported
   /// type. Returns how many keys were actually written.
+  ///
+  /// P2 (C2): secret keys are rejected here too — defense in depth for
+  /// backups created by older versions (which did embed secrets) and
+  /// against hand-crafted files that try to inject an attacker-chosen
+  /// PIN/vault hash or plant SSH trust anchors.
   Future<int> applySnapshot(Map<String, Object?> data) async {
     var applied = 0;
     for (final entry in data.entries) {
+      if (_isBackupExcluded(entry.key)) continue;
       final v = entry.value;
       try {
         if (v is String) {

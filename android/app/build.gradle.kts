@@ -65,8 +65,17 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // P5 (reconstructed after env reset, with the field-failure
+            // keeps from worklog Task 9): R8 code + resource shrinking.
+            // Rule set is deliberately generous — safety over size.
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            isMinifyEnabled = true
+            // keep.xml protects the resources resolved by name from Dart
+            // (notification icon, network security config, file paths).
+            isShrinkResources = true
         }
     }
 

@@ -10,6 +10,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/errors/app_exception.dart';
 import '../../core/utils/logger.dart';
 import '../../data/models/stream_models.dart';
+import '../security/host_key_trust_store.dart';
 import 'ftp_client.dart';
 import 'sftp_proxy.dart';
 
@@ -37,7 +38,13 @@ class NasPlayback {
 /// All failures are mapped to typed [AppException]s; nothing here throws raw
 /// socket errors into the UI layer.
 class NasService {
-  NasService();
+  /// [trustStore] pins SSH host keys (TOFU). P2 security fix (C3): this
+  /// replaces the old `disableHostkeyVerification: true`, which accepted
+  /// any server key and exposed SFTP credentials to MITM.
+  NasService({required HostKeyTrustStore trustStore})
+      : _trustStore = trustStore;
+
+  final HostKeyTrustStore _trustStore;
 
   final Map<String, webdav.Client> _webdavClients = {};
   final Map<String, SSHClient> _sshClients = {};
@@ -80,6 +87,14 @@ class NasService {
     } on SSHAuthFailError {
       throw AppException(AppErrorType.forbidden,
           detail: 'SSH authentication failed');
+    } on SSHHostkeyError {
+      // P2 (C3): the pinned host key no longer matches — the connection
+      // was rejected before any credential left the device.
+      throw AppException(AppErrorType.forbidden,
+          detail: 'SSH host key verification failed for ${server.host}:'
+              '${server.port}. If the server key legitimately changed '
+              '(reinstall/new hardware), remove and re-add the server to '
+              're-trust it.');
     } on SSHError catch (e) {
       throw AppException(AppErrorType.network, detail: e.toString());
     } on DioException catch (e) {
@@ -297,9 +312,15 @@ class NasService {
       socket,
       username: server.username ?? 'root',
       onPasswordRequest: () => server.password ?? '',
-      // NAS devices on the home LAN: verifying host keys requires storing
-      // fingerprints first; the connection is explicit user-initiated.
-      disableHostkeyVerification: true,
+      // P2 security fix (C3): TOFU host-key pinning. First connect trusts
+      // and remembers the server fingerprint; any later key change fails
+      // the handshake BEFORE credentials are sent (see [browseGuarded]).
+      onVerifyHostKey: SshTofuVerifier(
+        _trustStore,
+        server.host,
+        server.port,
+        label: 'nas',
+      ).call,
       keepAliveInterval: const Duration(seconds: 15),
     );
     _sshClients[server.id] = client;
@@ -311,6 +332,11 @@ class NasService {
     _sftpClients[server.id] = sftp;
     return sftp;
   }
+
+  /// Drops the pinned host key for [server] (explicit re-trust path:
+  /// remove + re-add the server after a verified key change).
+  Future<void> forgetHostKey(NasServer server) =>
+      _trustStore.forget(server.host, server.port);
 
   /// Drops all cached connections for one server.
   Future<void> releaseServer(String serverId) async {

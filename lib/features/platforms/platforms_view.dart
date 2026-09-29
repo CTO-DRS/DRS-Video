@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../core/errors/app_exception.dart';
+import '../../core/network/cleartext_policy.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/media_item.dart';
 import '../../data/models/stream_models.dart';
@@ -875,6 +876,38 @@ Future<void> showAddLinkDialog(BuildContext context) async {
   );
 }
 
+/// P3: unified cleartext disclosure — shown once before the app saves a
+/// user source that would travel over plain HTTP (WebDAV without TLS,
+/// plain FTP, an http:// playlist URL). Returns true when the user chose
+/// to continue anyway. FTP additionally gets an upgrade note (no TLS
+/// variant exists in-app — SFTP is the encrypted alternative).
+Future<bool> confirmInsecureConnection(
+  BuildContext context, {
+  bool ftpNote = false,
+}) async {
+  final l = AppLocalizations.of(context)!;
+  final go = await showDialog<bool>(
+    context: context,
+    builder: (dialog) => AlertDialog(
+      title: Text(l.insecureHttpTitle),
+      content: Text(ftpNote
+          ? '${l.insecureHttpBody}\n\n${l.insecureHttpFtpNote}'
+          : l.insecureHttpBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialog).pop(false),
+          child: Text(l.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialog).pop(true),
+          child: Text(l.insecureHttpContinue),
+        ),
+      ],
+    ),
+  );
+  return go ?? false;
+}
+
 /// IPTV import sheet: from URL or from a local M3U/M3U8 file.
 Future<void> showImportIptvSheet(BuildContext context) async {
   final l = AppLocalizations.of(context)!;
@@ -885,6 +918,12 @@ Future<void> showImportIptvSheet(BuildContext context) async {
   Future<void> importUrl() async {
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    // P3: unified cleartext disclosure — plain-HTTP playlists travel
+    // unencrypted and often carry account tokens in their URLs.
+    if (CleartextPolicy.isInsecureUrl(urlCtrl.text)) {
+      final go = await confirmInsecureConnection(context);
+      if (!go) return;
+    }
     try {
       final pl = await controller.importFromUrl(
         urlCtrl.text,
@@ -1021,6 +1060,15 @@ Future<void> showAddServerDialog(BuildContext context) async {
           final messenger = ScaffoldMessenger.of(context);
           final navigator = Navigator.of(dialog);
           final parsedPort = int.tryParse(portCtrl.text) ?? port;
+          // P3: unified cleartext disclosure before the server (and its
+          // credentials) is saved: WebDAV without TLS, or plain FTP.
+          final insecure = protocol == NasProtocol.ftp ||
+              (protocol == NasProtocol.webdav && !useTls);
+          if (insecure) {
+            final go = await confirmInsecureConnection(context,
+                ftpNote: protocol == NasProtocol.ftp);
+            if (!go) return;
+          }
           try {
             await controller.addServer(
               name: nameCtrl.text,

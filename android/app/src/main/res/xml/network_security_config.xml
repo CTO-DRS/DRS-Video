@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  P3 — explicit, deterministic network security policy.
+
+  Why cleartext is allowed for the base config:
+  this is a media app whose users add their OWN sources — LAN NAS over
+  WebDAV/HTTP, IPTV provider playlists, direct video links — many of which
+  are legitimately plain HTTP (home LAN, older providers). Silently
+  inheriting the targetSdk-28+ "block everything" default would break
+  those real setups on Android 9+ (dart:io/dio, flutter_downloader and
+  WebView all honor this file). The same posture as VLC/Kodi: allow
+  cleartext, disclose it in the UI when the user saves such a source,
+  and hard-enforce HTTPS for the hosts the app itself calls.
+
+  App-controlled API hosts (updates, VPN list, resolvers, translation)
+  are pinned to HTTPS-only below AND guarded again at the Dart layer
+  (CleartextPolicy.mustReject) — defense in depth.
+
+  Keep this file in sync with lib/core/network/cleartext_policy.dart
+  (parity is guarded by test/p3_network_policy_test.dart).
+-->
+<network-security-config>
+
+    <!-- User media sources: cleartext permitted, system CAs only. -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Hosts the app calls for its own functionality: never downgrade
+         to plain HTTP, even by accident (redirect, refactor, hostile
+         playlist redirecting the updater). -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">api.github.com</domain>
+        <domain includeSubdomains="true">objects.githubusercontent.com</domain>
+        <domain includeSubdomains="true">vpngate.net</domain>
+        <domain includeSubdomains="true">tikwm.com</domain>
+        <domain includeSubdomains="true">api.fxtwitter.com</domain>
+        <domain includeSubdomains="true">cdn.syndication.twimg.com</domain>
+        <domain includeSubdomains="true">translate.googleapis.com</domain>
+    </domain-config>
+
+</network-security-config>

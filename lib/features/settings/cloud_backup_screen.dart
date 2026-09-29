@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -44,18 +45,48 @@ class _CloudBackupScreenState extends State<CloudBackupScreen> {
   @override
   void initState() {
     super.initState();
-    final raw = _prefs.cloudBackupConfigRaw;
-    final stored = CloudBackupConfig.tryParse(raw);
-    if (stored != null) {
-      _config = stored;
+    _restoreSavedConfig();
+  }
+
+  /// P2 security fix (C1): the saved password no longer lives inside the
+  /// SharedPreferences JSON blob — it is read from the Keystore-backed
+  /// vault. A legacy plaintext password is migrated here (idempotent,
+  /// lazy — the boot contract stays untouched) before hydrating the form.
+  Future<void> _restoreSavedConfig() async {
+    final services = context.read<AppServices>();
+    try {
+      await services.credentials.migrateCloudBackupPassword(_prefs);
+    } catch (_) {
+      // Migration is best-effort; the vault read below decides the rest.
+    }
+    final stored = CloudBackupConfig.tryParse(_prefs.cloudBackupConfigRaw);
+    if (stored == null) return;
+    var pw = stored.password; // non-empty only for a legacy not-yet-migrated blob
+    try {
+      final saved = await services.credentials.cloudBackupPassword();
+      if (saved != null && saved.isNotEmpty) pw = saved;
+    } catch (_) {
+      // Vault unavailable: fall back to whatever the config blob holds.
+    }
+    if (!mounted) return;
+    setState(() {
+      _config = CloudBackupConfig(
+        kind: stored.kind,
+        host: stored.host,
+        port: stored.port,
+        username: stored.username,
+        password: pw,
+        useTls: stored.useTls,
+        basePath: stored.basePath,
+      );
       _kind = stored.kind;
       _host.text = stored.host;
       _port.text = stored.port > 0 ? '${stored.port}' : '';
       _user.text = stored.username;
-      _password.text = stored.password;
+      _password.text = pw;
       _basePath.text = stored.basePath;
       _tls = stored.useTls;
-    }
+    });
   }
 
   @override
@@ -78,10 +109,19 @@ class _CloudBackupScreenState extends State<CloudBackupScreen> {
         basePath: _basePath.text.trim(),
       );
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     final cfg = _currentForm();
     _config = cfg;
-    _prefs.cloudBackupConfigRaw = cfg.serialize();
+    final services = context.read<AppServices>();
+    try {
+      // P2 (C1): the secret goes to the Keystore vault, never to prefs.
+      await services.credentials
+          .setCloudBackupPassword(cfg.password.isEmpty ? null : cfg.password);
+    } catch (e) {
+      AppLogger.instance.warning('vault', 'cloud password save failed: $e');
+    }
+    // The persisted blob keeps connection metadata only.
+    _prefs.cloudBackupConfigRaw = configWithPassword(cfg, '').serialize();
   }
 
   @override
@@ -305,12 +345,57 @@ class _CloudBackupScreenState extends State<CloudBackupScreen> {
     } on BackupFormatException catch (e) {
       if (!mounted) return;
       _snack(ErrorView.messageFor(context, _reasonToError(e)));
+    } on SSHHostkeyError catch (e) {
+      // P2 (C3): the SFTP target's key no longer matches the pinned
+      // fingerprint — nothing was sent to the impostor. Offer an explicit
+      // re-trust (OpenSSH-style prompt) instead of failing silently.
+      AppLogger.instance.warning('cloud-backup', 'host key rejected: $e');
+      if (!mounted) return;
+      final retrusted = await _offerHostKeyRetrust();
+      if (retrusted) {
+        await _guard(op);
+        return;
+      }
     } catch (e) {
       AppLogger.instance.warning('cloud-backup', 'failed: $e');
       _snack(l.cloudFailed(e.toString()));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// OpenSSH-style host key prompt: shows the presented fingerprint and
+  /// lets the user pin it explicitly. Returns true when the caller may
+  /// retry the failed operation.
+  Future<bool> _offerHostKeyRetrust() async {
+    final l = AppLocalizations.of(context)!;
+    final services = context.read<AppServices>();
+    final host = _host.text.trim();
+    if (host.isEmpty) return false;
+    final port = _currentForm().effectivePort;
+    final presented = services.sshTrust.lastMismatchFingerprint(host, port);
+    if (presented == null || presented.isEmpty) return false;
+    if (!mounted) return false;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dCtx) => AlertDialog(
+        title: Text(l.cloudHostKeyChangedTitle),
+        content: Text(l.cloudHostKeyChangedBody(host, presented)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dCtx).pop(false),
+            child: Text(l.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dCtx).pop(true),
+            child: Text(l.cloudHostKeyTrustNew),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return false;
+    await services.sshTrust.trust(host, port, presented);
+    return true;
   }
 
   AppErrorType _reasonToError(BackupFormatException e) => switch (e.reason) {
@@ -321,12 +406,18 @@ class _CloudBackupScreenState extends State<CloudBackupScreen> {
 
   Future<void> _test() => _guard(() async {
         final l = AppLocalizations.of(context)!;
-        _saveForm();
-        final svc = CloudBackupService(config: _config!);
+        await _saveForm();
+        final svc = _service();
         await svc.testConnection();
         await svc.close();
         _snack(l.cloudTestOk);
       });
+
+  /// Builds the cloud service with the app-wide SSH trust store (P2/C3).
+  CloudBackupService _service() => CloudBackupService(
+        config: _config!,
+        trustStore: context.read<AppServices>().sshTrust,
+      );
 
   Future<void> _upload() => _guard(() async {
         final l = AppLocalizations.of(context)!;
@@ -339,7 +430,7 @@ class _CloudBackupScreenState extends State<CloudBackupScreen> {
           prefs: services.prefs,
         );
         final localPath = await backup.buildBackupFile();
-        final svc = CloudBackupService(config: _config!);
+        final svc = _service();
         final remote = await svc.uploadBackup(localPath);
         await svc.close();
         _prefs.cloudBackupLastAt = DateTime.now();
@@ -349,9 +440,9 @@ class _CloudBackupScreenState extends State<CloudBackupScreen> {
       });
 
   Future<void> _loadRemote() => _guard(() async {
-        if (_config == null) _saveForm();
+        if (_config == null) await _saveForm();
         if (_host.text.trim().isEmpty) return;
-        final svc = CloudBackupService(config: _config!);
+        final svc = _service();
         final list = await svc.listBackups();
         await svc.close();
         if (!mounted) return;
@@ -361,7 +452,7 @@ class _CloudBackupScreenState extends State<CloudBackupScreen> {
   Future<void> _restore(String fileName) => _guard(() async {
         final l = AppLocalizations.of(context)!;
         final services = context.read<AppServices>();
-        final svc = CloudBackupService(config: _config!);
+        final svc = _service();
         final dir = await getTempDownloadDir();
         final local = await svc.downloadBackup(
             fileName, '$dir/$fileName');
@@ -429,6 +520,19 @@ void unawaitedAutoCheck(BuildContext context) {
   }
   () async {
     try {
+      // P2 (C1): hydrate the secret from the vault — the persisted blob
+      // no longer carries the password.
+      var hydrated = cfg!;
+      if (hydrated.password.isEmpty) {
+        try {
+          final pw = await services.credentials.cloudBackupPassword();
+          if (pw != null && pw.isNotEmpty) {
+            hydrated = configWithPassword(hydrated, pw);
+          }
+        } catch (_) {
+          // Vault unavailable → empty password → auth will fail loudly.
+        }
+      }
       final backup = BackupService(
         library: services.library,
         playlists: services.playlists,
@@ -436,7 +540,10 @@ void unawaitedAutoCheck(BuildContext context) {
         prefs: prefs,
       );
       final localPath = await backup.buildBackupFile();
-      final svc = CloudBackupService(config: cfg!);
+      final svc = CloudBackupService(
+        config: hydrated,
+        trustStore: services.sshTrust,
+      );
       await svc.uploadBackup(localPath);
       await svc.close();
       prefs.cloudBackupLastAt = DateTime.now();
@@ -446,6 +553,19 @@ void unawaitedAutoCheck(BuildContext context) {
     }
   }();
 }
+
+/// Returns a copy of [cfg] with [password] in place (used to hydrate
+/// from the vault without touching the persisted metadata blob).
+CloudBackupConfig configWithPassword(CloudBackupConfig cfg, String password) =>
+    CloudBackupConfig(
+      kind: cfg.kind,
+      host: cfg.host,
+      port: cfg.port,
+      username: cfg.username,
+      password: password,
+      useTls: cfg.useTls,
+      basePath: cfg.basePath,
+    );
 
 /// Temp dir for downloaded remote backups (import staging).
 Future<String> getTempDownloadDir() async {

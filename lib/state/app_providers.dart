@@ -1,8 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../core/network/connectivity_service.dart';
 import '../core/network/dio_client.dart';
 import '../core/storage/database_service.dart';
 import '../core/storage/preferences_service.dart';
+import '../core/storage/secure_credentials.dart';
 import '../core/utils/logger.dart';
 import '../data/repositories/browser_repository.dart';
 import '../data/repositories/download_repository.dart';
@@ -22,6 +24,7 @@ import '../services/network/nas_service.dart';
 import '../services/network/stream_source_factory.dart';
 import '../services/recommendations/playback_optimizer.dart';
 import '../services/recommendations/smart_recommendation_engine.dart';
+import '../services/security/host_key_trust_store.dart';
 import '../services/vpn/vpn_service.dart';
 import '../services/sharing/share_service.dart';
 import '../services/storage/storage_analyzer.dart';
@@ -67,6 +70,8 @@ class AppServices {
     required this.browser,
     required this.vpn,
     required this.health,
+    required this.credentials,
+    required this.sshTrust,
   });
 
   final PreferencesService prefs;
@@ -93,6 +98,14 @@ class AppServices {
   final BrowserRepository browser;
   final VpnService vpn;
   final ServiceHealth health;
+
+  /// Keystore-backed credential vault (P2/C1) — NAS + cloud-backup
+  /// passwords never live in plaintext storage anymore.
+  final SecureCredentialsStore credentials;
+
+  /// SSH host-key trust anchors (P2/C3) — TOFU pinning for the NAS and
+  /// cloud-backup SFTP connections.
+  final HostKeyTrustStore sshTrust;
 }
 
 /// Boots all services. Never leaves the app without a UI:
@@ -152,7 +165,6 @@ Future<AppServices> bootstrap({
   final downloadsRepo = DownloadRepository(db);
   final sources = SourceRepository(db);
   final iptvRepo = IptvRepository(db);
-  final nasRepo = NasRepository(db);
 
   // Label only: notifications initialize lazily before the first real
   // notification is posted (see NotificationService).
@@ -198,7 +210,13 @@ Future<AppServices> bootstrap({
 
   // Streaming platforms (v1.2.x): pure Dart + SQLite services, assembled
   // here so the boot contract (no native work before first frame) holds.
-  final nasService = NasService();
+  // P2 (C1/C3): the credential vault and SSH trust store are constructed
+  // WITHOUT touching the platform — every vault/Keystore read happens
+  // lazily when the relevant feature screen opens (boot contract kept).
+  final credentials = SecureCredentialsStore(vault: KeystoreSecretVault());
+  final sshTrust = HostKeyTrustStore(prefs.raw);
+  final nasService = NasService(trustStore: sshTrust);
+  final nasRepo = NasRepository(db, credentials: credentials);
   final streamFactory = StreamSourceFactory(library);
   final iptvImport = IptvImportService(iptvRepo);
 
@@ -234,5 +252,7 @@ Future<AppServices> bootstrap({
     browser: browserRepo,
     vpn: vpn,
     health: health,
+    credentials: credentials,
+    sshTrust: sshTrust,
   );
 }

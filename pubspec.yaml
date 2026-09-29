@@ -33,6 +33,10 @@ dependencies:
   path: ^1.9.0
   path_provider: ^2.1.5
   shared_preferences: ^2.3.4
+  # P2 security fix (C1): Android Keystore-backed vault (EncryptedSharedPreferences
+  # / Tink AES-256-GCM) for NAS + cloud-backup passwords. Plaintext credentials
+  # in sqflite/SharedPreferences were a critical audit finding (C1).
+  flutter_secure_storage: ^9.2.4
 
   # System integration
   file_picker: ^10.3.0

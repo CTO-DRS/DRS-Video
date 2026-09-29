@@ -224,6 +224,11 @@ class PlatformsController extends ChangeNotifier {
       useTls: useTls,
       createdAt: DateTime.now(),
     );
+    // Explicitly (re-)configuring a server is an explicit trust act
+    // (P2/C3): drop any pinned host key so the verification below runs
+    // fresh TOFU — otherwise a re-added server after a legitimate key
+    // change could never pass verification.
+    await _nas.forgetHostKey(server);
     // Verify before saving: browse the root (throws typed on failure).
     await _nas.browseGuarded(server, '/');
     await _nasRepo.save(server);
@@ -231,6 +236,13 @@ class PlatformsController extends ChangeNotifier {
   }
 
   Future<void> deleteServer(String id) async {
+    // Drop the pinned host key too (P2/C3): trust anchors are per-server.
+    for (final s in servers) {
+      if (s.id == id) {
+        await _nas.forgetHostKey(s);
+        break;
+      }
+    }
     await _nas.releaseServer(id);
     await _nasRepo.delete(id);
     await load();

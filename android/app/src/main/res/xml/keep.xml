@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Resource shrinker keeps (P5 + field fix).
+
+     These resources are resolved BY NAME at runtime from Dart strings
+     (invisible to the static reference analysis of the shrinker):
+       - @mipmap/launcher_icon : flutter_local_notifications
+         AndroidInitializationSettings('@mipmap/launcher_icon')
+       - @xml/* : referenced from the merged manifest
+         (network_security_config — P2/P3 hardening — and file_paths for
+         the FileProvider exposing update APKs / captured frames).
+
+     Everything referenced normally (layouts, themes, plugin resources)
+     remains fully shrink-eligible. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@mipmap/launcher_icon,@xml/network_security_config,@xml/file_paths" />

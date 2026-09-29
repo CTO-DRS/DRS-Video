@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../errors/app_exception.dart';
 import '../utils/logger.dart';
+import 'cleartext_policy.dart';
 
 /// Shared HTTP layer: timeouts, bounded retry with backoff, logging.
 class DioClient {
@@ -17,6 +18,9 @@ class DioClient {
         'Accept': '*/*',
       },
     ));
+    // P3: app-controlled endpoints (updates / resolvers / translation)
+    // must never downgrade to plain HTTP — reject before a socket opens.
+    _dio.interceptors.add(const CleartextGuardInterceptor());
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
         AppLogger.instance

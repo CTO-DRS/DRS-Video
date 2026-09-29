@@ -2031,6 +2031,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cloudTestOk => 'الاتصال ناجح — المجلد جاهز';
 
   @override
+  String get cloudHostKeyChangedTitle => 'تحذير أمني: تغيّر مفتاح المضيف';
+
+  @override
+  String cloudHostKeyChangedBody(String host, String fingerprint) {
+    return 'رُفض الاتصال بـ $host: بصمة مفتاح المضيف لا تطابق المفتاح المحفوظ. قد يكون الخادم أُعيد تثبيته، أو أن هناك محاولة اعتراض. لم تُرسل أي كلمة مرور. بصمة المفتاح المقدّم:\n$fingerprint\n\nإذا تأكدت من أن هذا المفتاح شرعي، يمكنك تثبيته وإعادة المحاولة.';
+  }
+
+  @override
+  String get cloudHostKeyTrustNew => 'تثبيت المفتاح الجديد وإعادة المحاولة';
+
+  @override
   String get cloudUploadNow => 'رفع نسخة الآن';
 
   @override
@@ -2712,4 +2723,18 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get editNotImage =>
       'التحرير المرئي متاح للصور حاليًا. لهذا الملف متاحة إعادة التسمية والمشاركة، والقص المرئي قيد التطوير.';
+
+  @override
+  String get insecureHttpTitle => 'اتصال غير مشفر';
+
+  @override
+  String get insecureHttpBody =>
+      'هذا المصدر يستخدم HTTP بدل HTTPS، فتنتقل البيانات عبر الشبكة دون تشفير — بما فيها أي كلمات مرور أو رموز وصول داخل الرابط. على شبكتك المنزلية فهذا عادةً مقبول، أما عبر الإنترنت العام فننصح باستخدام مصدر يدعم HTTPS.';
+
+  @override
+  String get insecureHttpFtpNote =>
+      'بروتوكول FTP لا يشفّر شيئًا على الإطلاق؛ إن كان خادمك يدعم SFTP فاستخدمه بدلًا منه.';
+
+  @override
+  String get insecureHttpContinue => 'متابعة رغم ذلك';
 }

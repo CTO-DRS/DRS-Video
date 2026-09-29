@@ -9,6 +9,7 @@ import '../../core/network/connectivity_service.dart';
 import '../../core/network/dio_client.dart';
 import '../../core/storage/preferences_service.dart';
 import '../../core/utils/logger.dart';
+import '../../core/utils/serialized_runner.dart';
 import '../../data/models/download_task.dart';
 import '../../data/models/media_item.dart';
 import '../../data/repositories/download_repository.dart';
@@ -411,7 +412,29 @@ class DownloadService extends ChangeNotifier {
 
   /// Scheduler: fills free slots from the queue honoring priorities,
   /// Wi-Fi-only policy and user-configured concurrency.
-  Future<void> _pump() async {
+  ///
+  /// P4-M1: _pump is fired from 15+ sites — several fire-and-forget
+  /// (native paused/cancelled callbacks, the connectivity listener) —
+  /// and mutates shared scheduler state across many awaits (slot
+  /// counting, _engines, task rows). Two overlapping passes both counted
+  /// the same free slots and BOTH started the same queued task
+  /// (double-enqueue → two engines writing one file). Every pass now
+  /// runs strictly serialized in request order; the body is wrapped so
+  /// a failing pass can never break the chain or leak an unhandled
+  /// zone error.
+  final SerializedRunner _pumpGate = SerializedRunner();
+
+  Future<void> _pump() => _pumpGate.run(_runPump);
+
+  Future<void> _runPump() async {
+    try {
+      await _pumpBody();
+    } catch (e, s) {
+      AppLogger.instance.error('dl', 'pump pass failed: $e', e, s);
+    }
+  }
+
+  Future<void> _pumpBody() async {
     await init();
     final wifi = _connectivity.isWifi;
     _waitingForWifi = false;
